@@ -220,6 +220,20 @@ export default function HouseDetails() {
     }
   };
 
+  const handleDisconnectContract = async (hIndex, contractId) => {
+    const tokenId = simpleNFT.tokenId;
+    setLoading(true);
+    try {
+      await houseBusinessContract.methods.disconnectContract(tokenId, hIndex, contractId).send({ from: account });
+      houseSuccess('You disconnected contract sucessfully!');
+      loadNFT(tokenId);
+    } catch (error) {
+      houseError('Something went wrong!');
+      console.error(error);
+    }
+    setLoading(false);
+  };
+
   const handleBuyerEdit = async () => {
     await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, true).send({ from: account });
     houseSuccess('Success!');
@@ -299,6 +313,7 @@ export default function HouseDetails() {
               historyTypes={historyTypes}
               tokenID={simpleNFT.tokenId}
               loadNFT={loadNFT}
+              disconnectContract={handleDisconnectContract}
             />
             {simpleNFT.currentOwner === `${account}` ? (
               <Grid className={classes.addHistorySection}>

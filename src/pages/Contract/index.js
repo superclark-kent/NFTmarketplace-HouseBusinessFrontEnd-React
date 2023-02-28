@@ -161,7 +161,7 @@ export default function Contract() {
 
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
-    var notifyReceiver = account === item.creator ? item.contractSigner : item.creator;
+    var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
     var sentNotifies = await cleanContract.methods.getAllNotifies().call({ from: notifyReceiver });
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {

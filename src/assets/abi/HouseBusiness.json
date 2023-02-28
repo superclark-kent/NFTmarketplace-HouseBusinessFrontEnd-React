@@ -148,16 +148,6 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "a", "type": "uint256" },
-      { "internalType": "uint256", "name": "b", "type": "uint256" }
-    ],
-    "name": "calcDiv",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
       { "internalType": "uint256", "name": "_newPrice", "type": "uint256" }
     ],
@@ -192,6 +182,17 @@
   },
   {
     "inputs": [
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "internalType": "uint256", "name": "hIndex", "type": "uint256" },
+      { "internalType": "uint256", "name": "contractId", "type": "uint256" }
+    ],
+    "name": "disconnectContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
       { "internalType": "uint256", "name": "historyIndex", "type": "uint256" },
       { "internalType": "string", "name": "houseImg", "type": "string" },
@@ -204,23 +205,6 @@
     "name": "editHistory",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllAPYTypes",
-    "outputs": [{ "internalType": "uint256[]", "name": "", "type": "uint256[]" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllAPYs",
-    "outputs": [
-      { "internalType": "uint256[]", "name": "", "type": "uint256[]" },
-      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -270,29 +254,6 @@
           { "internalType": "bool", "name": "soldstatus", "type": "bool" }
         ],
         "internalType": "struct HouseBusiness.House[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllMyStakedNFTs",
-    "outputs": [
-      {
-        "components": [
-          { "internalType": "address", "name": "owner", "type": "address" },
-          { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
-          { "internalType": "uint256", "name": "startedDate", "type": "uint256" },
-          { "internalType": "uint256", "name": "endDate", "type": "uint256" },
-          { "internalType": "uint256", "name": "claimDate", "type": "uint256" },
-          { "internalType": "uint256", "name": "stakingType", "type": "uint256" },
-          { "internalType": "uint256", "name": "perSecRewards", "type": "uint256" },
-          { "internalType": "bool", "name": "stakingStatus", "type": "bool" }
-        ],
-        "internalType": "struct HouseBusiness.StakedNft[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -393,13 +354,6 @@
   },
   {
     "inputs": [],
-    "name": "getPenalty",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getRoyalty",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
@@ -409,6 +363,13 @@
     "inputs": [{ "internalType": "uint256", "name": "_tokenId", "type": "uint256" }],
     "name": "getTokenOwner",
     "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }],
+    "name": "getTokenPrice",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -496,13 +457,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "penalty",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "uint256", "name": "_tokenId", "type": "uint256" },
       { "internalType": "address", "name": "allowed", "type": "address" }
@@ -568,16 +522,6 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_type", "type": "uint256" },
-      { "internalType": "uint256", "name": "Apy", "type": "uint256" }
-    ],
-    "name": "setAPYConfig",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       { "internalType": "address", "name": "operator", "type": "address" },
       { "internalType": "bool", "name": "approved", "type": "bool" }
     ],
@@ -596,6 +540,16 @@
   {
     "inputs": [{ "internalType": "address", "name": "_tokenAddress", "type": "address" }],
     "name": "setConfigToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "tokenId", "type": "uint256" },
+      { "internalType": "bool", "name": "status", "type": "bool" }
+    ],
+    "name": "setHouseStakedStatus",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -622,13 +576,6 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "uint256", "name": "_penalty", "type": "uint256" }],
-    "name": "setPenalty",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [{ "internalType": "uint256", "name": "_royalty", "type": "uint256" }],
     "name": "setRoyalty",
     "outputs": [],
@@ -636,15 +583,15 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "soldedCounter",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "view",
+    "inputs": [{ "internalType": "address", "name": "addr", "type": "address" }],
+    "name": "setStakingContractAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "stakedCounter",
+    "name": "soldedCounter",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"

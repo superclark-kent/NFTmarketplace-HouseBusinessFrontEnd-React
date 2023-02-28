@@ -9,6 +9,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
+import SubtitlesOffIcon from '@mui/icons-material/SubtitlesOff';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3React } from '@web3-react/core';
@@ -31,6 +32,7 @@ export default function Histories({
   setChangingHistoryType,
   historyTypes,
   loadNFT,
+  disconnectContract,
 }) {
   // console.log("history", histories)
   const { account } = useWeb3React();
@@ -279,15 +281,20 @@ export default function Histories({
               onChange={(e) => setCHistory(e.target.value)}
             />
             {item.contractId > 0 && (
-              <IconButton
-                onClick={() => {
-                  const contract = contracts.find((c) => c.contractId == item.contractId);
-                  setCContract(contract);
-                  setShowCContract(true);
-                }}
-              >
-                <DocumentIcon />
-              </IconButton>
+              <>
+                <IconButton
+                  onClick={() => {
+                    const contract = contracts.find((c) => c.contractId == item.contractId);
+                    setCContract(contract);
+                    setShowCContract(true);
+                  }}
+                >
+                  <DocumentIcon />
+                </IconButton>
+                <IconButton onClick={() => disconnectContract(index, item.contractId)}>
+                  <SubtitlesOffIcon />
+                </IconButton>
+              </>
             )}
             {disabledArr[index] === true ? (
               <IconButton onClick={() => handleHistoryEdit(index)}>

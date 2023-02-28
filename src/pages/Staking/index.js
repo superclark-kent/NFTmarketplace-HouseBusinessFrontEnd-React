@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { useWeb3React } from "@web3-react/core";
-import { Box, Button, Grid, TextField } from "@mui/material";
-import LockIcon from "@mui/icons-material/Lock";
-import CryptoJS from "crypto-js";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import LoadingButton from "@mui/lab/LoadingButton";
+import React, { useEffect, useState } from 'react';
+import { useWeb3React } from '@web3-react/core';
+import { Box, Button, Grid, TextField } from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
+import CryptoJS from 'crypto-js';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import LoadingButton from '@mui/lab/LoadingButton';
 
-import { useHouseBusinessContract } from "hooks/useContractHelpers";
-import useNftStyle from "assets/styles/nftStyle";
-import useStakingStyle from "assets/styles/stakingStyle";
+import { useHouseBusinessContract, useStakingContract } from 'hooks/useContractHelpers';
+import useNftStyle from 'assets/styles/nftStyle';
+import useStakingStyle from 'assets/styles/stakingStyle';
 
-import { houseSuccess, houseInfo } from "hooks/useToast";
-import { useWeb3 } from "hooks/useWeb3";
-import { HouseBusinessAddress, secretKey, zeroAddress } from "mainConfig";
+import { houseSuccess, houseInfo } from 'hooks/useToast';
+import { useWeb3 } from 'hooks/useWeb3';
+import { secretKey, StakingAddress, zeroAddress } from 'mainConfig';
 
 export default function Staking() {
   const { account } = useWeb3React();
@@ -25,6 +25,7 @@ export default function Staking() {
   const classes = useStakingStyle();
 
   const houseBusinessContract = useHouseBusinessContract();
+  const stakingContract = useStakingContract();
   const [allMyNFTs, setAllMyNFTs] = useState([]);
   const [allStakingtypes, setAllStakeTypes] = useState([]);
   const [stakingAPYs, setStakingAPYs] = useState([]);
@@ -45,9 +46,7 @@ export default function Staking() {
   };
 
   const initialConfig = async () => {
-    var allStakingTypes = await houseBusinessContract.methods
-      .getAllAPYs()
-      .call();
+    var allStakingTypes = await stakingContract.methods.getAllAPYs().call();
 
     var stakingTps = [],
       stakingAs = [],
@@ -70,9 +69,7 @@ export default function Staking() {
   };
 
   const loadNFTs = async () => {
-    var nfts = await houseBusinessContract.methods
-      .getAllMyHouses()
-      .call({ from: account });
+    var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
     var otherNFTs = [];
     for (var i = 0; i < nfts.length; i++) {
       if (nfts[i].currentOwner === zeroAddress) continue;
@@ -86,15 +83,11 @@ export default function Staking() {
       });
     }
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    var stakednfts = await houseBusinessContract.methods
-      .getAllMyStakedNFTs()
-      .call({ from: account });
+    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs().call({ from: account });
 
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
-      var stakedNFT = allnfts.filter(
-        (item) => item.tokenId === stakednfts[i].tokenId
-      )[0];
+      var stakedNFT = allnfts.filter((item) => item.tokenId === stakednfts[i].tokenId)[0];
 
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
@@ -108,7 +101,7 @@ export default function Staking() {
         startedDate: startedDate,
         endDate: endDate,
         tokenURI: decryptedData,
-        tokenName: decryptedName
+        tokenName: decryptedName,
       });
     }
 
@@ -117,19 +110,16 @@ export default function Staking() {
 
   const getTotalRewards = async () => {
     setInterval(async () => {
-      var totalReward = await houseBusinessContract.methods
-        .totalRewards(account)
-        .call();
+      var totalReward = await stakingContract.methods.totalRewards(account).call();
       setTotalClaimAmount(totalReward);
     }, 3000);
   };
 
   const handleStaking = async (item, index) => {
     try {
-      await houseBusinessContract.methods
-        .stake(item.tokenId, stakingVals[index])
-        .send({ from: account });
-      houseSuccess("You staked house NFT successfully.");
+      await houseBusinessContract.methods.approve(StakingAddress, item.tokenId).send({ from: account });
+      await stakingContract.methods.stake(item.tokenId, stakingVals[index]).send({ from: account });
+      houseSuccess('You staked house NFT successfully.');
       loadNFTs();
     } catch (error) {
       console.log(error);
@@ -138,10 +128,8 @@ export default function Staking() {
 
   const handleClaimRewards = async () => {
     try {
-      await houseBusinessContract.methods
-        .claimRewards(account)
-        .send({ from: account });
-      houseSuccess("You claimed rewards successfully.");
+      await stakingContract.methods.claimRewards(account).send({ from: account });
+      houseSuccess('You claimed rewards successfully.');
       loadNFTs();
     } catch (error) {
       console.log(error);
@@ -155,10 +143,8 @@ export default function Staking() {
     console.log(cItem);
     try {
       setLoading(true);
-      await houseBusinessContract.methods
-        .unstake(item.tokenId)
-        .send({ from: account });
-      houseSuccess("You unstaked house NFT successfully.");
+      await stakingContract.methods.unstake(item.tokenId).send({ from: account });
+      houseSuccess('You unstaked house NFT successfully.');
       loadNFTs();
     } catch (error) {
       console.log(error);
@@ -169,8 +155,7 @@ export default function Staking() {
     var stakingTps = [...allStakingtypes],
       stakingAs = [...stakingAPYs],
       stakingVals = [...stakingVals];
-    var cStakingDt =
-      stakingTps[stakingTps.findIndex((item) => item.value === value)];
+    var cStakingDt = stakingTps[stakingTps.findIndex((item) => item.value === value)];
 
     stakingAs[index] = cStakingDt.apylabel;
     stakingVals[index] = cStakingDt.value;
@@ -182,8 +167,7 @@ export default function Staking() {
   const generateDate = (time) => {
     var dt = new Date(Number(time));
     var yr = dt.getFullYear();
-    var mt =
-      dt.getMonth() + 1 < 10 ? `0${dt.getMonth() + 1}` : dt.getMonth() + 1;
+    var mt = dt.getMonth() + 1 < 10 ? `0${dt.getMonth() + 1}` : dt.getMonth() + 1;
     var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
     return `${dy}-${mt}-${yr}`;
   };
@@ -203,13 +187,9 @@ export default function Staking() {
 
   return (
     <Grid>
-      <Box component={"h2"}>Stake NFT</Box>
-      <Box component={"h3"}>
-        <Grid>
-          {`Total Claim Amount: ${web3.utils.fromWei(
-            `${totalClaimAmount}`
-          )} HBT`}
-        </Grid>
+      <Box component={'h2'}>Stake NFT</Box>
+      <Box component={'h3'}>
+        <Grid>{`Total Claim Amount: ${web3.utils.fromWei(`${totalClaimAmount}`)} HBT`}</Grid>
         <Grid>
           <Button
             variant="outlined"
@@ -219,9 +199,9 @@ export default function Staking() {
             disabled={totalClaimAmount === 0}
           >
             <Box
-              component={"span"}
+              component={'span'}
               className={classes.nftHouseBuyButton}
-              textTransform={"capitalize"}
+              textTransform={'capitalize'}
             >{`Claim Rewards`}</Box>
           </Button>
         </Grid>
@@ -230,43 +210,24 @@ export default function Staking() {
         {allMyNFTs.length > 0
           ? allMyNFTs.map((item, index) => {
               return (
-                <Grid
-                  item
-                  xl={3}
-                  lg={4}
-                  md={6}
-                  sm={6}
-                  key={index}
-                  className={nftClasses.nftHouseItem}
-                >
+                <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
                   <Grid className={nftClasses.nftHouseCard}>
                     <Grid className={nftClasses.nftHouseStakingMedia}>
-                      <img
-                        className={nftClasses.nftStakingImg}
-                        src={item.tokenURI}
-                      />
+                      <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
                     </Grid>
                     <Grid>
-                      <Box
-                        component={"h3"}
-                        className={nftClasses.nftHouseTitle}
-                      >{`"${item.tokenName}"`}</Box>
+                      <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`"${item.tokenName}"`}</Box>
                     </Grid>
                     <Grid className={nftClasses.nftHouseMetaInfo}>
                       <Grid className={nftClasses.nftHouseInfo}>
-                        <Box component={"span"}>Owned By</Box>
-                        <Box
-                          component={"h4"}
-                          className={nftClasses.nftHouseOwner}
-                        >
+                        <Box component={'span'}>Owned By</Box>
+                        <Box component={'h4'} className={nftClasses.nftHouseOwner}>
                           {item.currentOwner}
                         </Box>
                       </Grid>
                       <Grid className={nftClasses.nftHousePrice}>
-                        <Box component={"span"}>Current Price</Box>
-                        <Box component={"h4"}>{`${web3.utils.fromWei(
-                          item.price
-                        )} ETH`}</Box>
+                        <Box component={'span'}>Current Price</Box>
+                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
                       </Grid>
                     </Grid>
                     {item.staked === false ? (
@@ -275,19 +236,13 @@ export default function Staking() {
                           id="outlined-select-stakingtype-native"
                           select
                           value={stakingVals[index]}
-                          onChange={(e) =>
-                            handleStakingTypeChange(index, e.target.value)
-                          }
+                          onChange={(e) => handleStakingTypeChange(index, e.target.value)}
                           SelectProps={{
                             native: true,
                           }}
                         >
                           {allStakingtypes.map((option) => (
-                            <option
-                              key={option.value}
-                              value={option.value}
-                              className={classes.stakingType}
-                            >
+                            <option key={option.value} value={option.value} className={classes.stakingType}>
                               {option.label}
                             </option>
                           ))}
@@ -300,9 +255,9 @@ export default function Staking() {
                           startIcon={<LockIcon />}
                         >
                           <Box
-                            component={"span"}
+                            component={'span'}
                             className={classes.nftHouseBuyButton}
-                            textTransform={"capitalize"}
+                            textTransform={'capitalize'}
                           >{`Stake`}</Box>
                         </Button>
                       </Grid>
@@ -316,9 +271,7 @@ export default function Staking() {
                           <Button
                             variant="outlined"
                             onClick={async () => {
-                              var flag = await houseBusinessContract.methods
-                                .stakingFinished(item.tokenId)
-                                .call();
+                              var flag = await stakingContract.methods.stakingFinished(item.tokenId).call();
                               if (flag === false) {
                                 setCItem(item);
                                 handleConfirmOpen();
@@ -331,9 +284,9 @@ export default function Staking() {
                             startIcon={<LockIcon />}
                           >
                             <Box
-                              component={"span"}
+                              component={'span'}
                               className={classes.nftHouseBuyButton}
-                              textTransform={"capitalize"}
+                              textTransform={'capitalize'}
                             >{`Unstake`}</Box>
                           </Button>
                         </Grid>
@@ -343,7 +296,7 @@ export default function Staking() {
                 </Grid>
               );
             })
-          : ""}
+          : ''}
       </Grid>
       <Dialog
         open={open}
@@ -351,25 +304,17 @@ export default function Staking() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Are you sure?"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Are you sure?'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             You unstake before end date, this will result in a lower yield.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <LoadingButton
-            onClick={handleConfirmClose}
-            loading={loading}
-            variant="contained"
-          >
+          <LoadingButton onClick={handleConfirmClose} loading={loading} variant="contained">
             Disagree
           </LoadingButton>
-          <LoadingButton
-            onClick={() => handleUnstaking(null)}
-            loading={loading}
-            variant="contained"
-          >
+          <LoadingButton onClick={() => handleUnstaking(null)} loading={loading} variant="contained">
             Agree
           </LoadingButton>
         </DialogActions>
