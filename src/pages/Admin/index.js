@@ -119,7 +119,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const houseBusinessContract = useHouseBusinessContract();
   const CleanContract = useCleanContract();
-  const StakingContract = useStakingContract();
+  const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
 
   const [historyTypes, setHistoryTypes] = useState([]);
@@ -181,7 +181,7 @@ export default function Admin() {
     setMprice(web3.utils.fromWei(MH_Price[0]));
     setHprice(web3.utils.fromWei(MH_Price[1]));
 
-    var penalty = await StakingContract.methods.getPenalty().call({ from: account });
+    var penalty = await stakingContract.methods.getPenalty().call({ from: account });
     setPenalty(penalty);
 
     var royaltyCreator = await houseBusinessContract.methods.getRoyaltyCreator().call({ from: account });
@@ -190,7 +190,7 @@ export default function Admin() {
     var royaltyMarket = await houseBusinessContract.methods.getRoyaltyMarket().call({ from: account });
     setRoyaltyMarket(royaltyMarket);
 
-    var allApys = await houseBusinessContract.methods.getAllAPYs().call({ from: account });
+    var allApys = await stakingContract.methods.getAllAPYs().call({ from: account });
     console.log('allApys', allApys, allApys[0]);
     setApyTypes(allApys[0]);
     setApyValues(allApys[1]);
@@ -219,6 +219,7 @@ export default function Admin() {
       if (hTypes[i].hLabel === '') continue;
       allHTypes.push(hTypes[i]);
     }
+
     setHistoryTypes(allHTypes);
   };
 
@@ -242,7 +243,7 @@ export default function Admin() {
   const handleSetPenalty = async () => {
     setLoading(true);
     var penaltyBigNum = BigNumber.from(`${Number(penalty) * 10 ** 18}`);
-    await houseBusinessContract.methods.setPenalty(penaltyBigNum).send({ from: account });
+    await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
     houseSuccess('Changed Success');
     setLoading(false);
   };
@@ -270,7 +271,7 @@ export default function Admin() {
 
   const handleUpdateRoyalty = async () => {
     setLoading(true);
-    await houseBusinessContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
+    await stakingContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
     houseSuccess('Updating APY works!');
     setLoading(false);
   };

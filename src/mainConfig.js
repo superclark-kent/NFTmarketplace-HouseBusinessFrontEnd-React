@@ -13,13 +13,13 @@ export const ERC20Address = '0x27C1F4539Fd2CcE5394Ea11fA8554937A587d684';
 
 // export const HouseBusinessAddress = '0x6f06c35Fa3c048EB17e3B32C0AbcFDC317516676';
 // export const HouseBusinessAddress = '0xca2ad1D919AE5d7Ef9b04440DF990E1De6590025';
-export const HouseBusinessAddress = '0x5402Da7fA22f5908d9c382bbE940190C823B68B3';
+export const HouseBusinessAddress = '0x6C42D0397a30255808ef3D8B8665aEb1985f369C';
 
 // export const ContractAddress = '0x537828D46d9373ac7952160b9097ec998cA6c51b';
 // export const ContractAddress = '0xE5c6c27F24616284Dd7319C339496239d7064eF8';
-export const ContractAddress = '0x25A0FD7fe022AE373e45BB4145Db5aF686b184Dc';
+export const ContractAddress = '0x43B08A9e67A68bb849f1181982ccB3b4737Bc649';
 
-export const StakingAddress = '0x2d208A85C46a94e1BB4FedBbc89630AFe6c1a720';
+export const StakingAddress = '0x50f2549f30278169733dA910DA777a408C688873';
 // export const ThirdPartyAddress = '0x2F6eEE140587AFD037f2C42C3c1f5FA4f3BD32D6';
 export const ThirdPartyAddress = '0x2C5a78DAF03e3acb169F4d2Be1dF5438F735751E';
 

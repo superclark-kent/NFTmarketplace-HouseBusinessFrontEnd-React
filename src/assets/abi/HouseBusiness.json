@@ -96,6 +96,7 @@
       { "internalType": "address", "name": "currentOwner", "type": "address" },
       { "internalType": "address", "name": "previousOwner", "type": "address" },
       { "internalType": "address", "name": "buyer", "type": "address" },
+      { "internalType": "address", "name": "creator", "type": "address" },
       { "internalType": "uint256", "name": "price", "type": "uint256" },
       { "internalType": "uint256", "name": "numberOfTransfers", "type": "uint256" },
       { "internalType": "bool", "name": "nftPayable", "type": "bool" },
@@ -220,6 +221,7 @@
           { "internalType": "address", "name": "currentOwner", "type": "address" },
           { "internalType": "address", "name": "previousOwner", "type": "address" },
           { "internalType": "address", "name": "buyer", "type": "address" },
+          { "internalType": "address", "name": "creator", "type": "address" },
           { "internalType": "uint256", "name": "price", "type": "uint256" },
           { "internalType": "uint256", "name": "numberOfTransfers", "type": "uint256" },
           { "internalType": "bool", "name": "nftPayable", "type": "bool" },
@@ -247,6 +249,7 @@
           { "internalType": "address", "name": "currentOwner", "type": "address" },
           { "internalType": "address", "name": "previousOwner", "type": "address" },
           { "internalType": "address", "name": "buyer", "type": "address" },
+          { "internalType": "address", "name": "creator", "type": "address" },
           { "internalType": "uint256", "name": "price", "type": "uint256" },
           { "internalType": "uint256", "name": "numberOfTransfers", "type": "uint256" },
           { "internalType": "bool", "name": "nftPayable", "type": "bool" },
@@ -274,6 +277,7 @@
           { "internalType": "address", "name": "currentOwner", "type": "address" },
           { "internalType": "address", "name": "previousOwner", "type": "address" },
           { "internalType": "address", "name": "buyer", "type": "address" },
+          { "internalType": "address", "name": "creator", "type": "address" },
           { "internalType": "uint256", "name": "price", "type": "uint256" },
           { "internalType": "uint256", "name": "numberOfTransfers", "type": "uint256" },
           { "internalType": "bool", "name": "nftPayable", "type": "bool" },
@@ -354,7 +358,14 @@
   },
   {
     "inputs": [],
-    "name": "getRoyalty",
+    "name": "getRoyaltyCreator",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getRoyaltyMarket",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
@@ -482,7 +493,14 @@
   },
   {
     "inputs": [],
-    "name": "royalty",
+    "name": "royaltyCreator",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "royaltyMarket",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
@@ -577,7 +595,14 @@
   },
   {
     "inputs": [{ "internalType": "uint256", "name": "_royalty", "type": "uint256" }],
-    "name": "setRoyalty",
+    "name": "setRoyaltyCreator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_royalty", "type": "uint256" }],
+    "name": "setRoyaltyMarket",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
