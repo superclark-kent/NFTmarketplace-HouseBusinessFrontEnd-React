@@ -7,6 +7,8 @@ import {
   // UnsupportedChainIdError
 } from "@web3-react/core";
 import { ToastContainer } from 'material-react-toastify';
+import WalletInstallModal from "./components/Header/WalletInstallModal";
+
 // Import Redux
 import { Provider } from 'react-redux';
 import store from 'redux/storeConfig/store'
@@ -21,6 +23,7 @@ ReactDOM.render(
       <BrowserRouter>
         <ToastContainer />
         <CookiesProvider>
+        <WalletInstallModal/>
           <App />
         </CookiesProvider>
       </BrowserRouter>
