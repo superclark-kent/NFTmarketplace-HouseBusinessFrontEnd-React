@@ -327,10 +327,17 @@ export default function Header(props) {
 
   const [open, setOpen] = useState(false);
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
-  const handleOpen = () => setOpen(true);
+  const handleOpen = () => {
+    if (typeof window.ethereum === 'undefined') {
+      houseInfo("Please install Metamask");
+      setIsWalletInstalled(false);
+    } else {
+      setIsWalletInstalled(true);
+    }
+    setOpen(true);
+  }
   const handleClose = () => {
     setOpen(false);
-    setIsWalletInstalled(false);
   }
 
   const setProvider = (type) => {
@@ -338,15 +345,10 @@ export default function Header(props) {
   };
 
   const handleConnectWallet = (con, conName) => {
-    if (typeof window.ethereum === 'undefined') {
-      setIsWalletInstalled(true);
-    } else {
       activate(con);
       setProvider(conName);
       setCookie("connected", true, { path: "/" });
       handleClose();
-      setIsWalletInstalled(false);
-    }
   };
 
   return (
@@ -672,7 +674,7 @@ export default function Header(props) {
             <ListItemIcon>
               <Avatar alt="metamask" src={Metamask} />
             </ListItemIcon>
-            MetaMast
+            MetaMask
           </MenuItem>
 
           <MenuItem
@@ -702,17 +704,27 @@ export default function Header(props) {
             </ListItemIcon>
             Coinbase
           </MenuItem>
-          
+
           {
-            isWalletInstalled &&
+            !isWalletInstalled &&
             (
-              <MenuItem
-                onClick={() => {
-                  window.open('https://metamask.io/', '_blank');
-                }}
-              >
-                Add wallet
-              </MenuItem>
+              <>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  Add Wallet
+                </Typography>
+                
+                <MenuItem
+                  onClick={() => {
+                    window.open('https://metamask.io/', '_blank');
+                    handleClose();
+                  }}
+                >
+                <ListItemIcon>
+                  <Avatar alt="metamask" src={Metamask} />
+                </ListItemIcon>
+                  MetaMask
+                </MenuItem>
+              </>
             )
           }
         </Box>
