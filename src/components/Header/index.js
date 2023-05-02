@@ -336,9 +336,8 @@ export default function Header(props) {
     }
     setOpen(true);
   }
-  const handleClose = () => {
-    setOpen(false);
-  }
+
+  const handleClose = () => setOpen(false);
 
   const setProvider = (type) => {
     window.localStorage.setItem("provider", type);
@@ -350,6 +349,11 @@ export default function Header(props) {
       setCookie("connected", true, { path: "/" });
       handleClose();
   };
+
+  const handleInstallWallet = () => {
+    window.open('https://metamask.io/', '_blank');
+    handleClose();
+  }
 
   return (
     <div>
@@ -668,7 +672,9 @@ export default function Header(props) {
 
           <MenuItem
             onClick={() => {
-              handleConnectWallet(connectorsByName.injected, "injected");
+              isWalletInstalled ?
+                handleConnectWallet(connectorsByName.injected, "injected") :
+                handleInstallWallet();
             }}
           >
             <ListItemIcon>
@@ -704,29 +710,6 @@ export default function Header(props) {
             </ListItemIcon>
             Coinbase
           </MenuItem>
-
-          {
-            !isWalletInstalled &&
-            (
-              <>
-                <Typography id="modal-modal-title" variant="h6" component="h2">
-                  Add Wallet
-                </Typography>
-                
-                <MenuItem
-                  onClick={() => {
-                    window.open('https://metamask.io/', '_blank');
-                    handleClose();
-                  }}
-                >
-                <ListItemIcon>
-                  <Avatar alt="metamask" src={Metamask} />
-                </ListItemIcon>
-                  MetaMask
-                </MenuItem>
-              </>
-            )
-          }
         </Box>
       </Modal>
     </div>
