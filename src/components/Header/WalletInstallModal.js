@@ -21,7 +21,7 @@ const WalletInstallModal = () => {
           <h2>Please install Metamask</h2>
           <p>
             To use our app, you need to install Metamask. Click{' '}
-            <a href="https://metamask.io/">here</a> to download and install it.
+            <a href="https://metamask.io/" target='_blank'>here</a> to download and install it.
           </p>
           <Button variant="contained" onClick={closeModal}>
             Close
