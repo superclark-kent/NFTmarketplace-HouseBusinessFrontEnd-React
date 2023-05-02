@@ -326,18 +326,27 @@ export default function Header(props) {
   }, [account, pathname]);
 
   const [open, setOpen] = useState(false);
+  const [isWalletInstalled, setIsWalletInstalled] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setIsWalletInstalled(false);
+  }
 
   const setProvider = (type) => {
     window.localStorage.setItem("provider", type);
   };
 
   const handleConnectWallet = (con, conName) => {
-    activate(con);
-    setProvider(conName);
-    setCookie("connected", true, { path: "/" });
-    handleClose();
+    if (typeof window.ethereum === 'undefined') {
+      setIsWalletInstalled(true);
+    } else {
+      activate(con);
+      setProvider(conName);
+      setCookie("connected", true, { path: "/" });
+      handleClose();
+      setIsWalletInstalled(false);
+    }
   };
 
   return (
@@ -693,6 +702,19 @@ export default function Header(props) {
             </ListItemIcon>
             Coinbase
           </MenuItem>
+          
+          {
+            isWalletInstalled &&
+            (
+              <MenuItem
+                onClick={() => {
+                  window.open('https://metamask.io/', '_blank');
+                }}
+              >
+                Add wallet
+              </MenuItem>
+            )
+          }
         </Box>
       </Modal>
     </div>
