@@ -270,7 +270,7 @@ export default function Mint() {
             </Grid>
           </LocalizationProvider>
         </Grid>
-        <Grid sx={{ m: 1 }}>
+        {/* <Grid sx={{ m: 1 }}>
           <TextField
             className={classes.housePrice}
             type="number"
@@ -288,7 +288,7 @@ export default function Mint() {
             }}
             onChange={(e) => setHousePrice(e.target.value)}
           />
-        </Grid>
+        </Grid> */}
         <Grid sx={{ m: 1 }}>
           <LoadingButton
             onClick={() => handleHouseMint()}

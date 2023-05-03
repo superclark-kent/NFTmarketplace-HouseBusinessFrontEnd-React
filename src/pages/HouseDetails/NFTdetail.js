@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   Checkbox,
   IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -48,13 +49,40 @@ export default function NFTdetail({
             </Box>
           </Grid>
         </Grid>
-        <Grid className={classes.nftHousePrice}>
+        {/* <Grid className={classes.nftHousePrice}>
           <Box component={"span"}>
             Current Price{" "}
             <Box component={"h4"}>{`${
               simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
             } ETH`}</Box>
           </Box>
+        </Grid> */}
+        <Grid className={classes.nftHousePrice}>
+          <TextField
+            type="number"
+            variant="filled"
+            label="Current Price"
+            value={`${
+              simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
+            }`}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">ETH</InputAdornment>
+              ),
+            }}
+          />
+          <Button
+              variant="outlined"
+              onClick={() => handleBuyNFT(simpleNFT)}
+              className={classes.nftHouseButton}
+              startIcon={<BusinessCenterIcon />}
+            >
+              <Box
+                component={"span"}
+                className={classes.nftHouseBuyButton}
+                textTransform={"capitalize"}
+              >{`Change Price`}</Box>
+            </Button>
         </Grid>
         {simpleNFT.currentOwner !== `${account}` &&
         simpleNFT.nftPayable === true ? (
