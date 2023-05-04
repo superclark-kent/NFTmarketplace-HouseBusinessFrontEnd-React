@@ -326,7 +326,17 @@ export default function Header(props) {
   }, [account, pathname]);
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
+  const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+  const handleOpen = () => {
+    if (typeof window.ethereum === 'undefined') {
+      houseInfo("Please install Metamask");
+      setIsWalletInstalled(false);
+    } else {
+      setIsWalletInstalled(true);
+    }
+    setOpen(true);
+  }
+
   const handleClose = () => setOpen(false);
 
   const setProvider = (type) => {
@@ -334,11 +344,16 @@ export default function Header(props) {
   };
 
   const handleConnectWallet = (con, conName) => {
-    activate(con);
-    setProvider(conName);
-    setCookie("connected", true, { path: "/" });
-    handleClose();
+      activate(con);
+      setProvider(conName);
+      setCookie("connected", true, { path: "/" });
+      handleClose();
   };
+
+  const handleInstallWallet = () => {
+    window.open('https://metamask.io/', '_blank');
+    handleClose();
+  }
 
   return (
     <div>
@@ -657,13 +672,15 @@ export default function Header(props) {
 
           <MenuItem
             onClick={() => {
-              handleConnectWallet(connectorsByName.injected, "injected");
+              isWalletInstalled ?
+                handleConnectWallet(connectorsByName.injected, "injected") :
+                handleInstallWallet();
             }}
           >
             <ListItemIcon>
               <Avatar alt="metamask" src={Metamask} />
             </ListItemIcon>
-            MetaMast
+            MetaMask
           </MenuItem>
 
           <MenuItem
