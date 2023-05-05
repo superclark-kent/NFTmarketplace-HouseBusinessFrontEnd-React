@@ -1,52 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import {
+  Box, Button, Divider, Grid, IconButton, InputBase,
+  Paper, styled, TextField
+} from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useHouseBusinessContract,
-  useCleanContract,
-  useThirdPartyContract,
-  useStakingContract,
+  useCleanContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
 } from 'hooks/useContractHelpers';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Grid,
-  Box,
-  TextField,
-  Button,
-  InputBase,
-  Paper,
-  Divider,
-  IconButton,
-  FormControlLabel,
-  Stack,
-  styled,
-  ButtonGroup,
-} from '@mui/material';
 
-import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
-import CheckIcon from '@mui/icons-material/Check';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import SaveIcon from '@mui/icons-material/Save';
 
-import { BigNumber } from 'ethers';
-import useAdminStyle from 'assets/styles/adminStyle';
-import NftHistory from './NftHistory';
-import Input from '@mui/material/Input';
-import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
-import LoadingButton from '@mui/lab/LoadingButton';
-import { useWeb3 } from 'hooks/useWeb3';
-import Edit from '@mui/icons-material/Edit';
 import DeleteOutlined from '@mui/icons-material/DeleteOutlined';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Input from '@mui/material/Input';
+import useAdminStyle from 'assets/styles/adminStyle';
+import { BigNumber } from 'ethers';
+import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
+import { useWeb3 } from 'hooks/useWeb3';
+import NftHistory from './NftHistory';
 
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import ListItemText from '@mui/material/ListItemText';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { property } from 'lodash';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Select from '@mui/material/Select';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -177,9 +159,10 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
-    var MH_Price = await houseBusinessContract.methods.getMinMaxNFT().call({ from: account });
-    setMprice(web3.utils.fromWei(MH_Price[0]));
-    setHprice(web3.utils.fromWei(MH_Price[1]));
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    setMprice(web3.utils.fromWei(minPrice));
+    setHprice(web3.utils.fromWei(maxPrice));
 
     var penalty = await stakingContract.methods.getPenalty().call({ from: account });
     setPenalty(penalty);
@@ -196,7 +179,7 @@ export default function Admin() {
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
-    var isMember = await houseBusinessContract.methods.isMember().call({ from: account });
+    var isMember = await houseBusinessContract.methods.member(account).call();
     if (isMember === false) {
       houseError("You aren't admin");
       navigate('../../house/app');
@@ -364,9 +347,10 @@ export default function Admin() {
 
   useEffect(async () => {
     initialConfig();
-    var MH_Price = await houseBusinessContract.methods.getMinMaxNFT().call({ from: account });
-    setMprice(web3.utils.fromWei(MH_Price[0]));
-    setHprice(web3.utils.fromWei(MH_Price[1]));
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    setMprice(web3.utils.fromWei(minPrice));
+    setHprice(web3.utils.fromWei(maxPrice));
 
     const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
     console.log('Category', Category);

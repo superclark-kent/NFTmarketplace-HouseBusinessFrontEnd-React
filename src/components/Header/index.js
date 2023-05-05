@@ -280,9 +280,10 @@ export default function Header(props) {
   };
 
   const checkAdmin = async () => {
+    console.log('account', account)
     var isMember = await houseBusinessContract.methods
-      .isMember()
-      .call({ from: account });
+      .member(account)
+      .call();
     setIsMember(isMember);
   };
 
