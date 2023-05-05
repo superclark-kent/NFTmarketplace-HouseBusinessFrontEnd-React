@@ -3,71 +3,44 @@ import { InjectedConnector } from '@web3-react/injected-connector';
 import QRCodeModal from '@walletconnect/qrcode-modal';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
+import dotenv from "dotenv";
+dotenv.config();
 
 const INFURA_KEY = '28e2008ae4974ac4942f6854a85fe21d';
 
 export const POLLING_INTERVAL = 12000;
 
-// export const ERC20Address = '0x0203089819ac721bb8EBe91B5d56EF70888c1392';
-export const ERC20Address = '0x27C1F4539Fd2CcE5394Ea11fA8554937A587d684';
+export const ERC20Address = '0x9E5Be809b979463b447Cc5f0DFB44B03E23132E5';
+export const HouseBusinessAddress = '0x620336E603F25aAfd5F6C5E19bAf55cf61A77560';
+export const ContractAddress = '0x720579A9F7478218B6b5198C7e8CBa26C6E920c0';
+export const StakingAddress = '0x72aeD7a58EFe4983B5595Aa30dFaF205513d6612';
+export const ThirdPartyAddress = '0x2A290e6A3D04C9A2877f91B81ac4F6942C90889D';
 
-// export const HouseBusinessAddress = '0x6f06c35Fa3c048EB17e3B32C0AbcFDC317516676';
-// export const HouseBusinessAddress = '0xca2ad1D919AE5d7Ef9b04440DF990E1De6590025';
-export const HouseBusinessAddress = '0x0A964d282AF35e81Ad9d72e5c215108B3c43D3c1';
-
-// export const ContractAddress = '0x537828D46d9373ac7952160b9097ec998cA6c51b';
-// export const ContractAddress = '0xE5c6c27F24616284Dd7319C339496239d7064eF8';
-export const ContractAddress = '0xaa3Dc2E3ca0FE2dE6E519F0F224456861A7e9cFC';
-
-export const StakingAddress = '0xCcCd198030DbbEd217ceB6b79434075Df83De447';
-// export const ThirdPartyAddress = '0x2F6eEE140587AFD037f2C42C3c1f5FA4f3BD32D6';
-export const ThirdPartyAddress = '0x2C5a78DAF03e3acb169F4d2Be1dF5438F735751E';
 
 // p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
 // m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
 
 const config = {
-  development: {
-    CHAIN_NAME: 'Goerli Testnet',
-    CHAIN_ID: 5,
-    CURRENCY: 'ETH',
-    EXPLORER: 'https://goerli.etherscan.io/',
-    WEBSOCKET_1: 'wss://goerli.infura.io/ws',
-    RPC_URL_1: `https://goerli.infura.io/v3/${INFURA_KEY}`,
-    RPC_URL_2: `https://goerli.infura.io/v3/${INFURA_KEY}`,
-    RPC_URL_3: `https://goerli.infura.io/v3/${INFURA_KEY}`,
-  },
-  // 'development': {
-  //     CHAIN_NAME: "Polygon Testnet",
-  //     CHAIN_ID: 80001,
-  //     CURRENCY: "MATIC",
-  //     EXPLORER: "https://mumbai.polygonscan.com/",
-  //     WEBSOCKET_1: "wss://mumbai-dagger.matic.today",
-  //     RPC_URL_1: "https://matic-mumbai.chainstacklabs.com",
-  //     RPC_URL_2: "https://rpc-mumbai.maticvigil.com",
-  //     RPC_URL_3: "https://matic-testnet-archive-rpc.bwarelabs.com",
+  // development: {
+  //   CHAIN_NAME: 'Goerli Testnet',
+  //   CHAIN_ID: 5,
+  //   CURRENCY: 'ETH',
+  //   EXPLORER: 'https://goerli.etherscan.io/',
+  //   WEBSOCKET_1: 'wss://goerli.infura.io/ws',
+  //   RPC_URL_1: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+  //   RPC_URL_2: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+  //   RPC_URL_3: `https://goerli.infura.io/v3/${INFURA_KEY}`,
   // },
-  // 'development': {
-  //     CHAIN_NAME: "Rinkeby Testnet",
-  //     CHAIN_ID: 4,
-  //     CURRENCY: "ETH",
-  //     EXPLORER: "https://rinkey.etherscan.io",
-  //     WEBSOCKET_1: "wss://rinkeby.infura.io/ws",
-  //     RPC_URL_1: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  //     RPC_URL_2: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  //     RPC_URL_3: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-  //  },
-
-  //  'development': {
-  //     CHAIN_NAME: "Ropsten Testnet",
-  //     CHAIN_ID: 3,
-  //     CURRENCY: "ETH",
-  //     EXPLORER: "https://ropsten.etherscan.io",
-  //     WEBSOCKET_1: "wss://ropsten.infura.io/ws",
-  //     RPC_URL_1: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
-  //     RPC_URL_2: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
-  //     RPC_URL_3: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
-  //  },
+  development: {
+      CHAIN_NAME: "Polygon Testnet",
+      CHAIN_ID: 80001,
+      CURRENCY: "MATIC",
+      EXPLORER: "https://mumbai.polygonscan.com/",
+      WEBSOCKET_1: "wss://mumbai-dagger.matic.today",
+      RPC_URL_1: "https://matic-mumbai.chainstacklabs.com",
+      RPC_URL_2: "https://rpc-mumbai.maticvigil.com",
+      RPC_URL_3: "https://matic-testnet-archive-rpc.bwarelabs.com",
+  },
   production: {
     CHAIN_NAME: 'Polygon Mainnet',
     CHAIN_ID: 137,
@@ -87,10 +60,7 @@ export const secretKey = 'defi-business@Sec!*@#';
 export const injected = new InjectedConnector({
   supportedChainIds: [
     1, // Ethereum Mainnet
-    3, // Ropesten Testnet
-    4, // Rinkby Testnet
     5, // Goerli Testnet
-    42, // Kovan Testnet
     56, // Binance Smart Chain Mainnet
     97, // Binance Smart Chain Testnet
     137, // Polygon Mainnet
@@ -99,14 +69,14 @@ export const injected = new InjectedConnector({
 });
 
 export const walletconnect = new WalletConnectConnector({
-  rpcUrl: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+  rpcUrl: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_KEY}`,
   bridge: 'https://bridge.walletconnect.org',
   qrcodeModal: QRCodeModal,
   qrcode: true,
 });
 
 export const walletlink = new WalletLinkConnector({
-  url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+  url: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_KEY}`,
   appName: 'web3-react-demo',
 });
 

@@ -142,10 +142,11 @@ export default function Mint() {
   };
 
   const getMinMaxPrice = async () => {
-    var minmaxarr = await houseBusinessContract.methods.getMinMaxNFT().call();
-    setMinPrice(minmaxarr[0]);
-    setMaxPrice(minmaxarr[1]);
-    setHousePrice(Web3.utils.fromWei(`${minmaxarr[0]}`));
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    setMinPrice(minPrice);
+    setMaxPrice(maxPrice);
+    setHousePrice(Web3.utils.fromWei(`${minPrice}`));
   };
 
   useEffect(() => {
