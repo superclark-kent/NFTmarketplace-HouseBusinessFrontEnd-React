@@ -81,17 +81,10 @@ export default function Mint() {
 
   const handleHouseMint = async () => {
     console.log("Minting...");
-    var minP = Number(Web3.utils.fromWei(`${minPrice}`));
-    var maxP = Number(Web3.utils.fromWei(`${maxPrice}`));
     if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
-      if (Number(housePrice) < minP || Number(housePrice) > maxP) {
-        houseError(
-          `House Price should be same or higher than ${minP} eth and lower or equal than ${maxP} eth`
-        );
-        return;
-      } else if (
+      if (
         new Date(houseDescription).getFullYear() > new Date().getFullYear()
       ) {
         houseError(
@@ -111,7 +104,6 @@ export default function Mint() {
           // setLoading(false);
         } else {
           try {
-            var nftPrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
             var description = `This house was built by ${new Date(
               houseDescription
             ).getFullYear()}`;
@@ -119,9 +111,9 @@ export default function Mint() {
             var encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
             var encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
-            console.log("Mint Parameter", encryptedName, ipUrl, encryptedType, encryptedDes, nftPrice)
+            console.log("Mint Parameter", encryptedName, ipUrl, encryptedType, encryptedDes)
             await houseBusinessContract.methods
-              .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes, nftPrice)
+              .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
               .send({ from: account });
             setLoading(false);
             setImage("");
