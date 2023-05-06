@@ -1,12 +1,12 @@
 import React, { Fragment, cloneElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
 import { styled } from "@mui/material/styles";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -26,6 +26,12 @@ import Tooltip from "@mui/material/Tooltip";
 import Zoom from "@mui/material/Zoom";
 import Fab from "@mui/material/Fab";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
+
+import {
+  Grid, Button, TextField
+} from '@mui/material';
 
 // Icons
 import WidgetsIcon from "@mui/icons-material/Widgets";
@@ -49,7 +55,7 @@ import {
   useHouseBusinessContract,
   useCleanContract,
 } from "hooks/useContractHelpers";
-import { houseInfo } from "hooks/useToast";
+import { houseInfo, houseWarning } from "hooks/useToast";
 
 import MainLogo from "assets/images/Offero.png";
 import Metamask from "assets/images/Metamask.png";
@@ -230,7 +236,7 @@ function ElevationScroll(props) {
 export default function Header(props) {
   const classes = useHeaderStyles();
   const navigate = useNavigate();
-  const { account, activate, deactivate } = useWeb3React();
+  const { account, activate, deactivate, library } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
   const cleanContract = useCleanContract();
 
@@ -297,7 +303,7 @@ export default function Header(props) {
       if (notifies[i].status === false) {
         arr.push(notifies[i]);
       }
-      if(!cookies.notifies) {
+      if (!cookies.notifies) {
         nArr.push(notifies[i]);
       } else if (
         cookies.notifies.findIndex(
@@ -314,7 +320,8 @@ export default function Header(props) {
   };
 
   useEffect(() => {
-    if (pathname != "/house/app") {
+    console.log(pathname.includes("account"));
+    if (pathname != "/house/app" && !pathname.includes("account")) {
       if (!account && cookies.connected != "true") {
         houseInfo("Please connect your wallet");
         navigate("../../house/app");
@@ -328,6 +335,9 @@ export default function Header(props) {
 
   const [open, setOpen] = useState(false);
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+  const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
+  const [airdropWalletID, setAirdropWalletID] = useState('');
+
   const handleOpen = () => {
     if (typeof window.ethereum === 'undefined') {
       houseInfo("Please install Metamask");
@@ -338,22 +348,42 @@ export default function Header(props) {
     setOpen(true);
   }
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    setAirdropWalletOpen(false);
+    setAirdropWalletID('');
+  }
 
   const setProvider = (type) => {
     window.localStorage.setItem("provider", type);
   };
 
   const handleConnectWallet = (con, conName) => {
-      activate(con);
-      setProvider(conName);
-      setCookie("connected", true, { path: "/" });
-      handleClose();
+    activate(con);
+    setProvider(conName);
+    setCookie("connected", true, { path: "/" });
+    handleClose();
   };
 
   const handleInstallWallet = () => {
     window.open('https://metamask.io/', '_blank');
     handleClose();
+  }
+
+  const handleConnectAirdropWallet = () => {
+    setOpen(false);
+    setAirdropWalletOpen(true);
+  }
+
+  const handleCreateAccount = () => {
+    // check the walletID is valid address
+    if (!ethers.utils.isAddress(airdropWalletID)) {
+      houseWarning('Please input valid Ethereum wallet address');
+    } else {
+      navigate(`../../account/${airdropWalletID}`);
+      handleClose();
+    }
+    
   }
 
   return (
@@ -455,7 +485,7 @@ export default function Header(props) {
                 );
               })}
             </List>
-            
+
             {account ? (
               <>
                 <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
@@ -481,10 +511,10 @@ export default function Header(props) {
                     );
                   })}
                 </List>
-            </>
+              </>
             ) : (
               <></>
-            )}  
+            )}
             {isMember === true && account ? (
               <>
                 <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
@@ -548,6 +578,7 @@ export default function Header(props) {
         id="account-menu"
         open={isUserMenuOpen}
         onClose={() => setUserMenuOpen(false)}
+        onClick={() => setUserMenuOpen(false)}
         PaperProps={{
           elevation: 0,
           sx: {
@@ -577,7 +608,7 @@ export default function Header(props) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={account ? () => {} : handleOpen}>
+        <MenuItem onClick={account ? () => { } : handleOpen}>
           <ListItemIcon>
             <AccountBalanceWalletIcon fontSize="small" />
           </ListItemIcon>
@@ -711,6 +742,57 @@ export default function Header(props) {
             </ListItemIcon>
             Coinbase
           </MenuItem>
+
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Other Options
+          </Typography>
+
+          <MenuItem
+            onClick={() => {
+              handleConnectAirdropWallet();
+            }}
+          >
+            {/* <ListItemIcon>
+              <Avatar alt="coinbase" src={Coinbase} />
+            </ListItemIcon> */}
+            Connect your Airdrop wallet
+          </MenuItem>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={airdropWalletOpen}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        size="small"
+      >
+        <Box sx={style}>
+          <Grid container spacing={3}>
+            <Grid item md={12}>
+              <Box component={'h3'}>Set Airdrop Wallet ID</Box>
+              <Grid item md={12} sx={{ display: 'flex' }}>
+                <Grid item md={12}>
+                  <TextField
+                    value={airdropWalletID}
+                    fullWidth
+                    onChange={(e) => setAirdropWalletID(e.target.value)}
+                    placeholder="Airdrop Wallet ID"
+                    inputProps={{ 'aria-label': 'package' }}
+                  />
+                </Grid>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={handleCreateAccount}
+                  startIcon={<SaveIcon />}
+                  variant="contained"
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
         </Box>
       </Modal>
     </div>
