@@ -26,16 +26,16 @@ export default function AirdropWallet() {
     const [walletID, setWalletID] = useState(useParams().walletID);
     const [creditBalance, setCreditBalance] = useState(0);
 
-    // const getCreditBalance = async () => {
-    //     // Get the ERC20 token balance.
-    //     var creditBalance = await OperatorContract.methods.balanceOf().call();
+    const getCreditBalance = async () => {
+        // Get the ERC20 token balance.
+        var creditBalance = await OperatorContract.methods.balanceOf(walletID).call();
 
-    //     setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
-    // };
+        setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
+    };
 
-    // useEffect(() => {
-    //     getCreditBalance();
-    // }, [account]);
+    useEffect(() => {
+        getCreditBalance();
+    }, [account]);
 
     return (
         <Grid>
