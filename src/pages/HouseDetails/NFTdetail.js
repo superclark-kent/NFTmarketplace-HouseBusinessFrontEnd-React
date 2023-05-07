@@ -13,7 +13,9 @@ import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { BigNumber } from 'ethers';
 import { useWeb3 } from "hooks/useWeb3";
+import { houseInfo, houseSuccess } from 'hooks/useToast';
 
 export default function NFTdetail({
   account,
@@ -25,13 +27,29 @@ export default function NFTdetail({
   setSpecialBuyer,
   handleBuyerEdit,
   handlePayable,
+  houseBusinessContract
 }) {
   const [isBuyerEdit, setIsBuyerEdit] = useState(false);
+  const [housePrice, setHousePrice] = useState(0);
   const web3 = useWeb3();
 
+  const changeHousePrice = async (tokenId) => {
+    if (!account) {
+      houseInfo("Please connect your wallet!")
+    } else {
+      console.log('house price', housePrice)
+      const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
+      console.log('changeHousePrice', tokenId, housePrice, _housePrice)
+      await houseBusinessContract.methods.changeHousePrice(tokenId, _housePrice).send({ from: account });
+      houseSuccess("You have successfully set your House price!")
+      // loadNFTs()
+    }
+  }
+
   useEffect(() => {
+    console.log('simpleNFT', simpleNFT)
     if (simpleNFT) {
-      setIsBuyerEdit(!Boolean(simpleNFT.buyer));
+      setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
     }
   }, [simpleNFT]);
 
@@ -45,7 +63,7 @@ export default function NFTdetail({
           <Grid className={classes.metaInfo}>
             <Box component={"span"}>Owned By</Box>
             <Box component={"h4"} className={classes.nftHouseOwner}>
-              {simpleNFT.currentOwner}
+              {simpleNFT.contributor.currentOwner}
             </Box>
           </Grid>
         </Grid>
@@ -62,9 +80,10 @@ export default function NFTdetail({
             type="number"
             variant="filled"
             label="Current Price"
-            value={`${
-              simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
-            }`}
+            // value={`${
+            //   simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
+            // }`}
+            onChange={(e) => setHousePrice(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">ETH</InputAdornment>
@@ -73,7 +92,7 @@ export default function NFTdetail({
           />
           <Button
               variant="outlined"
-              onClick={() => handleBuyNFT(simpleNFT)}
+              onClick={() => changeHousePrice(simpleNFT.tokenId)}
               className={classes.nftHouseButton}
               startIcon={<BusinessCenterIcon />}
             >
@@ -84,7 +103,7 @@ export default function NFTdetail({
               >{`Change Price`}</Box>
             </Button>
         </Grid>
-        {simpleNFT.currentOwner !== `${account}` &&
+        {simpleNFT.contributor.currentOwner !== `${account}` &&
         simpleNFT.nftPayable === true ? (
           <Grid className={classes.buyButtonGroup}>
             <Button
@@ -103,8 +122,8 @@ export default function NFTdetail({
         ) : (
           ""
         )}
-        {simpleNFT.currentOwner === `${account}` ? (
-          simpleNFT.buyer ? (
+        {simpleNFT.contributor.currentOwner === `${account}` ? (
+          simpleNFT.contributor.buyer ? (
             <Grid>
               <Grid className={classes.nftBuyer}>
                 <TextField

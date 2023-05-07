@@ -42,7 +42,7 @@ export default function Router() {
             children: [
                 { path: 'app', element: <Dashboard /> },
                 { path: 'mint', element: <Mint /> },
-                { path: 'nfts', element: <Nfts /> },
+                { path: 'myNfts', element: <Nfts /> },
                 { path: 'staking', element: <Staking /> },
             ]
         },
@@ -67,7 +67,7 @@ export default function Router() {
             children: [
                 { path: '/', element: <Navigate to='/house/app' /> },
                 { path: '/', element: <Navigate to='/house/mint' /> },
-                { path: '/', element: <Navigate to='/house/nfts' /> },
+                { path: '/', element: <Navigate to='/house/myNfts' /> },
                 { path: '/', element: <Navigate to='/house/staking' /> },
                 { path: '/', element: <Navigate to='/contract/main' /> },
                 { path: '404', element: <NotFound /> },

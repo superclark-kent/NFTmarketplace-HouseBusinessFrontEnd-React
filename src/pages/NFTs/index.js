@@ -26,7 +26,7 @@ export default function Nfts() {
       var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if (nfts[i].currentOwner === zeroAddress) continue;
+        if (nfts[i].contributor.currentOwner === zeroAddress) continue;
         console.log("nft[i]", nfts[i])
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
@@ -90,7 +90,7 @@ export default function Nfts() {
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>
                       <Box component={'span'}>Owned By</Box>
-                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.currentOwner}</Box>
+                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
                     <Grid className={nftClasses.nftHousePrice}>
                       <Box component={'span'}>Current Price</Box>

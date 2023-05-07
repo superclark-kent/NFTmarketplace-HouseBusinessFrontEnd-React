@@ -92,7 +92,7 @@ export default function Contract() {
 
   const handleSign = async (item) => {
     setLoading(true);
-    if (item.creator === account) {
+    if (item.contributor.creator === account) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
@@ -119,8 +119,8 @@ export default function Contract() {
   };
 
   const handleContractSigner = async (item) => {
-    var contractSigner = account === item.creator ? item.contractSigner : item.creator;
-    console.log({ account, creator: item.creator, contractSigner });
+    var contractSigner = account === item.contributor.creator ? item.contractSigner : item.contributor.creator;
+    console.log({ account, creator: item.contributor.creator, contractSigner });
     if (contractSigner != zeroAddress && contractSigner != '') {
       houseError('You already added contract signer');
     } else {

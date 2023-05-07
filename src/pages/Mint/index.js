@@ -123,7 +123,7 @@ export default function Mint() {
             setHouseDescription(new Date("1970"));
             setHousePrice("");
             houseSuccess("House NFT minted successfuly.");
-            navigate("../../house/nfts");
+            navigate("../../house/myNfts");
           } catch (error) {
             console.log(error);
             setLoading(false);

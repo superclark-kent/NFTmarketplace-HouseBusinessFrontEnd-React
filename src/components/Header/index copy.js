@@ -83,7 +83,7 @@ export const pages = [
   },
   {
     label: "My NFTs",
-    router: "../../house/nfts",
+    router: "../../house/myNfts",
   },
   {
     label: "Mint NFT",
@@ -111,7 +111,7 @@ export const houseMenu = [
   },
   {
     label: "My NFTs",
-    router: "../../house/nfts",
+    router: "../../house/myNfts",
     authRequired: true,
   },
   {

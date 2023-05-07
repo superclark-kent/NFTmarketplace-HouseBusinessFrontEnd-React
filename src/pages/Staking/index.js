@@ -72,7 +72,7 @@ export default function Staking() {
     var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
     var otherNFTs = [];
     for (var i = 0; i < nfts.length; i++) {
-      if (nfts[i].currentOwner === zeroAddress) continue;
+      if (nfts[i].contributor.currentOwner === zeroAddress) continue;
 
       var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
@@ -222,7 +222,7 @@ export default function Staking() {
                       <Grid className={nftClasses.nftHouseInfo}>
                         <Box component={'span'}>Owned By</Box>
                         <Box component={'h4'} className={nftClasses.nftHouseOwner}>
-                          {item.currentOwner}
+                          {item.contributor.currentOwner}
                         </Box>
                       </Grid>
                       <Grid className={nftClasses.nftHousePrice}>

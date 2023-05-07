@@ -43,7 +43,7 @@ export default function Dashboard() {
     if (account) {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if (nfts[i].currentOwner === `${account}`) continue;
+        if (nfts[i].contributor.currentOwner === `${account}`) continue;
         otherNFTs.push(nfts[i]);
       }
       setAllMyNFTs(otherNFTs);
@@ -97,7 +97,7 @@ export default function Dashboard() {
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>
                       <Box component={'span'}>Owned By</Box>
-                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.currentOwner}</Box>
+                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
                     <Grid className={nftClasses.nftHousePrice}>
                       <Box component={'span'}>Current Price</Box>
@@ -106,7 +106,7 @@ export default function Dashboard() {
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
-                      (item.buyer === zeroAddress || item.buyer === account) && item.nftPayable === true ?
+                      (item.contributor.buyer === zeroAddress || item.contributor.buyer === account) && item.nftPayable === true ?
                         <Button
                           variant='outlined'
                           onClick={() => handleBuyNFT(item)}
