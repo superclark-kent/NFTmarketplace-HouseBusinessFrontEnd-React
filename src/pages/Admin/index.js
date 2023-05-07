@@ -159,21 +159,24 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
+    console.log('aaa->', account)
+    if (!account) return;
+
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
 
-    var penalty = await stakingContract.methods.getPenalty().call({ from: account });
+    var penalty = await stakingContract.methods.penalty().call();
     setPenalty(penalty);
 
-    var royaltyCreator = await houseBusinessContract.methods.getRoyaltyCreator().call({ from: account });
+    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     setRoyaltyCreator(royaltyCreator);
 
-    var royaltyMarket = await houseBusinessContract.methods.getRoyaltyMarket().call({ from: account });
+    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     setRoyaltyMarket(royaltyMarket);
 
-    var allApys = await stakingContract.methods.getAllAPYs().call({ from: account });
+    var allApys = await stakingContract.methods.getAllAPYs().call();
     console.log('allApys', allApys, allApys[0]);
     setApyTypes(allApys[0]);
     setApyValues(allApys[1]);
@@ -185,7 +188,7 @@ export default function Admin() {
       navigate('../../house/app');
     }
 
-    var propertyList = await thirdPartyContract.methods.getAllProperties().call();
+    var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
       tempList.push(propertyList[i][1]);
@@ -218,30 +221,46 @@ export default function Admin() {
     setLoading(true);
     var Min_Price = BigNumber.from(`${Number(MPrice) * 10 ** 18}`);
     var High_Price = BigNumber.from(`${Number(Hprice) * 10 ** 18}`);
-    await houseBusinessContract.methods.setMinMaxHousePrice(Min_Price, High_Price).send({ from: account });
-    houseSuccess('Changed Success');
+    try {
+      await houseBusinessContract.methods.setMinMaxHousePrice(Min_Price, High_Price).send({ from: account });
+      houseSuccess('Changed Success');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetPenalty = async () => {
     setLoading(true);
     var penaltyBigNum = BigNumber.from(`${Number(penalty) * 10 ** 18}`);
-    await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
-    houseSuccess('Changed Success');
+    try {
+      await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
+      houseSuccess('Changed Success');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
-    await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
-    houseSuccess('Creator Royalty Changed successfully!');
+    try {
+      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      houseSuccess('Creator Royalty Changed successfully!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
-    await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
-    houseSuccess('Market Royalty Changed successfully!');
+    try {
+      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      houseSuccess('Market Royalty Changed successfully!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
@@ -254,8 +273,12 @@ export default function Admin() {
 
   const handleUpdateRoyalty = async () => {
     setLoading(true);
-    await stakingContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
-    houseSuccess('Updating APY works!');
+    try {
+      await stakingContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
+      houseSuccess('Updating APY works!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
   const AddNewCategory = async () => {
@@ -346,6 +369,7 @@ export default function Admin() {
   };
 
   useEffect(async () => {
+    console.log('this is admin page')
     initialConfig();
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
@@ -489,7 +513,7 @@ export default function Admin() {
                     id="demo-simple-select-autowidth"
                     value={apySelect}
                     onChange={(e) => handleApySelectChange(e)}
-                    autowidth
+                    autowidth={true}
                   >
                     {apyTypes.map((item, index) => (
                       <MenuItem value={item} key={index}>
@@ -834,7 +858,7 @@ export default function Admin() {
               })}
             </Grid>
             <Grid item md={12}>
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizental" />
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
             <Grid item md={12}>
               <Box component={'h4'} sx={{ m: '0px' }}>
@@ -1034,7 +1058,7 @@ export default function Admin() {
               </Button>
             </Grid>
             <Grid item md={12}>
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizental" />
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
             <NftHistory classes={classes} historyTypes={historyTypes} />
           </Grid>

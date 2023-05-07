@@ -89,7 +89,7 @@ export const pages = [
   },
   {
     label: "My NFTs",
-    router: "../../house/nfts",
+    router: "../../house/myNfts",
   },
   {
     label: "Mint NFT",
@@ -117,7 +117,7 @@ export const houseMenu = [
   },
   {
     label: "My NFTs",
-    router: "../../house/nfts",
+    router: "../../house/myNfts",
     authRequired: true,
   },
   {
@@ -294,11 +294,8 @@ export default function Header(props) {
   };
 
   const loadNotifies = async () => {
-    var notifies = await cleanContract.methods
-      .getAllNotifies()
-      .call({ from: account });
-    var arr = [],
-      nArr = [];
+    var notifies = await cleanContract.methods.getAllNotifies().call({ from: account });
+    var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
       if (notifies[i].status === false) {
         arr.push(notifies[i]);
@@ -323,6 +320,7 @@ export default function Header(props) {
     console.log(pathname.includes("account"));
     if (pathname != "/house/app" && !pathname.includes("account")) {
       if (!account && cookies.connected != "true") {
+        console.log('here--->')
         houseInfo("Please connect your wallet");
         navigate("../../house/app");
       }

@@ -17,7 +17,7 @@ export default function MoreDetail({ account, item, nftClasses, handleClickMoreD
         }
     }, [account])
 
-    if (item.currentOwner === account || confirm === true) {
+    if (item.contributor.currentOwner === account || confirm === true) {
         return (
             <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => handleClickMoreDetail(item)} >
                 <CachedIcon />

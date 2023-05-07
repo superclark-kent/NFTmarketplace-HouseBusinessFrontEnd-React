@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { useNavigate } from 'react-router-dom';
 import { Grid } from '@mui/material';
-import { Box } from '@mui/system';
-import { useParams } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
+import { Box } from '@mui/system';
+import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import FileUpload from 'utils/ipfs';
-import { houseInfo, houseError, houseSuccess } from 'hooks/useToast';
-import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
-import NewHistory from './NewHistory';
-import Histories from './Histories';
-import NFTdetail from './NFTdetail';
-import { secretKey, zeroAddress } from 'mainConfig';
 import HouseLoading from 'components/HouseLoading';
+import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { houseError, houseSuccess } from 'hooks/useToast';
+import { secretKey, zeroAddress } from 'mainConfig';
 import { decryptContract } from 'utils';
+import FileUpload from 'utils/ipfs';
+import Histories from './Histories';
+import NewHistory from './NewHistory';
+import NFTdetail from './NFTdetail';
 
 const style = {
   position: 'absolute',
@@ -86,7 +85,7 @@ export default function HouseDetails() {
   };
 
   const loadNFT = async (_id) => {
-    // console.log('---loadNFT---');
+    // console.log('---loadNFT---', nfts, confirm);
     var allMyContracts = await cleanContract.methods.getAllContractsByOwner().call({ from: account });
     var cArr = [];
     for (let i = 0; i < allMyContracts.length; i++) {
@@ -99,19 +98,20 @@ export default function HouseDetails() {
     // console.log({ contracts: cArr });
     setContracts(cArr);
 
-    var nfts = await houseBusinessContract.methods.getAllHouses().call();
+    var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account});
     var nft = nfts.filter((item) => item.tokenId === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
-
+    
+    console.log('nft', nft)
     // console.log('chistories', chistories);
     setHistories(chistories);
 
-    if (nft.buyer) {
-      setSpecialBuyer(nft.buyer);
+    if (nft.contributor.buyer) {
+      setSpecialBuyer(nft.contributor.buyer);
     }
     if (nft) {
       var confirm = await houseBusinessContract.methods.checkAllowedList(nft.tokenId, account).call();
-      if (nft.currentOwner === account || confirm === true) {
+      if (nft.contributor.currentOwner === account || confirm === true) {
         var flag = false;
         for (let i = 0; i < pages.length; i++) {
           if (pages[i].router === _id) {
@@ -190,17 +190,6 @@ export default function HouseDetails() {
       var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
       var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
-      console.table({
-        "_tokenID,": _tokenID, 
-        "cContract,": cContract, 
-        "hID,": hID, 
-        "encryptedHouseImage,": encryptedHouseImage, 
-        "encryptedBrand,": encryptedBrand, 
-        "encryptedHistory,": encryptedHistory, 
-        "encryptedDesc,": encryptedDesc, 
-        "encryptedBrandType,": encryptedBrandType, 
-        "_yearField": _yearField 
-      })
 
       try {
         await houseBusinessContract.methods
@@ -315,6 +304,7 @@ export default function HouseDetails() {
             setSpecialBuyer={setSpecialBuyer}
             handleBuyerEdit={handleBuyerEdit}
             handlePayable={handlePayable}
+            houseBusinessContract={houseBusinessContract}
           />
           <Grid item xl={12} md={12}>
             <Box component={'h3'}>House History</Box>
@@ -331,7 +321,7 @@ export default function HouseDetails() {
               loadNFT={loadNFT}
               disconnectContract={handleDisconnectContract}
             />
-            {simpleNFT.currentOwner === `${account}` ? (
+            {simpleNFT.contributor.currentOwner === `${account}` ? (
               <Grid className={classes.addHistorySection}>
                 <NewHistory
                   classes={classes}

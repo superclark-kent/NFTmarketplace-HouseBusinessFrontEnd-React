@@ -11,6 +11,7 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { Box } from '@mui/system';
 import MoreDetail from './MoreDetail';
 import { secretKey, zeroAddress } from 'mainConfig';
+import { CoPresentOutlined } from '@mui/icons-material';
 
 export default function Dashboard() {
   const nftClasses = useNftStyle()
@@ -36,11 +37,13 @@ export default function Dashboard() {
         tokenName: decryptedName,
         tokenType: decryptedType
       })
+    console.log('nfts', nfts)
+
     }
     if (account) {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if (nfts[i].currentOwner === `${account}`) continue;
+        if (nfts[i].contributor.currentOwner === `${account}`) continue;
         otherNFTs.push(nfts[i]);
       }
       setAllMyNFTs(otherNFTs);
@@ -60,6 +63,7 @@ export default function Dashboard() {
   }
 
   const handleClickMoreDetail = async (item) => {
+    console.log('detail', item)
     navigate(`../../item/${item.tokenId}`)
   }
 
@@ -80,7 +84,7 @@ export default function Dashboard() {
                 lg={4}
                 md={6}
                 sm={6}
-                key={item}
+                key={item.tokenId}
                 className={nftClasses.nftHouseItem}
               >
                 <Grid className={nftClasses.nftHouseCard}>
@@ -93,16 +97,17 @@ export default function Dashboard() {
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>
                       <Box component={'span'}>Owned By</Box>
-                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.currentOwner}</Box>
+                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
+                    {web3.utils.fromWei(item.price) > 0 && 
                     <Grid className={nftClasses.nftHousePrice}>
                       <Box component={'span'}>Current Price</Box>
                       <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
-                    </Grid>
+                    </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
-                      (item.buyer === zeroAddress || item.buyer === account) && item.nftPayable === true ?
+                      (item.contributor.buyer === zeroAddress || item.contributor.buyer === account) && item.nftPayable === true ?
                         <Button
                           variant='outlined'
                           onClick={() => handleBuyNFT(item)}
