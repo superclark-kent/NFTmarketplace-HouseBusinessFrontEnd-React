@@ -111,7 +111,6 @@ export default function Mint() {
             var encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
             var encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
-            console.table({ 'encryptedName': encryptedName, 'ipUrl': ipUrl, 'encryptedType': encryptedType, 'encryptedDes': encryptedDes })
             await houseBusinessContract.methods
               .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
               .send({ from: account });

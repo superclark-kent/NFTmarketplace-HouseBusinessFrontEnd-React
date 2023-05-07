@@ -47,8 +47,8 @@ export default function NFTdetail({
   }
 
   useEffect(() => {
-    console.log('simpleNFT', simpleNFT)
     if (simpleNFT) {
+      setHousePrice(web3.utils.fromWei(simpleNFT.price))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
     }
   }, [simpleNFT]);
@@ -67,22 +67,12 @@ export default function NFTdetail({
             </Box>
           </Grid>
         </Grid>
-        {/* <Grid className={classes.nftHousePrice}>
-          <Box component={"span"}>
-            Current Price{" "}
-            <Box component={"h4"}>{`${
-              simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
-            } ETH`}</Box>
-          </Box>
-        </Grid> */}
         <Grid className={classes.nftHousePrice}>
           <TextField
             type="number"
             variant="filled"
             label="Current Price"
-            // value={`${
-            //   simpleNFT.price ? web3.utils.fromWei(simpleNFT.price) : ""
-            // }`}
+            value={housePrice}
             onChange={(e) => setHousePrice(e.target.value)}
             InputProps={{
               startAdornment: (

@@ -159,6 +159,7 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
+    console.log('aaa->', account)
     if (!account) return;
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
@@ -180,7 +181,6 @@ export default function Admin() {
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
-    console.log('aaa->', account)
     var isMember = await houseBusinessContract.methods.member(account).call();
     console.log('member', isMember)
     if (isMember === false) {
@@ -513,7 +513,7 @@ export default function Admin() {
                     id="demo-simple-select-autowidth"
                     value={apySelect}
                     onChange={(e) => handleApySelectChange(e)}
-                    autowidth
+                    autowidth={true}
                   >
                     {apyTypes.map((item, index) => (
                       <MenuItem value={item} key={index}>
@@ -858,7 +858,7 @@ export default function Admin() {
               })}
             </Grid>
             <Grid item md={12}>
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizental" />
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
             <Grid item md={12}>
               <Box component={'h4'} sx={{ m: '0px' }}>
@@ -1058,7 +1058,7 @@ export default function Admin() {
               </Button>
             </Grid>
             <Grid item md={12}>
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizental" />
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
             <NftHistory classes={classes} historyTypes={historyTypes} />
           </Grid>

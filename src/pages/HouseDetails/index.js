@@ -190,17 +190,6 @@ export default function HouseDetails() {
       var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
       var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
-      console.table({
-        "_tokenID,": _tokenID, 
-        "cContract,": cContract, 
-        "hID,": hID, 
-        "encryptedHouseImage,": encryptedHouseImage, 
-        "encryptedBrand,": encryptedBrand, 
-        "encryptedHistory,": encryptedHistory, 
-        "encryptedDesc,": encryptedDesc, 
-        "encryptedBrandType,": encryptedBrandType, 
-        "_yearField": _yearField 
-      })
 
       try {
         await houseBusinessContract.methods

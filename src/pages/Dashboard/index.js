@@ -99,10 +99,11 @@ export default function Dashboard() {
                       <Box component={'span'}>Owned By</Box>
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
+                    {web3.utils.fromWei(item.price) > 0 && 
                     <Grid className={nftClasses.nftHousePrice}>
                       <Box component={'span'}>Current Price</Box>
                       <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
-                    </Grid>
+                    </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
