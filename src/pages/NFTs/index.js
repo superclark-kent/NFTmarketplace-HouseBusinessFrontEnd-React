@@ -54,6 +54,7 @@ export default function Nfts() {
   }
 
   const handleClickMoreDetail = async (item) => {
+    console.log('detail', item)
     navigate(`../../item/${item.tokenId}`)
   }
 

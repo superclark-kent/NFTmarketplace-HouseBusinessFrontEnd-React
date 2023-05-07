@@ -288,16 +288,13 @@ export default function Header(props) {
   };
 
   const loadNotifies = async () => {
-    var notifies = await cleanContract.methods
-      .getAllNotifies()
-      .call({ from: account });
-    var arr = [],
-      nArr = [];
+    var notifies = await cleanContract.methods.getAllNotifies().call({ from: account });
+    var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
       if (notifies[i].status === false) {
         arr.push(notifies[i]);
       }
-      if(!cookies.notifies) {
+      if (!cookies.notifies) {
         nArr.push(notifies[i]);
       } else if (
         cookies.notifies.findIndex(
@@ -315,7 +312,9 @@ export default function Header(props) {
 
   useEffect(() => {
     if (pathname != "/house/app") {
+      console.log('here', pathname, account, cookies)
       if (!account && cookies.connected != "true") {
+        console.log('here--->')
         houseInfo("Please connect your wallet");
         navigate("../../house/app");
       }
@@ -345,10 +344,10 @@ export default function Header(props) {
   };
 
   const handleConnectWallet = (con, conName) => {
-      activate(con);
-      setProvider(conName);
-      setCookie("connected", true, { path: "/" });
-      handleClose();
+    activate(con);
+    setProvider(conName);
+    setCookie("connected", true, { path: "/" });
+    handleClose();
   };
 
   const handleInstallWallet = () => {
@@ -455,7 +454,7 @@ export default function Header(props) {
                 );
               })}
             </List>
-            
+
             {account ? (
               <>
                 <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
@@ -481,10 +480,10 @@ export default function Header(props) {
                     );
                   })}
                 </List>
-            </>
+              </>
             ) : (
               <></>
-            )}  
+            )}
             {isMember === true && account ? (
               <>
                 <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
@@ -577,7 +576,7 @@ export default function Header(props) {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={account ? () => {} : handleOpen}>
+        <MenuItem onClick={account ? () => { } : handleOpen}>
           <ListItemIcon>
             <AccountBalanceWalletIcon fontSize="small" />
           </ListItemIcon>

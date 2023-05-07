@@ -111,7 +111,7 @@ export default function Mint() {
             var encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
             var encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
-            console.log("Mint Parameter", encryptedName, ipUrl, encryptedType, encryptedDes)
+            console.table({ 'encryptedName': encryptedName, 'ipUrl': ipUrl, 'encryptedType': encryptedType, 'encryptedDes': encryptedDes })
             await houseBusinessContract.methods
               .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
               .send({ from: account });
@@ -153,7 +153,7 @@ export default function Mint() {
       className={classes.mintContent}
     >
       <Grid component="fieldset" variant="filled">
-        
+
         <FormLabel component="legend" htmlFor="residence-type-radio">
           Mint NFT
         </FormLabel>
@@ -188,9 +188,9 @@ export default function Mint() {
             {" "}
             {imageName.length > 30
               ? `${imageName.slice(0, 27)}...${imageName.slice(
-                  imageName.length - 5,
-                  imageName.length
-                )}`
+                imageName.length - 5,
+                imageName.length
+              )}`
               : imageName}{" "}
           </Grid>
         </Grid>

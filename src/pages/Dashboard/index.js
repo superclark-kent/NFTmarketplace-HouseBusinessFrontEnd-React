@@ -11,6 +11,7 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { Box } from '@mui/system';
 import MoreDetail from './MoreDetail';
 import { secretKey, zeroAddress } from 'mainConfig';
+import { CoPresentOutlined } from '@mui/icons-material';
 
 export default function Dashboard() {
   const nftClasses = useNftStyle()
@@ -36,6 +37,8 @@ export default function Dashboard() {
         tokenName: decryptedName,
         tokenType: decryptedType
       })
+    console.log('nfts', nfts)
+
     }
     if (account) {
       var otherNFTs = [];
@@ -60,6 +63,7 @@ export default function Dashboard() {
   }
 
   const handleClickMoreDetail = async (item) => {
+    console.log('detail', item)
     navigate(`../../item/${item.tokenId}`)
   }
 
@@ -80,7 +84,7 @@ export default function Dashboard() {
                 lg={4}
                 md={6}
                 sm={6}
-                key={item}
+                key={item.tokenId}
                 className={nftClasses.nftHouseItem}
               >
                 <Grid className={nftClasses.nftHouseCard}>

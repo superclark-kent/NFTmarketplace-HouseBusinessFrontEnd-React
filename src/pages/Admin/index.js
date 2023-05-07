@@ -159,27 +159,30 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
+    if (!account) return;
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
 
-    var penalty = await stakingContract.methods.getPenalty().call({ from: account });
+    var penalty = await stakingContract.methods.penalty().call();
     setPenalty(penalty);
 
-    var royaltyCreator = await houseBusinessContract.methods.getRoyaltyCreator().call({ from: account });
+    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     setRoyaltyCreator(royaltyCreator);
 
-    var royaltyMarket = await houseBusinessContract.methods.getRoyaltyMarket().call({ from: account });
+    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     setRoyaltyMarket(royaltyMarket);
 
-    var allApys = await stakingContract.methods.getAllAPYs().call({ from: account });
+    var allApys = await stakingContract.methods.getAllAPYs().call();
     console.log('allApys', allApys, allApys[0]);
     setApyTypes(allApys[0]);
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
+    console.log('aaa->', account)
     var isMember = await houseBusinessContract.methods.member(account).call();
+    console.log('member', isMember)
     if (isMember === false) {
       houseError("You aren't admin");
       navigate('../../house/app');
@@ -346,6 +349,7 @@ export default function Admin() {
   };
 
   useEffect(async () => {
+    console.log('this is admin page')
     initialConfig();
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
