@@ -16,7 +16,7 @@ export const HouseBusinessAddress = '0x4095A5F585A59e34909E0F042dDB94D8de81eda7'
 export const ContractAddress = '0xa3D5835924D3F6C7d00748E116B823eE04B782e3';
 export const StakingAddress = '0xfFfc272E8d4Fe36f01bc42F4c8C8D73d216Bb14d';
 export const ThirdPartyAddress = '0x5bFA74328d16bDeD52c38F60A7D26962A400d75b';
-export const OperatorAddress = '0xd18E832cf44a2dbf148562802d4f592f3FA6E398';
+export const OperatorAddress = '0xA50Df3f23F7fA56247320658a57578f91dABd1Ea';
 
 // p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
 // m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
