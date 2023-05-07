@@ -161,6 +161,7 @@ export default function Admin() {
   const initialConfig = async () => {
     console.log('aaa->', account)
     if (!account) return;
+
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     setMprice(web3.utils.fromWei(minPrice));
@@ -182,7 +183,6 @@ export default function Admin() {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     var isMember = await houseBusinessContract.methods.member(account).call();
-    console.log('member', isMember)
     if (isMember === false) {
       houseError("You aren't admin");
       navigate('../../house/app');

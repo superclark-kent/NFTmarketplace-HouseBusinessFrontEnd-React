@@ -343,10 +343,10 @@ export default function Header(props) {
   };
 
   const handleConnectWallet = (con, conName) => {
-    activate(con);
-    setProvider(conName);
-    setCookie("connected", true, { path: "/" });
-    handleClose();
+      activate(con);
+      setProvider(conName);
+      setCookie("connected", true, { path: "/" });
+      handleClose();
   };
 
   const handleInstallWallet = () => {
