@@ -188,7 +188,7 @@ export default function Admin() {
       navigate('../../house/app');
     }
 
-    var propertyList = await thirdPartyContract.methods.getAllProperties().call();
+    var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
       tempList.push(propertyList[i][1]);
@@ -221,30 +221,46 @@ export default function Admin() {
     setLoading(true);
     var Min_Price = BigNumber.from(`${Number(MPrice) * 10 ** 18}`);
     var High_Price = BigNumber.from(`${Number(Hprice) * 10 ** 18}`);
-    await houseBusinessContract.methods.setMinMaxHousePrice(Min_Price, High_Price).send({ from: account });
-    houseSuccess('Changed Success');
+    try {
+      await houseBusinessContract.methods.setMinMaxHousePrice(Min_Price, High_Price).send({ from: account });
+      houseSuccess('Changed Success');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetPenalty = async () => {
     setLoading(true);
     var penaltyBigNum = BigNumber.from(`${Number(penalty) * 10 ** 18}`);
-    await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
-    houseSuccess('Changed Success');
+    try {
+      await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
+      houseSuccess('Changed Success');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
-    await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
-    houseSuccess('Creator Royalty Changed successfully!');
+    try {
+      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      houseSuccess('Creator Royalty Changed successfully!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
-    await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
-    houseSuccess('Market Royalty Changed successfully!');
+    try {
+      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      houseSuccess('Market Royalty Changed successfully!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
 
@@ -257,8 +273,12 @@ export default function Admin() {
 
   const handleUpdateRoyalty = async () => {
     setLoading(true);
-    await stakingContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
-    houseSuccess('Updating APY works!');
+    try {
+      await stakingContract.methods.updateAPYConfig(apySelect, apyValue).send({ from: account });
+      houseSuccess('Updating APY works!');
+    } catch (error) {
+      console.log('error', error.message)
+    }
     setLoading(false);
   };
   const AddNewCategory = async () => {

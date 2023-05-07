@@ -125,7 +125,7 @@ export default function FullWidthTabs() {
     setCategoryList(category);
     setActiveCategory(category[0])
     setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
-    setPropertyList(await thirdPartyContract.methods.getAllProperties().call({ from: account}))
+    setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account}))
   }, [])
 
   return (
