@@ -280,7 +280,6 @@ export default function Header(props) {
   };
 
   const checkAdmin = async () => {
-    console.log('account', account)
     var isMember = await houseBusinessContract.methods
       .member(account)
       .call();
@@ -313,7 +312,6 @@ export default function Header(props) {
   useEffect(() => {
     if (pathname != "/house/app") {
       if (!account && cookies.connected != "true") {
-        console.log('here--->')
         houseInfo("Please connect your wallet");
         navigate("../../house/app");
       }

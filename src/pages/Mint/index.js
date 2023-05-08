@@ -80,7 +80,6 @@ export default function Mint() {
   };
 
   const handleHouseMint = async () => {
-    console.log("Minting...");
     if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
@@ -97,7 +96,6 @@ export default function Mint() {
       } else {
         setLoading(true);
         var ipfsUrl = await FileUpload(image);
-        console.log("IPFS Url: ", ipfsUrl)
         if (ipfsUrl === false) {
           houseError("Something went wrong with IPFS");
           setImageName("");

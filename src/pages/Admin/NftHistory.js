@@ -102,7 +102,6 @@ export default function NftHistory({ classes, historyTypes }) {
 
   const handleSave = async (historyItem, typeID) => {
     setLoading(true);
-    console.log("historyItem, typeID", historyItem, typeID)
     await houseBusinessContract.methods
       .addOrEditHType(
         typeID,

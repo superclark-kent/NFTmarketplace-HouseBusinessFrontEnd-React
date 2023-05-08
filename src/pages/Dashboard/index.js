@@ -37,8 +37,6 @@ export default function Dashboard() {
         tokenName: decryptedName,
         tokenType: decryptedType
       })
-    console.log('nfts', nfts)
-
     }
     if (account) {
       var otherNFTs = [];
@@ -63,7 +61,6 @@ export default function Dashboard() {
   }
 
   const handleClickMoreDetail = async (item) => {
-    console.log('detail', item)
     navigate(`../../item/${item.tokenId}`)
   }
 

@@ -159,7 +159,6 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
-    console.log('aaa->', account)
     if (!account) return;
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
@@ -176,13 +175,11 @@ export default function Admin() {
     setRoyaltyMarket(royaltyMarket);
 
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    console.log('allApys', allApys, allApys[0]);
     setApyTypes(allApys[0]);
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     var isMember = await houseBusinessContract.methods.member(account).call();
-    console.log('member', isMember)
     if (isMember === false) {
       houseError("You aren't admin");
       navigate('../../house/app');
@@ -267,7 +264,6 @@ export default function Admin() {
   const handleApySelectChange = async (e) => {
     setApySelect(e.target.value);
     var index = apyTypes.indexOf(e.target.value);
-    console.log('index', index);
     setApyValue(apyValues[index]);
   };
 
@@ -284,7 +280,6 @@ export default function Admin() {
   const AddNewCategory = async () => {
     if (NCategory !== '') {
       if (CategoryList.findIndex((item) => item.cartegoryName.toUpperCase() === NCategory.toUpperCase()) === -1) {
-        console.log('NPropertyList', NPropertyList);
         if (NPropertyList.length > 0) {
           var proIDList = [];
           for (let i = 0; i < NPropertyList.length; i++) {
@@ -369,7 +364,6 @@ export default function Admin() {
   };
 
   useEffect(async () => {
-    console.log('this is admin page')
     initialConfig();
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
@@ -377,7 +371,6 @@ export default function Admin() {
     setHprice(web3.utils.fromWei(maxPrice));
 
     const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
-    console.log('Category', Category);
     setCategoryList(Category.filter((item) => item[1] != ''));
   }, []);
 

@@ -34,7 +34,6 @@ export default function Contract() {
     var allmyContracts = await cleanContract.methods.getAllContractsByOwner().call({ from: account });
     var allCons = [];
     for (let i = 0; i < allmyContracts.length; i++) {
-      console.log('allmyContracts', allmyContracts[i]);
       var bytes = CryptoJS.AES.decrypt(allmyContracts[i].contractURI, secretKey);
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allmyContracts[i].companyName, secretKey);
@@ -43,7 +42,6 @@ export default function Contract() {
       var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allmyContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
-      console.log(decryptedCompany, decryptedData, decryptedType);
       allCons.push({
         ...allmyContracts[i],
         contractURI: decryptedData,
@@ -57,7 +55,6 @@ export default function Contract() {
     var allOCons = [];
     for (let i = 0; i < allOtherContracts.length; i++) {
       if (allOtherContracts[i].companyName === '') continue;
-      console.log(allOtherContracts[i]);
       var bytes = CryptoJS.AES.decrypt(allOtherContracts[i].contractURI, secretKey);
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allOtherContracts[i].companyName, secretKey);
@@ -92,7 +89,7 @@ export default function Contract() {
 
   const handleSign = async (item) => {
     setLoading(true);
-    if (item.contributor.creator === account) {
+    if (item.creator === account) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
@@ -119,8 +116,7 @@ export default function Contract() {
   };
 
   const handleContractSigner = async (item) => {
-    var contractSigner = account === item.contributor.creator ? item.contractSigner : item.contributor.creator;
-    console.log({ account, creator: item.contributor.creator, contractSigner });
+    var contractSigner = account === item.creator ? item.contractSigner : item.creator;
     if (contractSigner != zeroAddress && contractSigner != '') {
       houseError('You already added contract signer');
     } else {

@@ -113,7 +113,6 @@ export default function NewHistory({
                   value={solorDate}
                   disabled={loading}
                   onChange={(date) => {
-                    console.log(date);
                     setSolorDate(date);
                   }}
                   renderInput={(params) => (

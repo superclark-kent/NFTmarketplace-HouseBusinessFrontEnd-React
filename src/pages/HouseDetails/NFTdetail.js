@@ -37,9 +37,7 @@ export default function NFTdetail({
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      console.log('house price', housePrice)
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      console.log('changeHousePrice', tokenId, housePrice, _housePrice)
       await houseBusinessContract.methods.changeHousePrice(tokenId, _housePrice).send({ from: account });
       houseSuccess("You have successfully set your House price!")
       // loadNFTs()
