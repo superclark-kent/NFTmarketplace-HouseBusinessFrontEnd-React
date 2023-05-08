@@ -6,20 +6,13 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import dotenv from "dotenv";
 dotenv.config();
 
-const INFURA_KEY = '28e2008ae4974ac4942f6854a85fe21d';
-
 export const POLLING_INTERVAL = 12000;
 
-
-export const ERC20Address = '0x6210e82D02191ba2e3CAB0486C4777690DcA1242';
-export const HouseBusinessAddress = '0x69f87B80CFBDAdFE8D43c4D35A4CbD6C43efFC77';
-export const ContractAddress = '0x04819216B95AEaf1cb35f7fbEdeFC164e484103e';
-export const StakingAddress = '0x1689A9eF4Fd10b77515262A96633105b04AeBF33';
-export const ThirdPartyAddress = '0xec1aceD48c8264412827e957e26022D7a9ca8C9A';
-
-
-// p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
-// m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
+export const ERC20Address = '0x113A35da88B28c3b278e6910883c34AaEfF14a03';
+export const HouseBusinessAddress = '0xbF29A82012B3b4b5e76098A2A0dD93dD9a3a55DE';
+export const ContractAddress = '0x1fe50403FDE699C63dC1c6629cD88b26c9c82171';
+export const StakingAddress = '0x7F870290c8C28a9Eb3Af6A3958b52eBE04D7A0eD';
+export const ThirdPartyAddress = '0xa0035a51433cAe275C0B24463132E1843626C613';
 
 const config = {
   // development: {
