@@ -103,10 +103,10 @@ export default function HouseDetails() {
 
     setHistories(chistories);
 
-    if (nft.contributor.buyer) {
-      setSpecialBuyer(nft.contributor.buyer);
-    }
     if (nft) {
+      if (nft.contributor.buyer) {
+        setSpecialBuyer(nft.contributor.buyer);
+      }
       var confirm = await houseBusinessContract.methods.checkAllowedList(nft.tokenId, account).call();
       if (nft.contributor.currentOwner === account || confirm === true) {
         var flag = false;

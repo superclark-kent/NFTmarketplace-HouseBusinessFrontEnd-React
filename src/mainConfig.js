@@ -40,7 +40,7 @@ const config = {
       WEBSOCKET_1: "wss://mumbai-dagger.matic.today",
       RPC_URL_1: "https://matic-mumbai.chainstacklabs.com",
       RPC_URL_2: "https://rpc-mumbai.maticvigil.com",
-      RPC_URL_3: "https://matic-testnet-archive-rpc.bwarelabs.com",
+      // RPC_URL_3: "https://matic-testnet-archive-rpc.bwarelabs.com",
   },
   production: {
     CHAIN_NAME: 'Polygon Mainnet',
