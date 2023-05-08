@@ -160,6 +160,7 @@ export default function Admin() {
 
   const initialConfig = async () => {
     if (!account) return;
+
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     setMprice(web3.utils.fromWei(minPrice));
