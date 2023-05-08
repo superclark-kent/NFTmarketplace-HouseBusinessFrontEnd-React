@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Web3 from "web3";
 import { useWeb3React } from '@web3-react/core';
+import dotenv from "dotenv";
+dotenv.config();
 
 import {
     Box, Button, Divider, Grid, IconButton, InputBase,
@@ -9,12 +11,18 @@ import {
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
 
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+import CheckoutForm from 'components/CheckoutForm';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY);
+
 const style = {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 800,
+    width: 400,
     bgcolor: "background.paper",
     border: "1px solid black",
     boxShadow: 24,
@@ -36,13 +44,33 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function AirdropWallet() {
-    const { account } = useWeb3React();
+    // const { account } = useWeb3React();
     const OperatorContract = useOperatorContract();
     const { walletID } = useParams();
     const [creditBalance, setCreditBalance] = useState(0);
-
-    // Set Operator address modal
     const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
+    const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
+    const [clientSecret, setClientSecret] = useState("");
+
+    // useEffect(() => {
+    //   // Create PaymentIntent as soon as the page loads
+    //   fetch("/create-payment-intent", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
+    //   })
+    //     .then((res) => res.json())
+    //     .then((data) => setClientSecret(data.clientSecret));
+    // }, []);
+  
+    const appearance = {
+      theme: 'flat',
+    };
+
+    const options = {
+    //   clientSecret,
+      appearance,
+    };
 
     const getCreditBalance = async () => {
         // Get the ERC20 token balance.
@@ -86,10 +114,10 @@ export default function AirdropWallet() {
                     alignItems="center"
                     justifyContent="center"
                 >
-                    <Button variant="contained" color="secondary" style={{ marginTop: '20px' }}>
+                    <Button onClick={() => setCheckoutFormOpen(true)} variant="contained" color="secondary" style={{ marginTop: '20px' }}>
                         Purchase Credit by credit card.
                     </Button>
-                    <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }}>
+                    <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
                         Deposit $HBT
                     </Button>
                     <Button variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
@@ -117,6 +145,25 @@ export default function AirdropWallet() {
                                     </Item>
                                 </Grid>
                             </Grid>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Modal>
+
+            <Modal
+                open={checkoutFormOpen}
+                onClose={() => setCheckoutFormOpen(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                size="small"
+            >
+                <Box sx={style}>
+                    <Grid container spacing={3}>
+                        <Grid item md={12}>
+                            {/* Stripe payment form */}
+                            <Elements stripe={stripePromise} options={options}>
+                                <CheckoutForm />
+                            </Elements>
                         </Grid>
                     </Grid>
                 </Box>
