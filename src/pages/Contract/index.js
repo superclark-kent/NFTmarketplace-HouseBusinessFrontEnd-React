@@ -18,16 +18,20 @@ export default function Contract() {
   const classes = useContractStyle();
   const cleanContract = useCleanContract();
 
+  const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
   const [notifyContent, setNotifyContent] = useState('');
   const [notifyArr, setNotifyArr] = useState([]);
-  const [cSC, setCSC] = useState('');
   const [loading, setLoading] = useState(false);
   const [cSArr, setCSArr] = useState([]);
 
   const [allReceiveContracts, setAllReceiveContracts] = useState([]);
   const [rNotifyArr, setRNotifyArr] = useState([]);
   const [rNotifyContent, setRNotifyContent] = useState('');
+
+  const [editFlag, setEditFlag] = useState(-1);
+  const [CSigner, setCSigner] = useState('');
+  const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
   const loadContracts = async () => {
     setLoading(true);
@@ -106,11 +110,8 @@ export default function Contract() {
   const setCSAdd = (cSIndex, checked) => {
     var arr = [];
     for (let i = 0; i < cSArr.length; i++) {
-      if (i == cSIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == cSIndex) arr.push(checked);
+      else arr.push(false);
     }
     setCSArr(arr);
   };
@@ -134,11 +135,8 @@ export default function Contract() {
   const setNotifyAdd = (notifyIndex, checked) => {
     var arr = [];
     for (let i = 0; i < notifyArr.length; i++) {
-      if (i == notifyIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == notifyIndex) arr.push(checked);
+      else arr.push(false);
     }
     setNotifyArr(arr);
   };
@@ -146,11 +144,8 @@ export default function Contract() {
   const setRNotifyAdd = (notifyIndex, checked) => {
     var arr = [];
     for (let i = 0; i < rNotifyArr.length; i++) {
-      if (i == notifyIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == notifyIndex) arr.push(checked);
+      else arr.push(false);
     }
     setRNotifyArr(arr);
   };
@@ -197,12 +192,6 @@ export default function Contract() {
       loadContracts();
     }
   }, [account]);
-
-  const [editFlag, setEditFlag] = useState(-1);
-
-  const [CSigner, setCSigner] = useState('');
-
-  const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);
