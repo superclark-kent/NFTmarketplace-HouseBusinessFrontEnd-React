@@ -190,7 +190,6 @@ export default function HouseDetails() {
       console.table({
         "_tokenID,": _tokenID, 
         "cContract,": cContract, 
-        "hID,": hID, 
         "encryptedHouseImage,": encryptedHouseImage, 
         "encryptedBrand,": encryptedBrand, 
         "encryptedHistory,": encryptedHistory, 
@@ -204,7 +203,6 @@ export default function HouseDetails() {
           .addHistory(
             _tokenID,
             cContract,
-            hID,
             encryptedHouseImage,
             encryptedBrand,
             encryptedHistory,
@@ -234,6 +232,7 @@ export default function HouseDetails() {
     } catch (err) {
       houseError('Something Went wrong!');
       setLoading(false);
+      console.log('err', err)
     }
   };
 
@@ -260,7 +259,6 @@ export default function HouseDetails() {
   };
 
   const handlePayable = async (flag) => {
-    console.log('flag', flag, buyerFlag)
     if (web3.utils.fromWei(simpleNFT.price) == 0) {
       houseWarning("Please set NFT price to set payable");
       return;
@@ -386,3 +384,4 @@ export default function HouseDetails() {
     </>
   );
 }
+                  

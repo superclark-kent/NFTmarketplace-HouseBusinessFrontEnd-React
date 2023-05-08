@@ -278,7 +278,7 @@ export default function Histories({
               disabled={disabledArr[index] || loading}
               onChange={(e) => setCHistory(e.target.value)}
             />
-            {item.contractId > 0 && (
+            {item.hID > 0 && (
               <>
                 <IconButton
                   onClick={() => {

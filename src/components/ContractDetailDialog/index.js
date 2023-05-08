@@ -1,5 +1,6 @@
 import { Box, Dialog, DialogTitle, Grid } from '@mui/material';
 import useContractStyle from 'assets/styles/contractStyle';
+import { useEffect } from 'react';
 import web3 from 'web3';
 
 const ContractDetailDialog = ({ contract, open, onClose }) => {
@@ -12,6 +13,10 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
     var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
     return `${dy}-${mt}-${yr}`;
   };
+
+  useEffect(() => {
+    console.log('here', contract)
+  }, [])
 
   return (
     <Dialog open={open} onClose={onClose}>
