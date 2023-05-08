@@ -16,6 +16,7 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { BigNumber } from 'ethers';
 import { useWeb3 } from "hooks/useWeb3";
 import { houseInfo, houseSuccess } from 'hooks/useToast';
+import { GasMeter } from "@mui/icons-material";
 
 export default function NFTdetail({
   account,
@@ -32,14 +33,12 @@ export default function NFTdetail({
   const [isBuyerEdit, setIsBuyerEdit] = useState(false);
   const [housePrice, setHousePrice] = useState(0);
   const web3 = useWeb3();
-
+                                 
   const changeHousePrice = async (tokenId) => {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      console.log('house price', housePrice)
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      console.log('changeHousePrice', tokenId, housePrice, _housePrice)
       await houseBusinessContract.methods.changeHousePrice(tokenId, _housePrice).send({ from: account });
       houseSuccess("You have successfully set your House price!")
       // loadNFTs()
@@ -80,6 +79,9 @@ export default function NFTdetail({
               ),
             }}
           />
+          {
+            
+          }
           <Button
               variant="outlined"
               onClick={() => changeHousePrice(simpleNFT.tokenId)}
@@ -211,7 +213,7 @@ export default function NFTdetail({
                 }`}</Box>
               </Button>
             </Grid>
-          )
+          )    
         ) : (
           ""
         )}

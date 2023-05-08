@@ -34,7 +34,6 @@ export default function Histories({
   loadNFT,
   disconnectContract,
 }) {
-  // console.log("history", histories)
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
 
@@ -130,7 +129,6 @@ export default function Histories({
     var dArr = [];
     var tempHistory = [];
     for (let i = 0; i < histories.length; i++) {
-      console.log('history[i]', histories[i]);
       var bytesHistory = CryptoJS.AES.decrypt(histories[i].history, secretKey);
       var decryptedHistory = bytesHistory.toString(CryptoJS.enc.Utf8);
       var bytesBrandType = CryptoJS.AES.decrypt(histories[i].brandType, secretKey);
@@ -280,7 +278,7 @@ export default function Histories({
               disabled={disabledArr[index] || loading}
               onChange={(e) => setCHistory(e.target.value)}
             />
-            {item.contractId > 0 && (
+            {item.hID > 0 && (
               <>
                 <IconButton
                   onClick={() => {

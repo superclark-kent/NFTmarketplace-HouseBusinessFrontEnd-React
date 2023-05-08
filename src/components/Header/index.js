@@ -2,30 +2,31 @@ import React, { Fragment, cloneElement, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
-import { styled } from "@mui/material/styles";
+import { cloneElement, Fragment, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import CssBaseline from "@mui/material/CssBaseline";
+import MuiAppBar from "@mui/material/AppBar";
+import Avatar from "@mui/material/Avatar";
+import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
+import Fab from "@mui/material/Fab";
+import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Badge from "@mui/material/Badge";
-import Divider from "@mui/material/Divider";
 import Paper from "@mui/material/Paper";
+import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
-import Zoom from "@mui/material/Zoom";
-import Fab from "@mui/material/Fab";
+import Typography from "@mui/material/Typography";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
+import Zoom from "@mui/material/Zoom";
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 
@@ -34,36 +35,33 @@ import {
 } from '@mui/material';
 
 // Icons
-import WidgetsIcon from "@mui/icons-material/Widgets";
-import ManageSearchIcon from "@mui/icons-material/ManageSearch";
-import ExtensionIcon from "@mui/icons-material/Extension";
-import Logout from "@mui/icons-material/Logout";
-import Settings from "@mui/icons-material/Settings";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import ExtensionIcon from "@mui/icons-material/Extension";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Logout from "@mui/icons-material/Logout";
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
+import Settings from "@mui/icons-material/Settings";
+import WidgetsIcon from "@mui/icons-material/Widgets";
 
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
 import {
-  useHouseBusinessContract,
-  useCleanContract,
+  useCleanContract, useHouseBusinessContract
 } from "hooks/useContractHelpers";
 import { houseInfo, houseWarning } from "hooks/useToast";
 
-import MainLogo from "assets/images/Offero.png";
-import Metamask from "assets/images/Metamask.png";
-import Coinbase from "assets/images/Coinbase.png";
-import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import defaultAvatar from "assets/images/avatar.png";
-import { useCookies } from "react-cookie";
+import Coinbase from "assets/images/Coinbase.png";
+import Metamask from "assets/images/Metamask.png";
+import MainLogo from "assets/images/Offero.png";
+import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import { connectorsByName } from "mainConfig";
+import { useCookies } from "react-cookie";
 
 // ------------
 
@@ -243,13 +241,16 @@ export default function Header(props) {
   const [notifies, setNotifies] = useState([]);
   const [badgeLeng, setBadgeLeng] = useState("");
   const [cookies, setCookie] = useCookies(["housebusiness"]);
-  const [notifyList, setNotifyList] = useCookies(["notifyList"]);
   const [isMember, setIsMember] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const isUserMenuOpen = Boolean(userMenuOpen);
   const [notifyOpen, setNotifyOpen] = useState(false);
-  const isNotifyOpen = Boolean(notifyOpen);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+
+  const isUserMenuOpen = Boolean(userMenuOpen);
+  const isNotifyOpen = Boolean(notifyOpen);
+
   const toggleDrawer = () => (event) => {
     if (
       event.type === "keydown" &&
@@ -263,22 +264,15 @@ export default function Header(props) {
 
   const pathname = location.pathname;
 
-  const handleMenuClick = (page) => {
-    navigate(page.router);
-  };
-
-  const handleNotify = () => {
-    navigate("../../contract/main");
-  };
+  const handleMenuClick = (page) => { navigate(page.router); };
+  const handleNotify = () => { navigate("../../contract/main"); };
 
   const handleNotifyMenuOpen = (event) => {
     setCookie("notifies", JSON.stringify(notifies), { path: "/" });
     setNotifyOpen(event.currentTarget);
   };
 
-  const handleProfileMenuOpen = (event) => {
-    setUserMenuOpen(event.currentTarget);
-  };
+  const handleProfileMenuOpen = (event) => { setUserMenuOpen(event.currentTarget); };
 
   const handleDisconnectWallet = () => {
     deactivate();
@@ -286,7 +280,6 @@ export default function Header(props) {
   };
 
   const checkAdmin = async () => {
-    console.log('account', account)
     var isMember = await houseBusinessContract.methods
       .member(account)
       .call();
@@ -320,7 +313,6 @@ export default function Header(props) {
     console.log(pathname.includes("account"));
     if (pathname != "/house/app" && !pathname.includes("account")) {
       if (!account && cookies.connected != "true") {
-        console.log('here--->')
         houseInfo("Please connect your wallet");
         navigate("../../house/app");
       }
@@ -331,8 +323,6 @@ export default function Header(props) {
     }
   }, [account, pathname]);
 
-  const [open, setOpen] = useState(false);
-  const [isWalletInstalled, setIsWalletInstalled] = useState(false);
   const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
   const [airdropWalletID, setAirdropWalletID] = useState('');
 
@@ -352,9 +342,7 @@ export default function Header(props) {
     setAirdropWalletID('');
   }
 
-  const setProvider = (type) => {
-    window.localStorage.setItem("provider", type);
-  };
+  const setProvider = (type) => { window.localStorage.setItem("provider", type); };
 
   const handleConnectWallet = (con, conName) => {
     activate(con);

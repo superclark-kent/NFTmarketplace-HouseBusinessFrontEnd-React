@@ -14,19 +14,12 @@ const FileUpload = async (file) => {
             authorization: auth,
         },
     });
-  
- //   ipfs.pin.add('QmeGAVddnBSnKc1DLE7DLV9uuTqo5F7QbaveTjr45JUdQn').then((res) => {
- //     console.log(res);
- // });
 
     const UploadtoIPFS = async (file) => {
         const subdomain = 'https://offero.infura-ipfs.io';
         try {
-          console.log("client", client);
          const added = await client.add({ content: file });
-         console.log("added", added);
          const URL = `${subdomain}/ipfs/${added.path}`;
-         console.log("URL", URL)
          return URL;
        } catch (error) {
          console.log('Error uploading file to IPFS.', error);
@@ -34,7 +27,6 @@ const FileUpload = async (file) => {
     };
 
     const result =  await UploadtoIPFS(file);
-    console.log('result', result);
     return result;
   };
 

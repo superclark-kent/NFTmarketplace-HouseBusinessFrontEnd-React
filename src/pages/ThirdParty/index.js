@@ -97,35 +97,26 @@ export default function FullWidthTabs() {
   const [value, setValue] = useState(0);
   const { account } = useWeb3React();
   const thirdPartyContract = useThirdPartyContract();
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const handleChangeIndex = (index) => {
-    setValue(index);
-  };
-
+  
+  const handleChange = (event, newValue) => { setValue(newValue); };
+  const handleChangeIndex = (index) => { setValue(index); };
+  
   const [CagetoryList, setCategoryList] = useState([]);
-  const [ActiveCategory, setActiveCategory] = useState([]);
   const [PropertyList, setPropertyList] = useState([]);
+  const [Package, setPackage] = useState([]);
 
   const SelectCategory = async (category) => {
-    setActiveCategory([]);
     setPackage([]);
-    setActiveCategory(category);
     setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0]).call({ from: account }));
   }
 
-  const [Package, setPackage] = useState([]);
 
   useEffect(async () => {
     let category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
     category = category.filter(item => item[1] !== '');
     setCategoryList(category);
-    setActiveCategory(category[0])
     setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
-    setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account}))
+    setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account }))
   }, [])
 
   return (
@@ -210,15 +201,15 @@ export default function FullWidthTabs() {
                               </FormGroup>
 
                               {
-                                  PropertyList.map((prop, index) =>{
-                                    return( tier[6][index] && (
-                                      <FormGroup key={index}>
-                                        <FormControlLabel
-                                        control = {<CheckIcon />} label={prop[1]} sx={{ gap: '10px', marginLeft: '30px', my: '10px' }}>
-                                        </FormControlLabel>
-                                      </FormGroup>
-                                    )      )                            
-                                  })
+                                PropertyList.map((prop, index) => {
+                                  return (tier[6][index] && (
+                                    <FormGroup key={index}>
+                                      <FormControlLabel
+                                        control={<CheckIcon />} label={prop[1]} sx={{ gap: '10px', marginLeft: '30px', my: '10px' }}>
+                                      </FormControlLabel>
+                                    </FormGroup>
+                                  ))
+                                })
                               }
                             </CardContent>
                             <CardActions>

@@ -362,7 +362,6 @@ export default function CreateContract() {
                 placeholder={currency}
                 value={agreedPrice}
                 onChange={(e) => {
-                  console.log("222");
                   if (e.target.value < 0 ||e.target.value > 999999) {
                     houseError("Agreed price can not be negative or greater then 999999");
                     setAgreedPrice("");

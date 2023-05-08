@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { Box, Grid, Button, TextField, FormControlLabel, Checkbox, IconButton, InputBase, Paper } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import EditIcon from '@mui/icons-material/Edit';
+import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import CryptoJS from 'crypto-js';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useCleanContract } from 'hooks/useContractHelpers';
+import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, Paper, TextField } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
+import CryptoJS from 'crypto-js';
+import { useCleanContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
-import { secretKey, zeroAddress } from 'mainConfig';
 import { useWeb3 } from 'hooks/useWeb3';
+import { secretKey, zeroAddress } from 'mainConfig';
 
 export default function Contract() {
   const { account } = useWeb3React();
@@ -18,10 +18,10 @@ export default function Contract() {
   const classes = useContractStyle();
   const cleanContract = useCleanContract();
 
+  const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
   const [notifyContent, setNotifyContent] = useState('');
   const [notifyArr, setNotifyArr] = useState([]);
-  const [cSC, setCSC] = useState('');
   const [loading, setLoading] = useState(false);
   const [cSArr, setCSArr] = useState([]);
 
@@ -29,12 +29,15 @@ export default function Contract() {
   const [rNotifyArr, setRNotifyArr] = useState([]);
   const [rNotifyContent, setRNotifyContent] = useState('');
 
+  const [editFlag, setEditFlag] = useState(-1);
+  const [CSigner, setCSigner] = useState('');
+  const [newSgnerLoading, setNewSgnerLoading] = useState(false);
+
   const loadContracts = async () => {
     setLoading(true);
     var allmyContracts = await cleanContract.methods.getAllContractsByOwner().call({ from: account });
     var allCons = [];
     for (let i = 0; i < allmyContracts.length; i++) {
-      console.log('allmyContracts', allmyContracts[i]);
       var bytes = CryptoJS.AES.decrypt(allmyContracts[i].contractURI, secretKey);
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allmyContracts[i].companyName, secretKey);
@@ -43,7 +46,6 @@ export default function Contract() {
       var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allmyContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
-      console.log(decryptedCompany, decryptedData, decryptedType);
       allCons.push({
         ...allmyContracts[i],
         contractURI: decryptedData,
@@ -57,7 +59,6 @@ export default function Contract() {
     var allOCons = [];
     for (let i = 0; i < allOtherContracts.length; i++) {
       if (allOtherContracts[i].companyName === '') continue;
-      console.log(allOtherContracts[i]);
       var bytes = CryptoJS.AES.decrypt(allOtherContracts[i].contractURI, secretKey);
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allOtherContracts[i].companyName, secretKey);
@@ -92,7 +93,7 @@ export default function Contract() {
 
   const handleSign = async (item) => {
     setLoading(true);
-    if (item.contributor.creator === account) {
+    if (item.creator === account) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
@@ -109,18 +110,14 @@ export default function Contract() {
   const setCSAdd = (cSIndex, checked) => {
     var arr = [];
     for (let i = 0; i < cSArr.length; i++) {
-      if (i == cSIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == cSIndex) arr.push(checked);
+      else arr.push(false);
     }
     setCSArr(arr);
   };
 
   const handleContractSigner = async (item) => {
-    var contractSigner = account === item.contributor.creator ? item.contractSigner : item.contributor.creator;
-    console.log({ account, creator: item.contributor.creator, contractSigner });
+    var contractSigner = account === item.creator ? item.contractSigner : item.creator;
     if (contractSigner != zeroAddress && contractSigner != '') {
       houseError('You already added contract signer');
     } else {
@@ -138,11 +135,8 @@ export default function Contract() {
   const setNotifyAdd = (notifyIndex, checked) => {
     var arr = [];
     for (let i = 0; i < notifyArr.length; i++) {
-      if (i == notifyIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == notifyIndex) arr.push(checked);
+      else arr.push(false);
     }
     setNotifyArr(arr);
   };
@@ -150,11 +144,8 @@ export default function Contract() {
   const setRNotifyAdd = (notifyIndex, checked) => {
     var arr = [];
     for (let i = 0; i < rNotifyArr.length; i++) {
-      if (i == notifyIndex) {
-        arr.push(checked);
-      } else {
-        arr.push(false);
-      }
+      if (i == notifyIndex) arr.push(checked);
+      else arr.push(false);
     }
     setRNotifyArr(arr);
   };
@@ -201,12 +192,6 @@ export default function Contract() {
       loadContracts();
     }
   }, [account]);
-
-  const [editFlag, setEditFlag] = useState(-1);
-
-  const [CSigner, setCSigner] = useState('');
-
-  const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);

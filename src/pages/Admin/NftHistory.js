@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -7,13 +6,13 @@ import {
   CircularProgress,
   Grid,
   IconButton,
-  TextField,
+  TextField
 } from "@mui/material";
 
-import { useWeb3React } from "@web3-react/core";
+import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
+import { useWeb3React } from "@web3-react/core";
 import { useHouseBusinessContract } from "hooks/useContractHelpers";
 import { houseSuccess } from "hooks/useToast";
 import { isEmpty } from "lodash";
@@ -21,6 +20,7 @@ import { isEmpty } from "lodash";
 export default function NftHistory({ classes, historyTypes }) {
   const houseBusinessContract = useHouseBusinessContract();
   const { account } = useWeb3React();
+
   const [allTypes, setAllTypes] = useState([]);
   const [editArr, setEditArr] = useState([]);
   const [newItem, setNewItem] = useState(null);
@@ -28,6 +28,7 @@ export default function NftHistory({ classes, historyTypes }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [loading, setLoading] = useState(false);
   const [newHistory, setNewHistory] = useState("");
+  const [Hdata, setHData] = useState([]);
 
   const label = { inputProps: { "aria-label": "History Checkbox" } };
 
@@ -102,7 +103,6 @@ export default function NftHistory({ classes, historyTypes }) {
 
   const handleSave = async (historyItem, typeID) => {
     setLoading(true);
-    console.log("historyItem, typeID", historyItem, typeID)
     await houseBusinessContract.methods
       .addOrEditHType(
         typeID,
@@ -147,7 +147,6 @@ export default function NftHistory({ classes, historyTypes }) {
     setEditingItem({});
   };
 
-  const [Hdata, setHData] = useState([]);
 
   useEffect(() => {
     setHData(historyTypes);

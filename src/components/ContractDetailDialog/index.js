@@ -1,8 +1,7 @@
-import React from 'react';
-import web3 from 'web3';
-import { Dialog, DialogTitle, Grid, Box } from '@mui/material';
+import { Box, Dialog, DialogTitle, Grid } from '@mui/material';
 import useContractStyle from 'assets/styles/contractStyle';
-import { useCleanContract } from 'hooks/useContractHelpers';
+import { useEffect } from 'react';
+import web3 from 'web3';
 
 const ContractDetailDialog = ({ contract, open, onClose }) => {
   const classes = useContractStyle();
@@ -14,6 +13,10 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
     var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
     return `${dy}-${mt}-${yr}`;
   };
+
+  useEffect(() => {
+    console.log('here', contract)
+  }, [])
 
   return (
     <Dialog open={open} onClose={onClose}>

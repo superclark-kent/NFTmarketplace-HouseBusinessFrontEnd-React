@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Button, Divider, Grid, IconButton, InputBase,
   Paper, styled, TextField
@@ -6,8 +8,6 @@ import { useWeb3React } from '@web3-react/core';
 import {
   useCleanContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
 } from 'hooks/useContractHelpers';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import AddIcon from '@mui/icons-material/Add';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -64,19 +64,14 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function Admin() {
-  const [personName, setPersonName] = useState([]);
-  const [person, setPerson] = useState([]);
 
+  const [person, setPerson] = useState([]);
+  const [personName, setPersonName] = useState([]);
   const [DeleteCategory, SetDeleteCategory] = useState('');
   const [DeleteProperty, SetDeleteProperty] = useState('');
 
-  const handleChangeDeleteProperty = (event) => {
-    SetDeleteProperty(event.target.value);
-  };
-
-  const handleChangeDeleteItem = (event) => {
-    SetDeleteCategory(event.target.value);
-  };
+  const handleChangeDeleteProperty = (event) => { SetDeleteProperty(event.target.value); };
+  const handleChangeDeleteItem = (event) => { SetDeleteCategory(event.target.value); };
 
   const handleChange = (event) => {
     const {
@@ -127,20 +122,13 @@ export default function Admin() {
 
   const [NPropertyList, setNPropertyList] = useState([]);
   const [NProperty, setNProperty] = useState('');
-
   const [CategoryList, setCategoryList] = useState([]);
   const [NCategory, setNCategory] = useState('');
-
   const [newCategoryId, setNewCategory] = useState('');
-
   const [visibleProperty, setVisibleProperty] = useState([]);
-
   const [Pname, setPname] = useState('');
-
   const [Pprice, setPprice] = useState('');
-
   const [Pperiod, setPperiod] = useState(0);
-
   const [DataLimit, setDataLimit] = useState('');
 
   const PeriodList = [
@@ -159,29 +147,27 @@ export default function Admin() {
   ];
 
   const initialConfig = async () => {
-    console.log('aaa->', account)
     if (!account) return;
 
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    
+    var penalty = await stakingContract.methods.penalty().call();
+    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
+    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
+    var allApys = await stakingContract.methods.getAllAPYs().call();
+    
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
-
-    var penalty = await stakingContract.methods.penalty().call();
     setPenalty(penalty);
-
-    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     setRoyaltyCreator(royaltyCreator);
-
-    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     setRoyaltyMarket(royaltyMarket);
 
-    var allApys = await stakingContract.methods.getAllAPYs().call();
-    console.log('allApys', allApys, allApys[0]);
     setApyTypes(allApys[0]);
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
+
     var isMember = await houseBusinessContract.methods.member(account).call();
     if (isMember === false) {
       houseError("You aren't admin");
@@ -193,10 +179,9 @@ export default function Admin() {
     for (var i = 0; i < propertyList.length; i++) {
       tempList.push(propertyList[i][1]);
     }
+
     setVisibleProperty(tempList);
-
     setCountArray(await houseBusinessContract.methods.getTotalInfo().call({ from: account }));
-
     setUploadedCount(await CleanContract.methods.getUploadedCounter().call({ from: account }));
 
     var hTypes = await houseBusinessContract.methods.getHistoryType().call();
@@ -267,7 +252,6 @@ export default function Admin() {
   const handleApySelectChange = async (e) => {
     setApySelect(e.target.value);
     var index = apyTypes.indexOf(e.target.value);
-    console.log('index', index);
     setApyValue(apyValues[index]);
   };
 
@@ -284,7 +268,6 @@ export default function Admin() {
   const AddNewCategory = async () => {
     if (NCategory !== '') {
       if (CategoryList.findIndex((item) => item.cartegoryName.toUpperCase() === NCategory.toUpperCase()) === -1) {
-        console.log('NPropertyList', NPropertyList);
         if (NPropertyList.length > 0) {
           var proIDList = [];
           for (let i = 0; i < NPropertyList.length; i++) {
@@ -369,7 +352,6 @@ export default function Admin() {
   };
 
   useEffect(async () => {
-    console.log('this is admin page')
     initialConfig();
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
@@ -377,7 +359,6 @@ export default function Admin() {
     setHprice(web3.utils.fromWei(maxPrice));
 
     const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
-    console.log('Category', Category);
     setCategoryList(Category.filter((item) => item[1] != ''));
   }, []);
 
