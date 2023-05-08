@@ -258,6 +258,7 @@ export default function HouseDetails() {
   };
 
   const handlePayable = async (flag) => {
+    console.log('flag', flag, buyerFlag)
     if (buyerFlag === true) {
       await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, flag).send({ from: account });
     } else {

@@ -43,9 +43,11 @@ export default function Nfts() {
   }
 
   const handlePayable = async (item, payable) => {
+    // const estimateGas = await houseBusinessContract.methods.setPayable(_tokenId, zeroAddress, payable).estimateGas();
+    // console.log('estimate gas', estimateGas)
     try {
       await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).send({ from: account })
-      houseSuccess("Your House NFT can be sold now.")
+      houseSuccess("Your House NFT can be sold from now.")
       loadNFTs()
     } catch (error) {
       console.log(error)
@@ -83,7 +85,7 @@ export default function Nfts() {
                     <img className={nftClasses.nftImg} src={item.tokenURI} />
                   </Grid>
                   <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`"${item.tokenName}"`}</Box>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName}`}</Box>
                   </Grid>
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>
