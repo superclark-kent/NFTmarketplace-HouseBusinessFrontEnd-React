@@ -381,7 +381,7 @@ export default function Header(props) {
       navigate(`../../account/${airdropWalletID}`);
       handleClose();
     }
-    
+
   }
 
   return (
@@ -770,7 +770,7 @@ export default function Header(props) {
             <Grid item md={12}>
               <Box component={'h3'}>Set Airdrop Wallet ID</Box>
               <Grid item md={12} sx={{ display: 'flex' }}>
-                <Grid item md={12}>
+                <Grid item md={8}>
                   <TextField
                     value={airdropWalletID}
                     fullWidth
@@ -785,6 +785,7 @@ export default function Header(props) {
                   onClick={handleCreateAccount}
                   startIcon={<SaveIcon />}
                   variant="contained"
+                  style={{ marginLeft: '20px' }}
                 >
                   Save
                 </Button>

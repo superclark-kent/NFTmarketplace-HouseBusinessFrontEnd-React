@@ -23,23 +23,27 @@ export default function Dashboard() {
 
   const loadNFTs = async () => {
     var nfts = [];
-    var gNFTs = await houseBusinessContract.methods.getAllHouses().call();
-    for(let i = 0 ; i < gNFTs.length ; i++) {
-      var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-      var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
-      var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-      var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
-      var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
-      nfts.push({
-        ...gNFTs[i],
-        tokenURI :decryptedData,
-        tokenName: decryptedName,
-        tokenType: decryptedType
-      })
-    console.log('nfts', nfts)
+    houseBusinessContract.methods.getAllHouses().call()
+      .then(gNFTs => {
 
-    }
+        for (let i = 0; i < gNFTs.length; i++) {
+          var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
+          var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+          var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
+          var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
+          var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
+          var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
+          nfts.push({
+            ...gNFTs[i],
+            tokenURI: decryptedData,
+            tokenName: decryptedName,
+            tokenType: decryptedType
+          })
+          console.log('nfts', nfts)
+
+        }
+      })
+      .catch(err => console.log(err));
     if (account) {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
@@ -99,11 +103,11 @@ export default function Dashboard() {
                       <Box component={'span'}>Owned By</Box>
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
-                    {web3.utils.fromWei(item.price) > 0 && 
-                    <Grid className={nftClasses.nftHousePrice}>
-                      <Box component={'span'}>Current Price</Box>
-                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
-                    </Grid>}
+                    {web3.utils.fromWei(item.price) > 0 &&
+                      <Grid className={nftClasses.nftHousePrice}>
+                        <Box component={'span'}>Current Price</Box>
+                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
+                      </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
