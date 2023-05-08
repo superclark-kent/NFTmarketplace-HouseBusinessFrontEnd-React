@@ -11,11 +11,11 @@ const INFURA_KEY = '28e2008ae4974ac4942f6854a85fe21d';
 export const POLLING_INTERVAL = 12000;
 
 
-export const ERC20Address = '0x8EB290601b0aed3BC55c22b05b71241edbd82b81';
-export const HouseBusinessAddress = '0xe40125DB391cFCffa840b60d5A5F92458684fC7C';
-export const ContractAddress = '0x8fFbC7A2DFA4eD095afF42B61E5f2281040590CB';
-export const StakingAddress = '0x4CA6D50b4Cc01fb78Ad696c080062e11A9F243d3';
-export const ThirdPartyAddress = '0x4c5d19C48c1142912b74F695f9C60Af08217481F';
+export const ERC20Address = '0x6210e82D02191ba2e3CAB0486C4777690DcA1242';
+export const HouseBusinessAddress = '0x69f87B80CFBDAdFE8D43c4D35A4CbD6C43efFC77';
+export const ContractAddress = '0x04819216B95AEaf1cb35f7fbEdeFC164e484103e';
+export const StakingAddress = '0x1689A9eF4Fd10b77515262A96633105b04AeBF33';
+export const ThirdPartyAddress = '0xec1aceD48c8264412827e957e26022D7a9ca8C9A';
 
 
 // p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454

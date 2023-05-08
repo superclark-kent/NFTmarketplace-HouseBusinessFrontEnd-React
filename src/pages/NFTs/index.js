@@ -43,7 +43,7 @@ export default function Nfts() {
   }
 
   const handlePayable = async (item, payable) => {
-    // const estimateGas = await houseBusinessContract.methods.setPayable(_tokenId, zeroAddress, payable).estimateGas();
+    // const estimateGas = await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).estimateGas();
     // console.log('estimate gas', estimateGas)
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
