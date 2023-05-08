@@ -11,13 +11,14 @@ import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
 import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseError, houseSuccess } from 'hooks/useToast';
+import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { secretKey, zeroAddress } from 'mainConfig';
 import { decryptContract } from 'utils';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
 import NewHistory from './NewHistory';
 import NFTdetail from './NFTdetail';
+import { useWeb3 } from 'hooks/useWeb3';
 
 const style = {
   position: 'absolute',
@@ -36,6 +37,7 @@ const style = {
 export default function HouseDetails() {
   const navigate = useNavigate();
   const { account } = useWeb3React();
+  const web3 = useWeb3();
   const { houseNftID } = useParams();
 
   const cleanContract = useCleanContract();
@@ -259,6 +261,10 @@ export default function HouseDetails() {
 
   const handlePayable = async (flag) => {
     console.log('flag', flag, buyerFlag)
+    if (web3.utils.fromWei(simpleNFT.price) == 0) {
+      houseWarning("Please set NFT price to set payable");
+      return;
+    }
     if (buyerFlag === true) {
       await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, flag).send({ from: account });
     } else {

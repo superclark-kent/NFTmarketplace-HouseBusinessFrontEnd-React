@@ -9,7 +9,7 @@ import CryptoJS from "crypto-js";
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import useNftStyle from 'assets/styles/nftStyle';
 
-import { houseSuccess } from 'hooks/useToast';
+import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
 
@@ -45,6 +45,10 @@ export default function Nfts() {
   const handlePayable = async (item, payable) => {
     // const estimateGas = await houseBusinessContract.methods.setPayable(_tokenId, zeroAddress, payable).estimateGas();
     // console.log('estimate gas', estimateGas)
+    if (web3.utils.fromWei(item.price) == 0 && payable == true) {
+      houseWarning("Please set NFT price to set payable");
+      return;
+    }
     try {
       await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).send({ from: account })
       houseSuccess("Your House NFT can be sold from now.")
@@ -98,7 +102,7 @@ export default function Nfts() {
                     </Grid>
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
-                    <Button
+                  <Button
                       variant='outlined'
                       onClick={() => handlePayable(item, item.nftPayable === false)}
                       className={nftClasses.nftHouseButton}
