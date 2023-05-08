@@ -1,17 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { useWeb3React } from '@web3-react/core';
-import { Button, Grid } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import { Button, Grid } from '@mui/material';
+import { Box } from '@mui/system';
+import { useWeb3React } from '@web3-react/core';
+import useNftStyle from 'assets/styles/nftStyle';
 import CryptoJS from "crypto-js";
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { useNavigate } from 'react-router-dom';
-import useNftStyle from 'assets/styles/nftStyle';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { Box } from '@mui/system';
-import MoreDetail from './MoreDetail';
 import { secretKey, zeroAddress } from 'mainConfig';
-import { CoPresentOutlined } from '@mui/icons-material';
+import MoreDetail from './MoreDetail';
 
 export default function Dashboard() {
   const nftClasses = useNftStyle()

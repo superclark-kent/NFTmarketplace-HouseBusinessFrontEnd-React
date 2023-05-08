@@ -14,7 +14,7 @@ import { useHouseBusinessContract, useStakingContract } from 'hooks/useContractH
 import useNftStyle from 'assets/styles/nftStyle';
 import useStakingStyle from 'assets/styles/stakingStyle';
 
-import { houseSuccess, houseInfo } from 'hooks/useToast';
+import { houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, StakingAddress, zeroAddress } from 'mainConfig';
 

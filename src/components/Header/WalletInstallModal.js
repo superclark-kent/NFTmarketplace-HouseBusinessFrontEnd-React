@@ -10,9 +10,7 @@ const WalletInstallModal = () => {
     }
   }, []);
 
-  const closeModal = () => {
-    setIsOpen(false);
-  };
+  const closeModal = () => {    setIsOpen(false);  };
 
   return (
     <>

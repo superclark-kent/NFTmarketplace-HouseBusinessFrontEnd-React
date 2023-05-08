@@ -1,8 +1,6 @@
-import React from 'react';
-import web3 from 'web3';
-import { Dialog, DialogTitle, Grid, Box } from '@mui/material';
+import { Box, Dialog, DialogTitle, Grid } from '@mui/material';
 import useContractStyle from 'assets/styles/contractStyle';
-import { useCleanContract } from 'hooks/useContractHelpers';
+import web3 from 'web3';
 
 const ContractDetailDialog = ({ contract, open, onClose }) => {
   const classes = useContractStyle();

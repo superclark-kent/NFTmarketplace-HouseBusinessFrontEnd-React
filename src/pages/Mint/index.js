@@ -1,30 +1,23 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  Stack,
-  TextField,
-  Grid,
-  FormLabel,
-  InputAdornment,
-} from "@mui/material";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import styled from "@emotion/styled";
-import { useWeb3React } from "@web3-react/core";
-import { BigNumber } from "ethers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import LoadingButton from "@mui/lab/LoadingButton";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
-import Web3 from "web3";
+import LoadingButton from "@mui/lab/LoadingButton";
+import {
+  Button, FormLabel, Grid, Stack,
+  TextField
+} from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { useWeb3React } from "@web3-react/core";
 import CryptoJS from "crypto-js";
-
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import FileUpload from "utils/ipfs";
 import { useHouseBusinessContract } from "hooks/useContractHelpers";
-import { houseInfo, houseError, houseSuccess } from "hooks/useToast";
+import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
+import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
   display: "none",
@@ -68,10 +61,7 @@ export default function Mint() {
   const [houseName, setHouseName] = useState("");
   const [houseType, setHouseType] = useState("terraced");
   const [houseDescription, setHouseDescription] = useState(new Date("1970"));
-  const [housePrice, setHousePrice] = useState(0.1);
   const [loading, setLoading] = useState(false);
-  const [minPrice, setMinPrice] = useState(100000000000000000);
-  const [maxPrice, setMaxPrice] = useState(1000000000000000000);
 
   const handleImageChange = async (e) => {
     var uploadedImage = e.target.files[0];
@@ -118,7 +108,6 @@ export default function Mint() {
             setHouseName("");
             setHouseType("terraced");
             setHouseDescription(new Date("1970"));
-            setHousePrice("");
             houseSuccess("House NFT minted successfuly.");
             navigate("../../house/myNfts");
           } catch (error) {
@@ -129,18 +118,6 @@ export default function Mint() {
       }
     }
   };
-
-  const getMinMaxPrice = async () => {
-    var minPrice = await houseBusinessContract.methods.minPrice().call();
-    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    setMinPrice(minPrice);
-    setMaxPrice(maxPrice);
-    setHousePrice(Web3.utils.fromWei(`${minPrice}`));
-  };
-
-  useEffect(() => {
-    getMinMaxPrice();
-  }, [account]);
 
   return (
     <Stack
@@ -260,25 +237,6 @@ export default function Mint() {
             </Grid>
           </LocalizationProvider>
         </Grid>
-        {/* <Grid sx={{ m: 1 }}>
-          <TextField
-            className={classes.housePrice}
-            type="number"
-            variant="filled"
-            // label="House NFT Price"
-            label={`House NFT Price ${Web3.utils.fromWei(
-              `${minPrice}`
-            )} ~ ${Web3.utils.fromWei(`${maxPrice}`)} ETH`}
-            placeholder="House NFT price."
-            value={housePrice}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">ETH</InputAdornment>
-              ),
-            }}
-            onChange={(e) => setHousePrice(e.target.value)}
-          />
-        </Grid> */}
         <Grid sx={{ m: 1 }}>
           <LoadingButton
             onClick={() => handleHouseMint()}

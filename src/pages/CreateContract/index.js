@@ -1,37 +1,28 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Stack,
-  TextField,
-  Grid,
-  FormLabel,
-  MenuItem,
-  Checkbox,
-  FormControlLabel,
-  Paper,
-  InputBase,
-  IconButton,
-} from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
-import { useWeb3React } from "@web3-react/core";
-import { BigNumber } from "ethers";
-import Web3 from "web3";
-import SaveAsIcon from "@mui/icons-material/SaveAs";
-import CryptoJS from "crypto-js";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { useNavigate } from "react-router-dom";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import SaveAsIcon from "@mui/icons-material/SaveAs";
+import LoadingButton from "@mui/lab/LoadingButton";
+import {
+  Button, Checkbox,
+  FormControlLabel, FormLabel, Grid, IconButton, InputBase, MenuItem, Paper, Stack,
+  TextField
+} from "@mui/material";
+import { useWeb3React } from "@web3-react/core";
+import CryptoJS from "crypto-js";
+import { BigNumber } from "ethers";
+import Web3 from "web3";
 
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import FileUpload from "utils/ipfs";
-import { houseInfo, houseError, houseSuccess } from "hooks/useToast";
-import { secretKey, zeroAddress } from "mainConfig";
 import {
-  useHouseBusinessContract,
-  useCleanContract,
+  useCleanContract, useHouseBusinessContract
 } from "hooks/useContractHelpers";
+import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
+import { secretKey, zeroAddress } from "mainConfig";
+import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
   display: "none",

@@ -10,8 +10,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import ConnectContract from './ConnectContract';
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-
 const StyledInput = styled('input')({
   display: 'none',
 });

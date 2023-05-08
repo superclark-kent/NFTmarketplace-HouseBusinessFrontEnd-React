@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { Box, Grid, Button, TextField, FormControlLabel, Checkbox, IconButton, InputBase, Paper } from '@mui/material';
-import SaveIcon from '@mui/icons-material/Save';
-import EditIcon from '@mui/icons-material/Edit';
+import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import CryptoJS from 'crypto-js';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useCleanContract } from 'hooks/useContractHelpers';
+import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, Paper, TextField } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
+import CryptoJS from 'crypto-js';
+import { useCleanContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
-import { secretKey, zeroAddress } from 'mainConfig';
 import { useWeb3 } from 'hooks/useWeb3';
+import { secretKey, zeroAddress } from 'mainConfig';
 
 export default function Contract() {
   const { account } = useWeb3React();
