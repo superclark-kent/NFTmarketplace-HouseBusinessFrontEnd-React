@@ -1,9 +1,8 @@
 import React, { Fragment, cloneElement, useEffect, useState } from "react";
+import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { useWeb3React } from "@web3-react/core";
-import { cloneElement, Fragment, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import MuiAppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
