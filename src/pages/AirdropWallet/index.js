@@ -52,24 +52,26 @@ export default function AirdropWallet() {
     const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
     const [clientSecret, setClientSecret] = useState("");
 
-    // useEffect(() => {
-    //   // Create PaymentIntent as soon as the page loads
-    //   fetch("/create-payment-intent", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ items: [{ id: "xl-tshirt" }] }),
-    //   })
-    //     .then((res) => res.json())
-    //     .then((data) => setClientSecret(data.clientSecret));
-    // }, []);
-  
+    useEffect(() => {
+        // Create PaymentIntent as soon as the page loads
+        fetch("http://localhost:5000/create-payment-intent", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({amount: 1000}),
+        })
+            .then((res) => res.json())
+            .then((data) => setClientSecret(data.clientSecret));
+        
+        console.log(clientSecret);
+    }, []);
+
     const appearance = {
-      theme: 'flat',
+        theme: 'flat',
     };
 
     const options = {
-    //   clientSecret,
-      appearance,
+        clientSecret,
+        appearance,
     };
 
     const getCreditBalance = async () => {
@@ -115,7 +117,7 @@ export default function AirdropWallet() {
                     justifyContent="center"
                 >
                     <Button onClick={() => setCheckoutFormOpen(true)} variant="contained" color="secondary" style={{ marginTop: '20px' }}>
-                        Purchase Credit by credit card.
+                        Purchase Credit $HBT ($10)
                     </Button>
                     <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
                         Deposit $HBT
@@ -161,9 +163,11 @@ export default function AirdropWallet() {
                     <Grid container spacing={3}>
                         <Grid item md={12}>
                             {/* Stripe payment form */}
-                            <Elements stripe={stripePromise} options={options}>
-                                <CheckoutForm />
-                            </Elements>
+                            {clientSecret && (
+                                <Elements stripe={stripePromise} options={options}>
+                                    <CheckoutForm />
+                                </Elements>
+                            )}
                         </Grid>
                     </Grid>
                 </Box>
