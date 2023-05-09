@@ -16,7 +16,6 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { BigNumber } from 'ethers';
 import { useWeb3 } from "hooks/useWeb3";
 import { houseInfo, houseSuccess } from 'hooks/useToast';
-import { GasMeter } from "@mui/icons-material";
 
 export default function NFTdetail({
   account,

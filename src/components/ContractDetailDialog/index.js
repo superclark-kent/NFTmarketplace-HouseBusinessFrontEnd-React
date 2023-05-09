@@ -14,10 +14,6 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
     return `${dy}-${mt}-${yr}`;
   };
 
-  useEffect(() => {
-    console.log('here', contract)
-  }, [])
-
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Contract Detail</DialogTitle>
