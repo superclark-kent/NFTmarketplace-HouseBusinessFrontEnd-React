@@ -207,12 +207,6 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "HistoryType",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
         "internalType": "string",
         "name": "houseImg",
         "type": "string"
@@ -729,7 +723,7 @@
       },
       {
         "internalType": "address",
-        "name": "allowed",
+        "name": "_allowed",
         "type": "address"
       }
     ],
@@ -747,22 +741,17 @@
       },
       {
         "internalType": "uint256",
-        "name": "contractId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newHistoryType",
+        "name": "_contractId",
         "type": "uint256"
       },
       {
         "internalType": "string",
-        "name": "houseImg",
+        "name": "_houseImg",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "houseBrand",
+        "name": "_houseBrand",
         "type": "string"
       },
       {
@@ -777,12 +766,12 @@
       },
       {
         "internalType": "string",
-        "name": "brandType",
+        "name": "_brandType",
         "type": "string"
       },
       {
         "internalType": "uint256",
-        "name": "yearField",
+        "name": "_yearField",
         "type": "uint256"
       }
     ],
@@ -1008,7 +997,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
@@ -1107,17 +1096,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "hIndex",
+        "name": "_hIndex",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "contractId",
+        "name": "_contractId",
         "type": "uint256"
       }
     ],
@@ -1135,17 +1124,17 @@
       },
       {
         "internalType": "uint256",
-        "name": "historyIndex",
+        "name": "_historyIndex",
         "type": "uint256"
       },
       {
         "internalType": "string",
-        "name": "houseImg",
+        "name": "_houseImg",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "houseBrand",
+        "name": "_houseBrand",
         "type": "string"
       },
       {
@@ -1160,12 +1149,12 @@
       },
       {
         "internalType": "string",
-        "name": "brandType",
+        "name": "_brandType",
         "type": "string"
       },
       {
         "internalType": "uint256",
-        "name": "yearField",
+        "name": "_yearField",
         "type": "uint256"
       }
     ],
@@ -1583,25 +1572,6 @@
         "type": "uint256"
       }
     ],
-    "name": "getTokenOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
     "name": "getTokenPrice",
     "outputs": [
       {
@@ -1750,7 +1720,7 @@
       },
       {
         "internalType": "string",
-        "name": "initialDesc",
+        "name": "_initialDesc",
         "type": "string"
       }
     ],
@@ -1800,7 +1770,7 @@
       },
       {
         "internalType": "address",
-        "name": "allowed",
+        "name": "_allowed",
         "type": "address"
       }
     ],
@@ -1916,12 +1886,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "receiver",
+        "name": "_receiver",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
@@ -1952,7 +1922,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "addr",
+        "name": "_address",
         "type": "address"
       }
     ],
@@ -1978,12 +1948,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
         "internalType": "bool",
-        "name": "status",
+        "name": "_status",
         "type": "bool"
       }
     ],
@@ -2014,7 +1984,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -2024,7 +1994,7 @@
       },
       {
         "internalType": "bool",
-        "name": "nftPayable",
+        "name": "_nftPayable",
         "type": "bool"
       }
     ],
@@ -2063,7 +2033,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "addr",
+        "name": "_address",
         "type": "address"
       }
     ],
@@ -2163,7 +2133,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_amountEth",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
@@ -2176,7 +2146,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_amountToken",
+        "name": "_amount",
         "type": "uint256"
       }
     ],

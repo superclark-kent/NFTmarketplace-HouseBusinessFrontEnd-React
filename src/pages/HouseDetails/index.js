@@ -188,15 +188,28 @@ export default function HouseDetails() {
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
       var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
       console.table({
-        "_tokenID,": _tokenID, 
-        "cContract,": cContract, 
-        "encryptedHouseImage,": encryptedHouseImage, 
-        "encryptedBrand,": encryptedBrand, 
-        "encryptedHistory,": encryptedHistory, 
-        "encryptedDesc,": encryptedDesc, 
-        "encryptedBrandType,": encryptedBrandType, 
-        "_yearField": _yearField 
+        "_tokenID,": _tokenID,
+        "cContract,": cContract,
+        "encryptedHouseImage,": encryptedHouseImage,
+        "encryptedBrand,": encryptedBrand,
+        "encryptedHistory,": encryptedHistory,
+        "encryptedDesc,": encryptedDesc,
+        "encryptedBrandType,": encryptedBrandType,
+        "_yearField": _yearField
       })
+      const tokenID = Number(_tokenID)
+
+      // const estimateGas = await houseBusinessContract.methods.
+      //   addHistory(tokenID,
+      //     Number(cContract),
+      //     encryptedHouseImage,
+      //     encryptedBrand,
+      //     encryptedHistory,
+      //     encryptedDesc,
+      //     encryptedBrandType,
+      //     _yearField
+      //   ).estimateGas({from: account});
+      // console.log('gas', estimateGas)
 
       try {
         await houseBusinessContract.methods
@@ -210,7 +223,7 @@ export default function HouseDetails() {
             encryptedBrandType,
             _yearField
           )
-          .send({ from: account })
+          .send({from: account})
           .then((res) => {
             houseSuccess('You added the history successfully!');
           });
@@ -384,4 +397,3 @@ export default function HouseDetails() {
     </>
   );
 }
-                  

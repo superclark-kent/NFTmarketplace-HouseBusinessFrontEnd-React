@@ -49,6 +49,7 @@ export default function CreateContract() {
   const [agreedPrice, setAgreedPrice] = useState("");
 
   const [contractTypes, setContracTypes] = useState([]);
+  const [addContract, setAddContract] = useState("");
 
   const currencies = [
     {
@@ -152,8 +153,6 @@ export default function CreateContract() {
       houseError("Please upload contract file.");
     }
   };
-
-  const [addContract, setAddContract] = useState("");
 
   const ValueUp = () => {
     if ((Number(agreedPrice) + 0.125) < 0) {
