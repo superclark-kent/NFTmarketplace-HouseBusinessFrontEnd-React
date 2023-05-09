@@ -45,7 +45,7 @@ export default function CreateContract() {
   const [dateTo, setDateTo] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contractType, setContracType] = useState("");
-  const [currency, setCurrency] = useState("ETH");
+  const [currency, setCurrency] = useState("MATIC");
   const [agreedPrice, setAgreedPrice] = useState("");
 
   const [contractTypes, setContracTypes] = useState([]);
@@ -53,8 +53,8 @@ export default function CreateContract() {
 
   const currencies = [
     {
-      value: "ETH",
-      label: "eth",
+      value: "MATIC",
+      label: "matic",
     },
     {
       value: "USD",
@@ -131,7 +131,7 @@ export default function CreateContract() {
               setDateFrom("");
               setDateTo("");
               setAgreedPrice("");
-              setCurrency("ETH");
+              setCurrency("MATIC");
 
               setIsContractSinger(false);
 

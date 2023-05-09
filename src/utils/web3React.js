@@ -28,8 +28,8 @@ export const setupNetwork = async () => {
                 chainId: `0x${chainId.toString(16)}`,
                 chainName: networkConfig.CHAIN_NAME,
                 nativeCurrency: {
-                  name: "ETH",
-                  symbol: "eth",
+                  name: "MATIC",
+                  symbol: "matic",
                   decimals: 18,
                 },
                 rpcUrls: nodes,

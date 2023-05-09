@@ -43,7 +43,7 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
             <Grid className={classes.agreedPrice} m={1}>
               Agreed Price:{' '}
               <Box component={'b'}>
-                {contract.currency === 'ETH' ? web3.utils.fromWei(contract.agreedPrice) : contract.agreedPrice}{' '}
+                {contract.currency === 'MATIC' ? web3.utils.fromWei(contract.agreedPrice) : contract.agreedPrice}{' '}
                 {contract.currency}
               </Box>
             </Grid>

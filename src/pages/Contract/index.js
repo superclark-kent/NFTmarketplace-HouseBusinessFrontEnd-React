@@ -168,6 +168,8 @@ export default function Contract() {
       setLoading(false);
     } else {
       if (flag === false) {
+        const estimateGas = await cleanContract.methods
+        .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
         await cleanContract.methods
           .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
           .send({ from: account });
@@ -240,7 +242,7 @@ export default function Contract() {
                   <Grid className={classes.agreedPrice} m={1}>
                     Agreed Price:{' '}
                     <Box component={'b'}>
-                      {item.currency === 'ETH' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
+                      {item.currency === 'MATIC' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
                       {item.currency}
                     </Box>
                   </Grid>
@@ -467,7 +469,7 @@ export default function Contract() {
                   <Grid className={classes.agreedPrice} m={1}>
                     Agreed Price:{' '}
                     <Box component={'b'}>
-                      {item.currency === 'ETH' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
+                      {item.currency === 'MATIC' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
                       {item.currency}
                     </Box>
                   </Grid>

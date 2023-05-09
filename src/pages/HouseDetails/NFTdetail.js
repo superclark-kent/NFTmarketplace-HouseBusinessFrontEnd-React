@@ -74,7 +74,7 @@ export default function NFTdetail({
             onChange={(e) => setHousePrice(e.target.value)}
             InputProps={{
               startAdornment: (
-                <InputAdornment position="start">ETH</InputAdornment>
+                <InputAdornment position="start">MATIC</InputAdornment>
               ),
             }}
           />
