@@ -146,7 +146,6 @@ export default function Histories({
       });
       dArr[i] = true;
     }
-    console.log('tempHistory', tempHistory)
     setCHistories(tempHistory);
     setDisabledArr(dArr);
   };
@@ -159,6 +158,7 @@ export default function Histories({
     <Grid>
       {cHistories.map((item, index) => {
         var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.hID)];
+        console.log('home history', homeHistory, item.hID)
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
@@ -285,6 +285,7 @@ export default function Histories({
                   onClick={() => {
                     console.log('item', item, 'ccc', contracts)
                     const contract = contracts.find((c) => c.contractId == item.contractId);
+                    console.log('contract-->', contract)
                     setCContract(contract);
                     setShowCContract(true);
                   }}
@@ -321,7 +322,11 @@ export default function Histories({
           </ListItem>
         );
       })}
-      <ContractDetailDialog open={showCContract} onClose={() => setShowCContract(false)} contract={cContract} />
+      <ContractDetailDialog 
+        open={showCContract} 
+        onClose={() => setShowCContract(false)} 
+        contract={cContract} 
+      />
     </Grid>
   );
 }

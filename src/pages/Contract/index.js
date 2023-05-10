@@ -35,12 +35,8 @@ export default function Contract() {
   const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
   const decryptFileFromUrl = async (url) => {
-    return fetch(url)
-      .then((response) => response.arrayBuffer())
-      .then(async (arrayBuffer) => {
-        const __decryptedFile = await decryptfile(arrayBuffer);
-        return __decryptedFile;
-      });
+    const __decryptedFile = await decryptfile(url);
+    return __decryptedFile;
   };
 
   const loadContracts = async () => {
