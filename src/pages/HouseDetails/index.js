@@ -95,6 +95,7 @@ export default function HouseDetails() {
         label: `${contract.contractType} contract in ${contract.companyName}`,
       });
     }
+    console.log('cArr', cArr)
     setContracts(cArr);
 
     var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
@@ -187,35 +188,12 @@ export default function HouseDetails() {
       var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
       var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
-      console.table({
-        "_tokenID,": _tokenID,
-        "cContract,": cContract,
-        "encryptedHouseImage,": encryptedHouseImage,
-        "encryptedBrand,": encryptedBrand,
-        "encryptedHistory,": encryptedHistory,
-        "encryptedDesc,": encryptedDesc,
-        "encryptedBrandType,": encryptedBrandType,
-        "_yearField": _yearField
-      })
-      const tokenID = Number(_tokenID)
-
-      // const estimateGas = await houseBusinessContract.methods.
-      //   addHistory(tokenID,
-      //     Number(cContract),
-      //     encryptedHouseImage,
-      //     encryptedBrand,
-      //     encryptedHistory,
-      //     encryptedDesc,
-      //     encryptedBrandType,
-      //     _yearField
-      //   ).estimateGas({from: account});
-      // console.log('gas', estimateGas)
 
       try {
         await houseBusinessContract.methods
           .addHistory(
-            _tokenID,
-            cContract,
+            Number(_tokenID),
+            Number(cContract),
             encryptedHouseImage,
             encryptedBrand,
             encryptedHistory,
