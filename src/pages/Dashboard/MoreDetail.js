@@ -7,7 +7,7 @@ export default function MoreDetail({ account, item, nftClasses, handleClickMoreD
     const [confirm, setConfirm] = useState(false)
 
     const checkConfirm = async () => {
-        var cf = await houseBusinessContract.methods.checkAllowedList(item.tokenId, account).call()
+        var cf = await houseBusinessContract.methods.checkAllowedList(item.houseID, account).call()
         setConfirm(cf)
     }
 

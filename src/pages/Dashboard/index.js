@@ -53,14 +53,14 @@ export default function Dashboard() {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      await houseBusinessContract.methods.buyHouseNft(item.tokenId).send({ from: account, value: item.price });
+      await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
       houseSuccess("You bought successfully!")
       loadNFTs()
     }
   }
 
   const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.tokenId}`)
+    navigate(`../../item/${item.houseID}`)
   }
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function Dashboard() {
                 lg={4}
                 md={6}
                 sm={6}
-                key={item.tokenId}
+                key={item.houseID}
                 className={nftClasses.nftHouseItem}
               >
                 <Grid className={nftClasses.nftHouseCard}>
@@ -88,7 +88,7 @@ export default function Dashboard() {
                     <img className={nftClasses.nftImg} src={item.tokenURI} />
                   </Grid>
                   <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName} - ${item.tokenId}`}</Box>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName} - ${item.houseID}`}</Box>
                   </Grid>
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>

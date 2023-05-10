@@ -99,7 +99,7 @@ export default function HouseDetails() {
     setContracts(cArr);
 
     var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
-    var nft = nfts.filter((item) => item.tokenId === _id)[0];
+    var nft = nfts.filter((item) => item.houseID === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
 
     setHistories(chistories);
@@ -108,7 +108,7 @@ export default function HouseDetails() {
       if (nft.contributor.buyer) {
         setSpecialBuyer(nft.contributor.buyer);
       }
-      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.tokenId, account).call();
+      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, account).call();
       if (nft.contributor.currentOwner === account || confirm === true) {
         var flag = false;
         for (let i = 0; i < pages.length; i++) {
@@ -152,7 +152,7 @@ export default function HouseDetails() {
 
   const handleAddHistory = async () => {
     setLoading(true);
-    var _tokenID = simpleNFT.tokenId,
+    var _houseId = simpleNFT.houseID,
       _houseImg = '',
       _history = history || '',
       _desc = '',
@@ -192,7 +192,7 @@ export default function HouseDetails() {
       try {
         await houseBusinessContract.methods
           .addHistory(
-            Number(_tokenID),
+            Number(_houseId),
             Number(cContract),
             encryptedHouseImage,
             encryptedBrand,
@@ -211,7 +211,7 @@ export default function HouseDetails() {
         setLoading(false);
       }
 
-      loadNFT(_tokenID);
+      loadNFT(_houseId);
       setHID('0');
       setHistory('');
       setImage('');
@@ -228,12 +228,12 @@ export default function HouseDetails() {
   };
 
   const handleDisconnectContract = async (hIndex, contractId) => {
-    const tokenId = simpleNFT.tokenId;
+    const houseID = simpleNFT.houseID;
     setLoading(true);
     try {
-      await houseBusinessContract.methods.disconnectContract(tokenId, hIndex, contractId).send({ from: account });
+      await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
       houseSuccess('You disconnected contract sucessfully!');
-      loadNFT(tokenId);
+      loadNFT(houseID);
     } catch (error) {
       houseError('Something went wrong!');
       console.error(error);
@@ -242,11 +242,11 @@ export default function HouseDetails() {
   };
 
   const handleBuyerEdit = async () => {
-    await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, true).send({ from: account });
+    await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
     houseSuccess('Success!');
     setSpecialBuyer('');
     setBuyerFlag(false);
-    loadNFT(simpleNFT.tokenId);
+    loadNFT(simpleNFT.houseID);
   };
 
   const handlePayable = async (flag) => {
@@ -255,14 +255,14 @@ export default function HouseDetails() {
       return;
     }
     if (buyerFlag === true) {
-      await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, flag).send({ from: account });
+      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag).send({ from: account });
     } else {
-      await houseBusinessContract.methods.setPayable(simpleNFT.tokenId, zeroAddress, flag).send({ from: account });
+      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag).send({ from: account });
     }
     houseSuccess('Success!');
     setSpecialBuyer('');
     setBuyerFlag(false);
-    loadNFT(simpleNFT.tokenId);
+    loadNFT(simpleNFT.houseID);
   };
 
   const handleImageChange = async (e) => {
@@ -323,7 +323,7 @@ export default function HouseDetails() {
               changinghistoryType={changinghistoryType}
               setChangingHistoryType={setChangingHistoryType}
               historyTypes={historyTypes}
-              tokenID={simpleNFT.tokenId}
+              houseID={simpleNFT.houseID}
               loadNFT={loadNFT}
               disconnectContract={handleDisconnectContract}
             />

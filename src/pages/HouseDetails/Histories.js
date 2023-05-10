@@ -24,7 +24,7 @@ const StyledInput = styled('input')({
 
 export default function Histories({
   classes,
-  tokenID,
+  houseID,
   cHID,
   histories,
   contracts,
@@ -89,11 +89,11 @@ export default function Histories({
     if (changedFlag === true) {
       try {
         await houseBusinessContract.methods
-          .editHistory(tokenID, historyIndex, _houseImg, _brand, _history, _desc, _brandType, _yearField)
+          .editHistory(houseID, historyIndex, _houseImg, _brand, _history, _desc, _brandType, _yearField)
           .send({ from: account });
 
         initialConf();
-        loadNFT(tokenID);
+        loadNFT(houseID);
         houseSuccess('You changed the history successfully!');
         setLoading(false);
       } catch (error) {

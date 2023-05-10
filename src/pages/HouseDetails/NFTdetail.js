@@ -33,12 +33,12 @@ export default function NFTdetail({
   const [housePrice, setHousePrice] = useState(0);
   const web3 = useWeb3();
                                  
-  const changeHousePrice = async (tokenId) => {
+  const changeHousePrice = async (houseID) => {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      await houseBusinessContract.methods.changeHousePrice(tokenId, _housePrice).send({ from: account });
+      await houseBusinessContract.methods.changeHousePrice(houseID, _housePrice).send({ from: account });
       houseSuccess("You have successfully set your House price!")
       // loadNFTs()
     }
@@ -83,7 +83,7 @@ export default function NFTdetail({
           }
           <Button
               variant="outlined"
-              onClick={() => changeHousePrice(simpleNFT.tokenId)}
+              onClick={() => changeHousePrice(simpleNFT.houseID)}
               className={classes.nftHouseButton}
               startIcon={<BusinessCenterIcon />}
             >

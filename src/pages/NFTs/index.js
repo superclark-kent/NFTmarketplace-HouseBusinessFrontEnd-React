@@ -43,14 +43,14 @@ export default function Nfts() {
   }
 
   const handlePayable = async (item, payable) => {
-    // const estimateGas = await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).estimateGas();
+    // const estimateGas = await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).estimateGas();
     // console.log('estimate gas', estimateGas)
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
     try {
-      await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).send({ from: account })
+      await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
       houseSuccess("Your House NFT can be sold from now.")
       loadNFTs()
     } catch (error) {
@@ -59,7 +59,8 @@ export default function Nfts() {
   }
 
   const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.tokenId}`)
+    console.log('item', item)
+    navigate(`../../item/${item.houseID}`)
   }
 
   useEffect(() => {
