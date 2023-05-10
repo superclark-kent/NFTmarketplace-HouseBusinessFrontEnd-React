@@ -1,10 +1,13 @@
+import decryptfile from 'utils/decrypt';
+import { useEffect, useState } from 'react';
 import { Box, Dialog, DialogTitle, Grid } from '@mui/material';
 import useContractStyle from 'assets/styles/contractStyle';
-import { useEffect } from 'react';
 import web3 from 'web3';
 
 const ContractDetailDialog = ({ contract, open, onClose }) => {
   const classes = useContractStyle();
+
+  const [contractURI, setContractURI] = useState('');
 
   const generateDate = (time) => {
     var dt = new Date(Number(time));
@@ -13,6 +16,17 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
     var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
     return `${dy}-${mt}-${yr}`;
   };
+
+  useEffect(() => {
+    console.log('--->', contract)
+    const decryptFile = async () => {
+      if (contract.contractURI){
+        var _contractUri = await decryptfile(contract.contractURI);
+        setContractURI(_contractUri)
+      }
+    }
+    decryptFile();
+  }, [contract])
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -29,11 +43,11 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
         sx={{ border: '0 !important' }}
       >
         <Grid className={classes.contractCard}>
-          <embed className={classes.contractPdf} src={contract.contractURI}></embed>
+          <embed className={classes.contractPdf} src={contractURI}></embed>
           <Grid className={classes.contractDesc} m={3}>
-            <Grid className={classes.agreedPrice} m={1}>
+            {/* {contract.contractId && <Grid className={classes.agreedPrice} m={1}>
               ContractID: <Box component={'b'}>#{contract.contractId}</Box>
-            </Grid>
+            </Grid>} */}
             <Grid className={classes.agreedPrice} m={1}>
               Contract Type: <Box component={'b'}>{contract.contractType}</Box>
             </Grid>
@@ -43,7 +57,7 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
             <Grid className={classes.agreedPrice} m={1}>
               Agreed Price:{' '}
               <Box component={'b'}>
-                {contract.currency === 'ETH' ? web3.utils.fromWei(contract.agreedPrice) : contract.agreedPrice}{' '}
+                {contract.currency === 'MATIC' ? web3.utils.fromWei(contract.agreedPrice) : contract.agreedPrice}{' '}
                 {contract.currency}
               </Box>
             </Grid>

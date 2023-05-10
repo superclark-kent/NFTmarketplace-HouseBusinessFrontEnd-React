@@ -23,6 +23,7 @@ import {
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey, zeroAddress } from "mainConfig";
 import FileUpload from "utils/ipfs";
+import encryptfile from "utils/encrypt";
 
 const Input = styled("input")({
   display: "none",
@@ -36,6 +37,7 @@ export default function CreateContract() {
   const navigate = useNavigate();
   // Contract
   const [cFile, setCFile] = useState(null);
+  const [cViewFile, setCViewFile] = useState(null);
   const [cFileName, setCFileName] = useState("");
 
   const [isContractSinger, setIsContractSinger] = useState(false);
@@ -45,7 +47,7 @@ export default function CreateContract() {
   const [dateTo, setDateTo] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [contractType, setContracType] = useState("");
-  const [currency, setCurrency] = useState("ETH");
+  const [currency, setCurrency] = useState("MATIC");
   const [agreedPrice, setAgreedPrice] = useState("");
 
   const [contractTypes, setContracTypes] = useState([]);
@@ -53,8 +55,8 @@ export default function CreateContract() {
 
   const currencies = [
     {
-      value: "ETH",
-      label: "eth",
+      value: "MATIC",
+      label: "matic",
     },
     {
       value: "USD",
@@ -68,8 +70,36 @@ export default function CreateContract() {
 
   const handlePdfChange = async (e) => {
     var uploadedPdf = e.target.files[0];
-    setCFile(uploadedPdf);
+    var __blob = await encryptfile(uploadedPdf);
+    setCFile(__blob)
+    setCViewFile(uploadedPdf)
     setCFileName(uploadedPdf.name);
+  };
+
+  const encryptFile = (file) => {
+    console.log('origin--->', typeof file, file)
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    return new Promise((resolve, reject) => {
+      reader.onload = () => {
+        const wordArray = CryptoJS.lib.WordArray.create(reader.result);
+        const key = CryptoJS.enc.Hex.parse('0123456789abcdef0123456789abcdef');
+        const iv = CryptoJS.enc.Hex.parse('abcdef9876543210abcdef9876543210');
+        const encrypted = CryptoJS.AES.encrypt(wordArray, key, {
+          iv,
+          mode: CryptoJS.mode.CBC,
+          padding: CryptoJS.pad.Pkcs7,
+        });
+        const encryptedBlob = new Blob([encrypted], { type: file.type });
+        const encryptedFile = new file([encryptedBlob], file.name, { type: file.type })
+        console.log('encrypted file', encryptedFile)
+        setCFile(encryptedFile);
+        resolve(encryptedFile);
+      };
+      reader.onerror = () => {
+        reject(new Error('Error reading file.'));
+      };
+    });
   };
 
   const handleCreateContract = async () => {
@@ -112,15 +142,15 @@ export default function CreateContract() {
                 .ccCreation(
                   CryptoJS.AES.encrypt(companyName, secretKey).toString(),
                   CryptoJS.AES.encrypt(contractType, secretKey).toString(),
-                  aSigner, 
+                  aSigner,
                   ipUrl,
                   sDate,
-                  eDate, 
-                  aPrice, 
+                  eDate,
+                  aPrice,
                   CryptoJS.AES.encrypt(currency, secretKey).toString(),
                 )
                 .send({ from: account });
-                
+
               houseSuccess("Success");
 
               setCFile(null);
@@ -131,7 +161,7 @@ export default function CreateContract() {
               setDateFrom("");
               setDateTo("");
               setAgreedPrice("");
-              setCurrency("ETH");
+              setCurrency("MATIC");
 
               setIsContractSinger(false);
 
@@ -212,9 +242,9 @@ export default function CreateContract() {
               Upload Contract
             </Button>
           </label>
-          {cFile ? (
+          {cViewFile ? (
             <Grid className={classes.embedPdf}>
-              <embed src={URL.createObjectURL(cFile)}></embed>
+              <embed src={URL.createObjectURL(cViewFile)}></embed>
             </Grid>
           ) : (
             <></>
@@ -247,7 +277,7 @@ export default function CreateContract() {
             onChange={(e) => {
               if (addContract.length < 30) {
                 setAddContract(e.target.value);
-            }
+              }
             }}
           />
         </Grid>
@@ -275,7 +305,7 @@ export default function CreateContract() {
                   "Contract Signer this can not be himself / contract maker"
                 );
                 setcontractSigner("");
-              } 
+              }
               else {
                 setcontractSigner(e.target.value);
               }
@@ -349,7 +379,7 @@ export default function CreateContract() {
                 placeholder={currency}
                 value={agreedPrice}
                 onChange={(e) => {
-                  if (e.target.value < 0 ||e.target.value > 999999) {
+                  if (e.target.value < 0 || e.target.value > 999999) {
                     houseError("Agreed price can not be negative or greater then 999999");
                     setAgreedPrice("");
                   } else {

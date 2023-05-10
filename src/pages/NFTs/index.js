@@ -98,7 +98,7 @@ export default function Nfts() {
                     </Grid>
                     <Grid className={nftClasses.nftHousePrice}>
                       <Box component={'span'}>Current Price</Box>
-                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} ETH`}</Box>
+                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                     </Grid>
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>

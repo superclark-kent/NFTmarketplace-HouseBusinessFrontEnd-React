@@ -11,6 +11,7 @@ import { useCleanContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
+import decryptfile from 'utils/decrypt';
 
 export default function Contract() {
   const { account } = useWeb3React();
@@ -33,9 +34,18 @@ export default function Contract() {
   const [CSigner, setCSigner] = useState('');
   const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
+  const decryptFileFromUrl = async (url) => {
+    return fetch(url)
+      .then((response) => response.arrayBuffer())
+      .then(async (arrayBuffer) => {
+        const __decryptedFile = await decryptfile(arrayBuffer);
+        return __decryptedFile;
+      });
+  };
+
   const loadContracts = async () => {
     setLoading(true);
-    var allmyContracts = await cleanContract.methods.getAllContractsByOwner().call({ from: account });
+    var allmyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
     var allCons = [];
     for (let i = 0; i < allmyContracts.length; i++) {
       var bytes = CryptoJS.AES.decrypt(allmyContracts[i].contractURI, secretKey);
@@ -46,15 +56,16 @@ export default function Contract() {
       var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allmyContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+      var contractURI = await decryptFileFromUrl(decryptedData);
       allCons.push({
         ...allmyContracts[i],
-        contractURI: decryptedData,
+        contractURI: contractURI,
         companyName: decryptedCompany,
         currency: decryptedCurrency,
         contractType: decryptedType,
       });
     }
-    var allOtherContracts = await cleanContract.methods.getAllContractsBySigner().call({ from: account });
+    var allOtherContracts = await cleanContract.methods.getAllContractsBySigner(account).call({ from: account });
 
     var allOCons = [];
     for (let i = 0; i < allOtherContracts.length; i++) {
@@ -67,9 +78,10 @@ export default function Contract() {
       var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allOtherContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+      var contractURI = await decryptFileFromUrl(decryptedData);
       allOCons.push({
         ...allOtherContracts[i],
-        contractURI: decryptedData,
+        contractURI: contractURI,
         companyName: decryptedCompany,
         currency: decryptedCurrency,
         contractType: decryptedType,
@@ -153,7 +165,7 @@ export default function Contract() {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await cleanContract.methods.getAllNotifies().call({ from: notifyReceiver });
+    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
       if (item.contractId === sentNotifies[i].ccId) {
@@ -168,6 +180,8 @@ export default function Contract() {
       setLoading(false);
     } else {
       if (flag === false) {
+        // const estimateGas = await cleanContract.methods
+        //   .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
         await cleanContract.methods
           .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
           .send({ from: account });
@@ -226,7 +240,7 @@ export default function Contract() {
               sx={{ border: '0 !important' }}
             >
               <Grid className={classes.contractCard}>
-                <embed className={classes.contractPdf} src={item.contractURI}></embed>
+              <embed className={classes.contractPdf} src={item.contractURI}></embed>
                 <Grid className={classes.contractDesc} m={3}>
                   <Grid className={classes.agreedPrice} m={1}>
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
@@ -240,7 +254,7 @@ export default function Contract() {
                   <Grid className={classes.agreedPrice} m={1}>
                     Agreed Price:{' '}
                     <Box component={'b'}>
-                      {item.currency === 'ETH' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
+                      {item.currency === 'MATIC' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
                       {item.currency}
                     </Box>
                   </Grid>
@@ -467,7 +481,7 @@ export default function Contract() {
                   <Grid className={classes.agreedPrice} m={1}>
                     Agreed Price:{' '}
                     <Box component={'b'}>
-                      {item.currency === 'ETH' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
+                      {item.currency === 'MATIC' ? web3.utils.fromWei(item.agreedPrice) : item.agreedPrice}{' '}
                       {item.currency}
                     </Box>
                   </Grid>
