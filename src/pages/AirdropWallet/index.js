@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import Web3 from "web3";
 import { useWeb3React } from '@web3-react/core';
 import dotenv from "dotenv";
@@ -10,6 +10,7 @@ import {
     Paper, styled, TextField
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
+import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -46,6 +47,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function AirdropWallet() {
     // const { account } = useWeb3React();
     const OperatorContract = useOperatorContract();
+    const location = useLocation();
     const { walletID } = useParams();
     const [creditBalance, setCreditBalance] = useState(0);
     const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
@@ -57,13 +59,40 @@ export default function AirdropWallet() {
         fetch("http://localhost:5000/create-payment-intent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({amount: 1000}),
+            body: JSON.stringify({ amount: 1000 }),
         })
             .then((res) => res.json())
             .then((data) => setClientSecret(data.clientSecret));
-        
+
         console.log(clientSecret);
     }, []);
+
+    useEffect(async () => {
+        const searchParams = new URLSearchParams(location.search);
+        const clientSecretNew = searchParams.get('payment_intent_client_secret');
+
+        if (clientSecretNew) {
+            stripePromise.then(stripe => {
+                stripe.retrievePaymentIntent(clientSecretNew).then(({paymentIntent}) => {
+                    switch (paymentIntent.status) {
+                        case "succeeded":
+                            houseSuccess("Payment succeeded!");
+                            // trigger the $HBT airdrop event
+                            break;
+                        case "processing":
+                            houseInfo("Your payment is processing.");
+                            break;
+                        case "requires_payment_method":
+                            houseError("Your payment was not successful, please try again.");
+                            break;
+                        default:
+                            houseWarning("Something went wrong.");
+                            break;
+                    }
+                });
+            });
+        }
+    }, [location.search]);
 
     const appearance = {
         theme: 'flat',

@@ -6,44 +6,12 @@ import {
   Box, Button, Divider, Grid, IconButton, InputBase,
   Paper, styled, TextField
 } from '@mui/material';
+import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
 
 const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
-
-  const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (!stripe) {
-      return;
-    }
-
-    const clientSecret = new URLSearchParams(window.location.search).get(
-      "payment_intent_client_secret"
-    );
-
-    if (!clientSecret) {
-      return;
-    }
-
-    stripe.retrievePaymentIntent(clientSecret).then(({ paymentIntent }) => {
-      switch (paymentIntent.status) {
-        case "succeeded":
-          setMessage("Payment succeeded!");
-          break;
-        case "processing":
-          setMessage("Your payment is processing.");
-          break;
-        case "requires_payment_method":
-          setMessage("Your payment was not successful, please try again.");
-          break;
-        default:
-          setMessage("Something went wrong.");
-          break;
-      }
-    });
-  }, [stripe]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -59,7 +27,7 @@ const CheckoutForm = () => {
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: window.location.href
+        return_url: `${window.location.href}`
       }
     });
 
@@ -69,9 +37,9 @@ const CheckoutForm = () => {
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message);
+      houseError(error.message);
     } else {
-      setMessage("An unexpected error occurred.");
+      houseError("An unexpected error occurred.");
     }
 
     setIsLoading(false);
@@ -89,8 +57,6 @@ const CheckoutForm = () => {
           {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}
         </span>
       </Button>
-      {/* Show any error or success messages */}
-      {message && <div id="payment-message">{message}</div>}
     </form>
   )
 }
