@@ -146,6 +146,7 @@ export default function Histories({
       });
       dArr[i] = true;
     }
+    console.log('tempHistory', tempHistory)
     setCHistories(tempHistory);
     setDisabledArr(dArr);
   };
