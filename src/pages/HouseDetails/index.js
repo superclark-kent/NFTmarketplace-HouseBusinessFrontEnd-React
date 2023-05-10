@@ -86,7 +86,7 @@ export default function HouseDetails() {
   };
 
   const loadNFT = async (_id) => {
-    var allMyContracts = await cleanContract.methods.getAllContractsByOwner().call({ from: account });
+    var allMyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
     var cArr = [];
     for (let i = 0; i < allMyContracts.length; i++) {
       const contract = decryptContract(allMyContracts[i]);
