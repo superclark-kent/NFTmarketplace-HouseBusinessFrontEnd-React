@@ -317,7 +317,6 @@ export default function Histories({
               <>
                 <IconButton
                   onClick={() => {
-                    console.log('item', item, 'ccc', contracts)
                     const contract = contracts.find((c) => c.contractId == item.contractId);
                     console.log('contract-->', contract)
                     setCContract(contract);

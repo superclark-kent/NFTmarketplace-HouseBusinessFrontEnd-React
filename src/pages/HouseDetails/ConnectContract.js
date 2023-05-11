@@ -8,10 +8,6 @@ export default function ConnectContract({ classes, contracts, cContract, setCCon
     setCContract(0);
   };
 
-  useEffect(() => {
-    console.log('===>', contracts)
-  }, [])
-
   return (
     <Grid className={classes.connectContract}>
       {contracts.length > 0 && (
