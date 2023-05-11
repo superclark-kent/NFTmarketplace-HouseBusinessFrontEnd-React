@@ -14,6 +14,7 @@ export const ContractAddress = '0xC188B82682e6cCC4A12C118577345f0C1dEb26a8';
 export const StakingAddress = '0xF9DEa5931163f8c292b139c6c8aDf58eD99DEB8e';
 export const ThirdPartyAddress = '0xFe967f7D64870263550df2bd743b339D22B90222';
 
+
 const config = {
   // development: {
   //   CHAIN_NAME: 'Goerli Testnet',
