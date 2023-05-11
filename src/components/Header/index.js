@@ -309,7 +309,6 @@ export default function Header(props) {
   };
 
   useEffect(() => {
-    console.log(pathname.includes("account"));
     if (pathname != "/house/app" && !pathname.includes("account")) {
       if (!account && cookies.connected != "true") {
         houseInfo("Please connect your wallet");
