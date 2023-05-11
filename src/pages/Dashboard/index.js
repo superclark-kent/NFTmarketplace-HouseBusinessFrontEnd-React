@@ -22,21 +22,27 @@ export default function Dashboard() {
 
   const loadNFTs = async () => {
     var nfts = [];
-    var gNFTs = await houseBusinessContract.methods.getAllHouses().call();
-    for(let i = 0 ; i < gNFTs.length ; i++) {
-      var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-      var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
-      var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-      var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
-      var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
-      nfts.push({
-        ...gNFTs[i],
-        tokenURI :decryptedData,
-        tokenName: decryptedName,
-        tokenType: decryptedType
+    houseBusinessContract.methods.getAllHouses().call()
+      .then(gNFTs => {
+
+        for (let i = 0; i < gNFTs.length; i++) {
+          var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
+          var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+          var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
+          var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
+          var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
+          var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
+          nfts.push({
+            ...gNFTs[i],
+            tokenURI: decryptedData,
+            tokenName: decryptedName,
+            tokenType: decryptedType
+          })
+          console.log('nfts', nfts)
+
+        }
       })
-    }
+      .catch(err => console.log(err));
     if (account) {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {

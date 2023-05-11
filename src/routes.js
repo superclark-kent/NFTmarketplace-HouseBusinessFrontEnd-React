@@ -9,6 +9,7 @@ import {
 
 // pages
 import NotFound from 'pages/notFound';
+import AirdropWallet from 'pages/AirdropWallet';
 import Dashboard from './pages/Dashboard';
 import Mint from 'pages/Mint';
 import Nfts from 'pages/NFTs';
@@ -27,6 +28,13 @@ export default function Router() {
             element: <MainLayout />,
             children: [
                 { path: 'main', element: <Admin /> },
+            ]
+        },
+        {
+            path: '/account',
+            element: <MainLayout />,
+            children: [
+                { path: ':walletID', element: <AirdropWallet /> },
             ]
         },
         {
