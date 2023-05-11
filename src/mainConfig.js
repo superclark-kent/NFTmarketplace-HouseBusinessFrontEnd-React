@@ -10,12 +10,12 @@ export const POLLING_INTERVAL = 12000;
 
 // p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
 // m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
-export const ERC20Address = '0xb5A270EEF9D2160BC2007D69eBED471c4EfceBe5';
-export const HouseBusinessAddress = '0xc1b2079F16B2D40cc70FB74eE38899A0696499AC';
-export const ContractAddress = '0x6fdE6816dFD599132893D18B45350851c425E865';
+export const ERC20Address = '0x287F236e9c33D2cA27694865d01861ca07038438';
+export const HouseBusinessAddress = '0x914aFD58A4B019F205c6859E04b808F125Da3De8';
+export const ContractAddress = '0x33EA67fb018Ac144209ed113a06866a8deeb8151';
 export const StakingAddress = '0x7F870290c8C28a9Eb3Af6A3958b52eBE04D7A0eD';
 export const ThirdPartyAddress = '0xa0035a51433cAe275C0B24463132E1843626C613';
-export const OperatorAddress = '0x79F785BFe8f27B678C13e80b16f2E3a1d93E0F28';
+export const OperatorAddress = '0xC59CdD3908b8e35589e22596724C96Dd50472AAC';
 
 const config = {
 	// development: {

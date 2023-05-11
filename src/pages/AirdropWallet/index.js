@@ -94,7 +94,7 @@ export default function AirdropWallet() {
             .then((data) => setClientSecret(data.clientSecret));
 
         if (account) {
-            walletID = account;
+            setWalletID(account);
         }
     }, []);
 
@@ -135,37 +135,48 @@ export default function AirdropWallet() {
         appearance,
     };
 
-    const getCreditBalance = () => {
-        // Get the ERC20 token balance.
-        OperatorContract.methods.balanceOf(walletID).call()
-            .then(creditBalance => {
-                setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
-            })
-            .catch(err => console.log(err));
+    const getCreditBalance = async () => {
+        try {
+            // Get the ERC20 token balance.
+            const creditBalance = await OperatorContract.methods.balanceOf(walletID).call();
+            setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
+        } catch (err) {
+            console.log(err);
+        }
     };
 
-    const airdropERC20Token = async () => {
-        const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
-        const data = ERC20TokenContract.methods.mint(walletID, amount).encodeABI();
+    const airdropERC20Token = () => {
+        try {
+            const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
+            const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
 
-        const transactionObject = {
-            to: ERC20Address,
-            data
-        };
+            const transactionObject = {
+                to: OperatorAddress,
+                data
+            };
 
-        // mint ERC20 token
-        fetch(`${apiURL}/signTransaction`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                transactionObject
-            }),
-        })
-            .then(res => {
-                houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+            // mint ERC20 token
+            fetch(`${apiURL}/signTransaction`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    transactionObject
+                }),
             })
-            .catch(err => { houseError(err) });
-    }
+                .then(res => res.json())
+                .then((txHash => {
+                    console.log(txHash);
+                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                    getCreditBalance();
+                }))
+                .catch(err => {
+                    throw new Error(err);
+                });
+
+        } catch (err) {
+            houseError(err);
+        }
+    };
 
     const handleDeposit = async (e) => {
         if (!account) {
@@ -188,7 +199,6 @@ export default function AirdropWallet() {
             .deposit(amountInWei)
             .send({ from: account })
             .then(receipt => {
-                console.log(receipt);
                 houseSuccess('Successfully Deposited');
                 getCreditBalance();
             })
