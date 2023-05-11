@@ -5,9 +5,7 @@ const decryptfile = async (_file_) => {
     .then((response) => response.arrayBuffer())
     .then(async (arrayBuffer) => {
 
-
       var cipherbytes = new Uint8Array(arrayBuffer);
-      console.log('file', _file_)
       var txtEncpassphrase = CryptoJS.enc.Hex.parse('0123456789abcdef0123456789abcdef');
 
       var pbkdf2iterations = 10000;

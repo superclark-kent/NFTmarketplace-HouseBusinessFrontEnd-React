@@ -27,10 +27,6 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
     decryptFile();
   }, [open])
 
-  useEffect(() => {
-    console.log('here is dialog page')
-  }, [])
-
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Contract Detail</DialogTitle>

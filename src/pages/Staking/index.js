@@ -69,7 +69,7 @@ export default function Staking() {
   };
 
   const loadNFTs = async () => {
-    var nfts = await houseBusinessContract.methods.getAllMyHouses().call({ from: account });
+    var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
     var otherNFTs = [];
     for (var i = 0; i < nfts.length; i++) {
       if (nfts[i].contributor.currentOwner === zeroAddress) continue;

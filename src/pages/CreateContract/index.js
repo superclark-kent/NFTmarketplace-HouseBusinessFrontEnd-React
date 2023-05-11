@@ -46,7 +46,7 @@ export default function CreateContract() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [contractType, setContracType] = useState("");
+  const [contractType, setContractType] = useState(1);
   const [currency, setCurrency] = useState("MATIC");
   const [agreedPrice, setAgreedPrice] = useState("");
 
@@ -74,32 +74,6 @@ export default function CreateContract() {
     setCFile(__blob)
     setCViewFile(uploadedPdf)
     setCFileName(uploadedPdf.name);
-  };
-
-  const encryptFile = (file) => {
-    console.log('origin--->', typeof file, file)
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-    return new Promise((resolve, reject) => {
-      reader.onload = () => {
-        const wordArray = CryptoJS.lib.WordArray.create(reader.result);
-        const key = CryptoJS.enc.Hex.parse('0123456789abcdef0123456789abcdef');
-        const iv = CryptoJS.enc.Hex.parse('abcdef9876543210abcdef9876543210');
-        const encrypted = CryptoJS.AES.encrypt(wordArray, key, {
-          iv,
-          mode: CryptoJS.mode.CBC,
-          padding: CryptoJS.pad.Pkcs7,
-        });
-        const encryptedBlob = new Blob([encrypted], { type: file.type });
-        const encryptedFile = new file([encryptedBlob], file.name, { type: file.type })
-        console.log('encrypted file', encryptedFile)
-        setCFile(encryptedFile);
-        resolve(encryptedFile);
-      };
-      reader.onerror = () => {
-        reject(new Error('Error reading file.'));
-      };
-    });
   };
 
   const handleCreateContract = async () => {
@@ -141,7 +115,7 @@ export default function CreateContract() {
               await cleanContract.methods
                 .ccCreation(
                   CryptoJS.AES.encrypt(companyName, secretKey).toString(),
-                  CryptoJS.AES.encrypt(contractType, secretKey).toString(),
+                  contractType,
                   aSigner,
                   ipUrl,
                   sDate,
@@ -157,7 +131,7 @@ export default function CreateContract() {
               setCFileName("");
               setCompanyName("");
               setcontractSigner("");
-              setContracType("sonneboiler");
+              setContractType(contractType);
               setDateFrom("");
               setDateTo("");
               setAgreedPrice("");
@@ -204,12 +178,12 @@ export default function CreateContract() {
     var hTypes = await houseBusinessContract.methods.getHistoryType().call();
     let arr = [];
     hTypes.map(item => {
-      if (item.checkMark === true) {
-        arr.push({
-          value: item.hLabel,
-          label: item.hLabel
-        })
-      }
+      arr.push({
+        idx: item.hID,
+        value: item.hLabel,
+        label: item.hLabel,
+        flag: item.connectContract
+      })
     })
     setContracTypes(arr);
   }, [])
@@ -319,11 +293,11 @@ export default function CreateContract() {
             select
             label="Contract Type"
             value={contractType}
-            onChange={(e) => setContracType(e.target.value)}
+            onChange={(e) => setContractType(e.target.value)}
             variant="filled"
           >
             {contractTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
+              option.flag && <MenuItem key={option.value} value={option.idx}>
                 {option.label}
               </MenuItem>
             ))}

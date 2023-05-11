@@ -39,9 +39,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "contractType",
-        "type": "string"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -195,6 +195,103 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "allContractsByOwner",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "allContractsBySigner",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "allNotifies",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "nSender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "nReceiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "notifySentTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "notifyContent",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "ccCounter",
     "outputs": [
@@ -215,9 +312,9 @@
         "type": "string"
       },
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "_contractType",
-        "type": "string"
+        "type": "uint256"
       },
       {
         "internalType": "address",
@@ -278,9 +375,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",
@@ -379,9 +476,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",
@@ -531,9 +628,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",
