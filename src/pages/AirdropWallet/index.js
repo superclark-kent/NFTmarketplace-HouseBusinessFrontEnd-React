@@ -31,10 +31,11 @@ const style = {
     borderRadius: "10px",
 };
 
-import { OperatorAddress, ERC20Address } from 'mainConfig';
+import { OperatorAddress, ERC20Address, apiURL } from 'mainConfig';
 import {
     useOperatorContract,
-    useERC20Contract
+    useERC20Contract,
+    useWeb3Content
 } from "hooks/useContractHelpers";
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -47,11 +48,14 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function AirdropWallet() {
     const { account } = useWeb3React();
+    const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
     const ERC20TokenContract = useERC20Contract();
 
+    const navigate = useNavigate();
     const location = useLocation();
-    const { walletID } = useParams();
+    const { walletID: urlWalletID } = useParams();
+    const [walletID, setWalletID] = useState(urlWalletID);
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
     const [amountToDeposit, setAmountToDeposit] = useState('');
@@ -61,14 +65,37 @@ export default function AirdropWallet() {
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
+        setWalletID(urlWalletID);
+    }, [urlWalletID]);
+
+    useEffect(() => {
+        if (account && account !== walletID) {
+            setWalletID(account);
+        } else {
+            setWalletID(walletID);
+        }
+    }, [account, walletID]);
+
+    useEffect(() => {
+        getCreditBalance();
+    }, [walletID]);
+
+    useEffect(() => {
         // Create PaymentIntent as soon as the page loads
-        fetch("http://localhost:5000/create-payment-intent", {
+        fetch(`${apiURL}/create-payment-intent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount: paymentAmount }),
+            body: JSON.stringify({
+                amount: paymentAmount,
+                currency: 'usd'
+            }),
         })
             .then((res) => res.json())
             .then((data) => setClientSecret(data.clientSecret));
+
+        if (account) {
+            walletID = account;
+        }
     }, []);
 
     useEffect(async () => {
@@ -80,8 +107,9 @@ export default function AirdropWallet() {
                 stripe.retrievePaymentIntent(clientSecretNew).then(({ paymentIntent }) => {
                     switch (paymentIntent.status) {
                         case "succeeded":
-                            houseSuccess("Payment succeeded!");
+                            houseSuccess("Payment succeeded!, please wait for a while to receive the airdrop minted $HBT.");
                             airdropERC20Token();
+                            navigate(`${window.location.pathname}`);
                             break;
                         case "processing":
                             houseInfo("Your payment is processing.");
@@ -116,21 +144,27 @@ export default function AirdropWallet() {
             .catch(err => console.log(err));
     };
 
-    useEffect(() => {
-        getCreditBalance();
-    }, [walletID]);
+    const airdropERC20Token = async () => {
+        const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
+        const data = ERC20TokenContract.methods.mint(walletID, amount).encodeABI();
 
-    const airdropERC20Token = () => {
+        const transactionObject = {
+            to: ERC20Address,
+            data
+        };
+
         // mint ERC20 token
-        ERC20TokenContract.methods
-            .mint(OperatorAddress, Web3.utils.toWei(`${paymentAmount}`, 'ether'))
-            .send({ from: OperatorAddress })
-            .then(receipt => {
-                console.log(receipt);
+        fetch(`${apiURL}/signTransaction`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                transactionObject
+            }),
+        })
+            .then(res => {
+                houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
             })
-            .catch(error => {
-                console.error(error);
-            });
+            .catch(err => { houseError(err) });
     }
 
     const handleDeposit = async (e) => {
@@ -147,7 +181,7 @@ export default function AirdropWallet() {
         const amountInWei = Web3.utils.toWei(`${amountToDeposit}`, 'ether');
 
         // Approve the token amount
-        await ERC20TokenContract.methods.approve(OperatorAddress, amountInWei).send({from: account});
+        await ERC20TokenContract.methods.approve(OperatorAddress, amountInWei).send({ from: account });
 
         // Deposit the $HBT
         OperatorContract.methods
