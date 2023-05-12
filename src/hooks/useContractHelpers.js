@@ -27,6 +27,7 @@ export const useERC20Contract = () => {
 };
 
 export const useHouseBusinessContract = () => {
+  console.log('HouseBusinessAddress', HouseBusinessAddress)
   return useContract(HouseBusinessAbi, HouseBusinessAddress);
 };
 

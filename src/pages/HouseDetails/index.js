@@ -199,7 +199,6 @@ export default function HouseDetails() {
       //       _yearField
       //     ).estimateGas()
       // console.log('estimateGas', estimateGas)
-      const owner = await houseBusinessContract.methods.ownerOf(Number(_houseId)).call();
 
       try {
         await houseBusinessContract.methods
@@ -263,7 +262,6 @@ export default function HouseDetails() {
   };
 
   const changeHousePrice = async (houseID, housePrice) => {
-    console.log('houseID', houseID, typeof houseID)
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {

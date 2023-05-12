@@ -318,7 +318,6 @@ export default function Histories({
                 <IconButton
                   onClick={() => {
                     const contract = contracts.find((c) => c.contractId == item.contractId);
-                    console.log('contract-->', contract)
                     setCContract(contract);
                     setShowCContract(true);
                   }}
@@ -359,6 +358,7 @@ export default function Histories({
         open={showCContract}
         onClose={() => setShowCContract(false)}
         contract={cContract}
+        historyTypes={historyTypes}
       />
     </Grid>
   );

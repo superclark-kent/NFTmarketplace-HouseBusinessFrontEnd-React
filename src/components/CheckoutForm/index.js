@@ -1,12 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useStripe, useElements } from '@stripe/react-stripe-js';
-import { PaymentElement, CardElement, IdealBankElement } from '@stripe/react-stripe-js';
-import Modal from "@mui/material/Modal";
+import { useState } from 'react';
 import {
-  Box, Button, Divider, Grid, IconButton, InputBase,
-  Paper, styled, TextField
+  Button
 } from '@mui/material';
-import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
+import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
+import { houseError } from "hooks/useToast";
 
 const CheckoutForm = () => {
   const stripe = useStripe();

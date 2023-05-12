@@ -24,7 +24,6 @@ export default function Dashboard() {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
       .then(gNFTs => {
-
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
           var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
@@ -39,18 +38,18 @@ export default function Dashboard() {
             tokenType: decryptedType
           })
         }
+        if (account) {
+          var otherNFTs = [];
+          for (var i = 0; i < nfts.length; i++) {
+            if (nfts[i].contributor.currentOwner === `${account}`) continue;
+            otherNFTs.push(nfts[i]);
+          }
+          setAllMyNFTs(otherNFTs);
+        } else {
+          setAllMyNFTs(nfts);
+        }
       })
       .catch(err => console.log(err));
-    if (account) {
-      var otherNFTs = [];
-      for (var i = 0; i < nfts.length; i++) {
-        if (nfts[i].contributor.currentOwner === `${account}`) continue;
-        otherNFTs.push(nfts[i]);
-      }
-      setAllMyNFTs(otherNFTs);
-    } else {
-      setAllMyNFTs(nfts);
-    }
   }
 
   const handleBuyNFT = async (item) => {

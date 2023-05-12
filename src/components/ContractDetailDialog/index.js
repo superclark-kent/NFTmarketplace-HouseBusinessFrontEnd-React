@@ -1,10 +1,10 @@
-import decryptfile from 'utils/decrypt';
 import { useEffect, useState } from 'react';
+import decryptfile from 'utils/decrypt';
 import { Box, Dialog, DialogTitle, Grid } from '@mui/material';
 import useContractStyle from 'assets/styles/contractStyle';
 import web3 from 'web3';
 
-const ContractDetailDialog = ({ contract, open, onClose }) => {
+const ContractDetailDialog = ({ contract, open, onClose, historyTypes }) => {
   const classes = useContractStyle();
 
   const [contractURI, setContractURI] = useState('');
@@ -48,7 +48,7 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
               ContractID: <Box component={'b'}>#{contract.contractId}</Box>
             </Grid>
             <Grid className={classes.agreedPrice} m={1}>
-              Contract Type: <Box component={'b'}>{contract.contractType}</Box>
+              Contract Type: <Box component={'b'}>{historyTypes[contract.contractType]?.hLabel}</Box>
             </Grid>
             <Grid className={classes.agreedPrice} m={1}>
               Company: <Box component={'b'}>{contract.companyName}</Box>
