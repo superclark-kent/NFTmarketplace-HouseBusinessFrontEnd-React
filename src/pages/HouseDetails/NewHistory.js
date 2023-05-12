@@ -71,7 +71,7 @@ export default function NewHistory({
           {homeHistory.connectContract === true ? (
             <ConnectContract
               classes={classes}
-              contracts={contracts.filter((item) => item.contractType == homeHistory.hLabel)}
+              contracts={contracts.filter((item) => item.contractType == homeHistory.hID)}
               cContract={cContract}
               setCContract={setCContract}
               handleConnectContract={handleConnectContract}

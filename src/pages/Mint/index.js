@@ -65,7 +65,6 @@ export default function Mint() {
 
   const handleImageChange = async (e) => {
     var uploadedImage = e.target.files[0];
-    console.log('image', uploadedImage)
     setImage(uploadedImage);
     setImageName(uploadedImage.name);
   };

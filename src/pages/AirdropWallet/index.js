@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Web3 from "web3";
-import { useWeb3React } from '@web3-react/core';
 import dotenv from "dotenv";
+import { useLocation, useParams } from 'react-router-dom';
+import Web3 from "web3";
 dotenv.config();
 
 import {
-    Box, Button, Divider, Grid, IconButton, InputBase,
-    Paper, styled, TextField
+    Box, Button,
+    Grid,
+    Paper, styled
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
-import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
+import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
 
-import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY);
@@ -31,11 +31,11 @@ const style = {
     borderRadius: "10px",
 };
 
-import { OperatorAddress, ERC20Address } from 'mainConfig';
 import {
-    useOperatorContract,
-    useERC20Contract
+    useERC20Contract,
+    useOperatorContract
 } from "hooks/useContractHelpers";
+import { OperatorAddress } from 'mainConfig';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

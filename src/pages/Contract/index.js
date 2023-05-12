@@ -8,6 +8,7 @@ import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
 import { useCleanContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
@@ -18,6 +19,7 @@ export default function Contract() {
   const web3 = useWeb3();
   const classes = useContractStyle();
   const cleanContract = useCleanContract();
+  const houseBusinessContract = useHouseBusinessContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -33,14 +35,11 @@ export default function Contract() {
   const [editFlag, setEditFlag] = useState(-1);
   const [CSigner, setCSigner] = useState('');
   const [newSgnerLoading, setNewSgnerLoading] = useState(false);
+  const [historyTypes, setHistoryTypes] = useState([]);
 
   const decryptFileFromUrl = async (url) => {
-    return fetch(url)
-      .then((response) => response.arrayBuffer())
-      .then(async (arrayBuffer) => {
-        const __decryptedFile = await decryptfile(arrayBuffer);
-        return __decryptedFile;
-      });
+    const __decryptedFile = await decryptfile(url);
+    return __decryptedFile;
   };
 
   const loadContracts = async () => {
@@ -52,8 +51,6 @@ export default function Contract() {
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allmyContracts[i].companyName, secretKey);
       var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-      var bytesType = CryptoJS.AES.decrypt(allmyContracts[i].contractType, secretKey);
-      var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allmyContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
       var contractURI = await decryptFileFromUrl(decryptedData);
@@ -62,7 +59,6 @@ export default function Contract() {
         contractURI: contractURI,
         companyName: decryptedCompany,
         currency: decryptedCurrency,
-        contractType: decryptedType,
       });
     }
     var allOtherContracts = await cleanContract.methods.getAllContractsBySigner(account).call({ from: account });
@@ -74,8 +70,6 @@ export default function Contract() {
       var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       var bytesCompany = CryptoJS.AES.decrypt(allOtherContracts[i].companyName, secretKey);
       var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-      var bytesType = CryptoJS.AES.decrypt(allOtherContracts[i].contractType, secretKey);
-      var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
       var bytesCurrency = CryptoJS.AES.decrypt(allOtherContracts[i].currency, secretKey);
       var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
       var contractURI = await decryptFileFromUrl(decryptedData);
@@ -84,13 +78,18 @@ export default function Contract() {
         contractURI: contractURI,
         companyName: decryptedCompany,
         currency: decryptedCurrency,
-        contractType: decryptedType,
       });
     }
     var arr = [];
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
     }
+    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      allHTypes.push(hTypes[i]);
+    }
+    setHistoryTypes(allHTypes);
     setCSArr(arr);
     setNotifyArr(arr);
     setAllContracts(allCons);
@@ -246,7 +245,7 @@ export default function Contract() {
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    Contract Type: <Box component={'b'}>{item.contractType}</Box>
+                    Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
                     Company: <Box component={'b'}>{item.companyName}</Box>

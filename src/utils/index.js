@@ -6,15 +6,12 @@ export const decryptContract = (contract) => {
   var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
   var bytesCompany = CryptoJS.AES.decrypt(contract.companyName, secretKey);
   var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-  var bytesType = CryptoJS.AES.decrypt(contract.contractType, secretKey);
-  var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
   var bytesCurrency = CryptoJS.AES.decrypt(contract.currency, secretKey);
   var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
   return {
     ...contract,
     contractURI: decryptedData,
     companyName: decryptedCompany,
-    currency: decryptedCurrency,
-    contractType: decryptedType,
+    currency: decryptedCurrency
   };
 };

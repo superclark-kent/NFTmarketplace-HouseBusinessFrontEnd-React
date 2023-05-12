@@ -18,15 +18,14 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
   };
 
   useEffect(() => {
-    console.log('--->', contract)
     const decryptFile = async () => {
-      if (contract.contractURI){
-        var _contractUri = await decryptfile(contract.contractURI);
-        setContractURI(_contractUri)
+      if (open) {
+        const __decryptedFile = await decryptfile(contract.contractURI);
+        setContractURI(__decryptedFile)
       }
     }
     decryptFile();
-  }, [contract])
+  }, [open])
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -45,9 +44,9 @@ const ContractDetailDialog = ({ contract, open, onClose }) => {
         <Grid className={classes.contractCard}>
           <embed className={classes.contractPdf} src={contractURI}></embed>
           <Grid className={classes.contractDesc} m={3}>
-            {/* {contract.contractId && <Grid className={classes.agreedPrice} m={1}>
+            <Grid className={classes.agreedPrice} m={1}>
               ContractID: <Box component={'b'}>#{contract.contractId}</Box>
-            </Grid>} */}
+            </Grid>
             <Grid className={classes.agreedPrice} m={1}>
               Contract Type: <Box component={'b'}>{contract.contractType}</Box>
             </Grid>
