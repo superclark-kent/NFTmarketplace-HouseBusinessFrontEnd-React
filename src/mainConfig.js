@@ -9,10 +9,10 @@ dotenv.config();
 export const POLLING_INTERVAL = 12000;
 
 export const ERC20Address = '0x7E687b50cBB1D58be37Cae9a8D2aa920973d97d7';
-export const HouseBusinessAddress = '0xfA22D628631C3E20F3695b70486AE58Dda2fd877';
-export const ContractAddress = '0xC188B82682e6cCC4A12C118577345f0C1dEb26a8';
-export const StakingAddress = '0xF9DEa5931163f8c292b139c6c8aDf58eD99DEB8e';
-export const ThirdPartyAddress = '0xFe967f7D64870263550df2bd743b339D22B90222';
+export const HouseBusinessAddress = '0xd6ccC8255b9247dC2D64b33b5161c7Bc3A8D60b9';
+export const ContractAddress = '0x5177c99F2bF33438756CF11AaCF5364E3Aea7724';
+export const StakingAddress = '0x96B0407889096AE10A0Dcd57d897Cec90dabb4A9';
+export const ThirdPartyAddress = '0xe521a45f3549518942A3e264a1f7d99643Ac43fc';
 export const OperatorAddress = '0x230a2c6216aDCF093a8963cAB02b9986D7a73077';
 
 const config = {

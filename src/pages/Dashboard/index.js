@@ -38,8 +38,6 @@ export default function Dashboard() {
             tokenName: decryptedName,
             tokenType: decryptedType
           })
-          console.log('nfts', nfts)
-
         }
       })
       .catch(err => console.log(err));
