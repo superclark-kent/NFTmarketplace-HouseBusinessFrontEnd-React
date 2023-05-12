@@ -497,7 +497,7 @@ export default function Admin() {
                     id="demo-simple-select-autowidth"
                     value={apySelect}
                     onChange={(e) => handleApySelectChange(e)}
-                    autowidth={true}
+                    autoWidth
                   >
                     {apyTypes.map((item, index) => (
                       <MenuItem value={item} key={index}>
@@ -696,7 +696,7 @@ export default function Admin() {
                       id="demo-simple-select-autowidth"
                       value={DeleteProperty}
                       onChange={handleChangeDeleteProperty}
-                      autoWidth={true}
+                      autoWidth
                       label="Category"
                     >
                       {NPropertyList.map((item, index) => {
@@ -773,7 +773,7 @@ export default function Admin() {
                       id="demo-simple-select-autowidth"
                       value={DeleteCategory}
                       onChange={handleChangeDeleteItem}
-                      autoWidth={true}
+                      autoWidth
                       label="Category"
                     >
                       {CategoryList.map((item, index) => {
@@ -876,7 +876,7 @@ export default function Admin() {
                         setPersonName([]);
                         setPerson([]);
                       }}
-                      autoWidth={true}
+                      autoWidth
                       label="Category"
                     >
                       {CategoryList.map((item, index) => {
@@ -1007,7 +1007,7 @@ export default function Admin() {
                       onChange={(e) => {
                         setPperiod(e.target.value);
                       }}
-                      autoWidth={true}
+                      autoWidth
                       label="Category"
                     >
                       {PeriodList.map((item, index) => {
