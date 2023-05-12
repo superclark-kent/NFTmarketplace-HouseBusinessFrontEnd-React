@@ -69,12 +69,12 @@ export default function AirdropWallet() {
     }, [urlWalletID]);
 
     useEffect(() => {
-        if (account && account !== walletID) {
+        if (account) {
             setWalletID(account);
         } else {
-            setWalletID(walletID);
+            setWalletID(urlWalletID);
         }
-    }, [account, walletID]);
+    }, [account]);
 
     useEffect(() => {
         getCreditBalance();
@@ -109,7 +109,6 @@ export default function AirdropWallet() {
                         case "succeeded":
                             houseSuccess("Payment succeeded!, please wait for a while to receive the airdrop minted $HBT.");
                             airdropERC20Token();
-                            navigate(`${window.location.pathname}`);
                             break;
                         case "processing":
                             houseInfo("Your payment is processing.");
@@ -164,11 +163,12 @@ export default function AirdropWallet() {
                 }),
             })
                 .then(res => res.json())
-                .then((txHash => {
-                    console.log(txHash);
-                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
-                    getCreditBalance();
-                }))
+                .then(data => {
+                    if (data.transactionHash.status) {
+                        houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                        getCreditBalance();
+                    }
+                })
                 .catch(err => {
                     throw new Error(err);
                 });
@@ -176,6 +176,7 @@ export default function AirdropWallet() {
         } catch (err) {
             houseError(err);
         }
+        navigate(`${window.location.pathname}`);
     };
 
     const handleDeposit = async (e) => {
@@ -244,9 +245,6 @@ export default function AirdropWallet() {
                     </Button>
                     <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }} disabled={account ? false : true}>
                         Deposit $HBT
-                    </Button>
-                    <Button variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
-                        Deposit ETH
                     </Button>
                 </Box>
             </Grid>
