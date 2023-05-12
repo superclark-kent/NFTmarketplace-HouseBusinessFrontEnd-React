@@ -115,7 +115,9 @@ export default function FullWidthTabs() {
     let category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
     category = category.filter(item => item[1] !== '');
     setCategoryList(category);
-    setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
+    if (category.length > 0) {
+      setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
+    }
     setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account }))
   }, [])
 
