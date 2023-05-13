@@ -192,9 +192,9 @@ export default function Admin() {
         houseError("You aren't admin");
         navigate('../../house/app');
       }
-      const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
+      const Category = await thirdPartyContract.methods.getAllCategories().call();
       setCategoryList(Category.filter((item) => item[1] != ''));
-      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call({ from: account })
+      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call()
       setCountArray(totalInfo);
     }
   }
@@ -323,7 +323,7 @@ export default function Admin() {
   const DeleteSelectedCategory = async () => {
     if (DeleteCategory !== '') {
       await thirdPartyContract.methods.deleteCategory(DeleteCategory).send({ from: account });
-      const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
+      const Category = await thirdPartyContract.methods.getAllCategories().call();
       setCategoryList(Category.filter((item) => item[1] != ''));
       // setPersonName(personName.filter(item => item != DeleteCategory));
       SetDeleteCategory('');

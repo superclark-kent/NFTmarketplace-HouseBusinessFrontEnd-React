@@ -11,7 +11,7 @@ import useNftStyle from 'assets/styles/nftStyle';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress } from 'mainConfig';
+import { secretKey, zeroAddress, HouseBusinessAddress } from 'mainConfig';
 
 export default function Nfts() {
   const navigate = useNavigate()
@@ -67,6 +67,10 @@ export default function Nfts() {
       loadNFTs()
     }
   }, [account])
+
+  useEffect(() => {
+    console.log('house', HouseBusinessAddress)
+  }, [])
 
   return (
     <Grid>

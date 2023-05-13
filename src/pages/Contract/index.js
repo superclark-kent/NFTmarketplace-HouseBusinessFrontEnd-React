@@ -44,7 +44,7 @@ export default function Contract() {
 
   const loadContracts = async () => {
     setLoading(true);
-    var allmyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
+    var allmyContracts = await cleanContract.methods.getAllContractsByOwner(account).call();
     var allCons = [];
     for (let i = 0; i < allmyContracts.length; i++) {
       var bytes = CryptoJS.AES.decrypt(allmyContracts[i].contractURI, secretKey);
@@ -61,7 +61,7 @@ export default function Contract() {
         currency: decryptedCurrency,
       });
     }
-    var allOtherContracts = await cleanContract.methods.getAllContractsBySigner(account).call({ from: account });
+    var allOtherContracts = await cleanContract.methods.getAllContractsBySigner(account).call();
 
     var allOCons = [];
     for (let i = 0; i < allOtherContracts.length; i++) {

@@ -98,20 +98,20 @@ export default function FullWidthTabs() {
   const [PropertyList, setPropertyList] = useState([]);
   const [Package, setPackage] = useState([]);
 
-  const SelectCategory = async (category) => {
-    setPackage([]);
-    setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0]).call({ from: account }));
-  }
+  // const SelectCategory = async (category) => {
+  //   setPackage([]);
+  //   setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0]).call({ from: account }));
+  // }
 
 
   useEffect(async () => {
-    let category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
+    let category = await thirdPartyContract.methods.getAllCategories().call();
     category = category.filter(item => item[1] !== '');
     setCategoryList(category);
-    if (category.length > 0) {
-      setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
-    }
-    setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account }))
+    // if (category.length > 0) {
+    //   setPackage(await thirdPartyContract.methods.getPackagesByCategory(category[0][0]).call({ from: account }));
+    // }
+    // setPropertyList(await thirdPartyContract.methods.getProperties().call({ from: account }))
   }, [])
 
   return (

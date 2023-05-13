@@ -150,15 +150,15 @@ export default function HouseDetails() {
   const handleAddHistory = async () => {
     setLoading(true);
     var _houseId = simpleNFT.houseID,
-    _houseImg = '',
-    _history = history || '',
-    _desc = '',
-    _brand = '',
-    _brandType = '',
-    _yearField = 0;
-    
+      _houseImg = '',
+      _history = history || '',
+      _desc = '',
+      _brand = '',
+      _brandType = '',
+      _yearField = 0;
+
     var homeHistory = historyTypes.filter((option) => option.hID === hID)[0];
-    
+
     if (homeHistory.imgNeed === true) {
       if (!image) {
         houseError('Upload Image');
@@ -186,20 +186,6 @@ export default function HouseDetails() {
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
       var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
 
-      // const estimateGas = await houseBusinessContract.methods
-      //     .addHistory(
-      //       Number(_houseId),
-      //       Number(cContract),
-      //       Number(homeHistory.hID),
-      //       encryptedHouseImage,
-      //       encryptedBrand,
-      //       encryptedHistory,
-      //       encryptedDesc,
-      //       encryptedBrandType,
-      //       _yearField
-      //     ).estimateGas()
-      // console.log('estimateGas', estimateGas)
-
       try {
         await houseBusinessContract.methods
           .addHistory(
@@ -213,7 +199,7 @@ export default function HouseDetails() {
             encryptedBrandType,
             _yearField
           )
-          .send({from: account})
+          .send({ from: account })
           .then((res) => {
             houseSuccess('You added the history successfully!');
           });
