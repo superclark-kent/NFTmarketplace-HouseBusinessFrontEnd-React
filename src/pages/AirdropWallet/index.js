@@ -31,7 +31,7 @@ const style = {
     borderRadius: "10px",
 };
 
-import { OperatorAddress, ERC20Address, apiURL } from 'mainConfig';
+import { OperatorAddress, apiURL } from 'mainConfig';
 import {
     useOperatorContract,
     useERC20Contract,
@@ -164,10 +164,8 @@ export default function AirdropWallet() {
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.transactionHash.status) {
-                        houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
-                        getCreditBalance();
-                    }
+                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                    getCreditBalance();
                 })
                 .catch(err => {
                     throw new Error(err);

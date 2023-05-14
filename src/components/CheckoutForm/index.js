@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useStripe, useElements } from '@stripe/react-stripe-js';
 import { PaymentElement, CardElement, IdealBankElement } from '@stripe/react-stripe-js';
-import Modal from "@mui/material/Modal";
-import {
-  Box, Button, Divider, Grid, IconButton, InputBase,
-  Paper, styled, TextField
-} from '@mui/material';
+import { Payments } from '@mui/icons-material';
+import LoadingButton from "@mui/lab/LoadingButton";
 import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
 
 const CheckoutForm = () => {
@@ -52,11 +49,19 @@ const CheckoutForm = () => {
   return (
     <form>
       <PaymentElement id="payment-element" options={paymentElementOptions} />
-      <Button onClick={handleSubmit} variant="contained" color="primary" style={{ marginTop: '30px' }} disabled={!stripe || !elements || isLoading}>
+      <LoadingButton
+        onClick={handleSubmit}
+        endIcon={<Payments />}
+        loading={isLoading}
+        loadingPosition="end"
+        variant="contained"
+        color="primary"
+        style={{ marginTop: '30px' }}
+        disabled={!stripe || !elements || isLoading}>
         <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}
+          {isLoading ? "Please wait" : "Pay now"}
         </span>
-      </Button>
+      </LoadingButton>
     </form>
   )
 }

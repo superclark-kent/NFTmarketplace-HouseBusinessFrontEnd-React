@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
@@ -14,10 +15,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
 import CryptoJS from "crypto-js";
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import { useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
 import FileUpload from "utils/ipfs";
+import { HouseBusinessAddress, apiURL } from 'mainConfig';
+import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
   display: "none",
@@ -46,12 +49,13 @@ const houseTypes = [
   },
 ];
 
-export default function Mint() {
+function Mint(props) {
   const { account } = useWeb3React();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const classes = useHouseMintStyle();
-
+  const walletAccount = props.account.account;
+  const web3 = useWeb3Content()
   const houseBusinessContract = useHouseBusinessContract();
 
   // House NFT
@@ -63,6 +67,12 @@ export default function Mint() {
   const [houseDescription, setHouseDescription] = useState(new Date("1970"));
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!account && !walletAccount) {
+      dispatch(setAccount(null));
+    }
+  }, [account]);
+
   const handleImageChange = async (e) => {
     var uploadedImage = e.target.files[0];
     console.log('image', uploadedImage)
@@ -71,7 +81,7 @@ export default function Mint() {
   };
 
   const handleHouseMint = async () => {
-    if (!account) {
+    if (!account && !walletAccount) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
@@ -100,9 +110,39 @@ export default function Mint() {
             var encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
             var encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
-            await houseBusinessContract.methods
-              .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
-              .send({ from: account });
+
+            if (!account) {
+              console.log('walletAccount: ', walletAccount);
+              // Create transaction data
+              const data = houseBusinessContract.methods
+                .mintHouse(walletAccount, encryptedName, ipUrl, encryptedType, encryptedDes)
+                .encodeABI();
+
+              const transactionObject = {
+                to: HouseBusinessAddress,
+                data
+              };
+
+              // Send trx data and sign
+              fetch(`${apiURL}/signTransaction`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  transactionObject
+                }),
+              })
+                .then(res => res.json())
+                .then(data => console.log(data))
+                .catch(err => {
+                  throw new Error(err);
+                });
+            } else {
+              console.log('metamask account: ', account);
+              await houseBusinessContract.methods
+                .mintHouse(account, encryptedName, ipUrl, encryptedType, encryptedDes)
+                .send({ from: account });
+            }
+
             setLoading(false);
             setImage("");
             setImageName("");
@@ -113,6 +153,7 @@ export default function Mint() {
             navigate("../../house/myNfts");
           } catch (error) {
             console.log(error);
+            houseError('Something went wrong');
             setLoading(false);
           }
         }
@@ -253,3 +294,12 @@ export default function Mint() {
     </Stack>
   );
 }
+
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(Mint);
