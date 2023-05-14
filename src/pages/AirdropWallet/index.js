@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Web3 from "web3";
-import { useWeb3React } from '@web3-react/core';
 import dotenv from "dotenv";
+import { useLocation, useParams } from 'react-router-dom';
+import Web3 from "web3";
 dotenv.config();
 
 import {
@@ -10,10 +9,10 @@ import {
     Paper, styled, TextField, Alert
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
-import { houseInfo, houseWarning, houseError, houseSuccess } from "hooks/useToast";
+import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
 
-import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY);

@@ -39,9 +39,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "contractType",
-        "type": "string"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -312,9 +312,9 @@
         "type": "string"
       },
       {
-        "internalType": "string",
+        "internalType": "uint256",
         "name": "_contractType",
-        "type": "string"
+        "type": "uint256"
       },
       {
         "internalType": "address",
@@ -375,9 +375,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",
@@ -476,9 +476,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",
@@ -628,9 +628,9 @@
             "type": "string"
           },
           {
-            "internalType": "string",
+            "internalType": "uint256",
             "name": "contractType",
-            "type": "string"
+            "type": "uint256"
           },
           {
             "internalType": "string",

@@ -182,7 +182,7 @@ export default function Admin() {
 
     setVisibleProperty(tempList);
     setCountArray(await houseBusinessContract.methods.getTotalInfo().call({ from: account }));
-    setUploadedCount(await CleanContract.methods.getUploadedCounter().call({ from: account }));
+    // setUploadedCount(await CleanContract.methods.getUploadedCounter().call({ from: account }));
 
     var hTypes = await houseBusinessContract.methods.getHistoryType().call();
     var allHTypes = [];

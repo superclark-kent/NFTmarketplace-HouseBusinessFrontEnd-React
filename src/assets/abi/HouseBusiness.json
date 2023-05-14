@@ -207,6 +207,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "historyTypeId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "houseImg",
         "type": "string"
@@ -270,6 +276,12 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "historyIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "historyTypeId",
         "type": "uint256"
       },
       {
@@ -736,12 +748,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "_contractId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_historyTypeId",
         "type": "uint256"
       },
       {
@@ -858,7 +875,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "houseID",
         "type": "uint256"
       },
       {
@@ -997,7 +1014,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       }
     ],
@@ -1010,7 +1027,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "houseId",
         "type": "uint256"
       },
       {
@@ -1119,12 +1136,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "_historyIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_historyTypeId",
         "type": "uint256"
       },
       {
@@ -1171,181 +1193,7 @@
         "components": [
           {
             "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenType",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "numberOfTransfers",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "nftPayable",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "staked",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "soldStatus",
-            "type": "bool"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "currentOwner",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "buyer",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "creator",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct HouseBusiness.Contributor",
-            "name": "contributor",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct HouseBusiness.House[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllMyHouses",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenURI",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "tokenType",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "numberOfTransfers",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "nftPayable",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "staked",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "soldStatus",
-            "type": "bool"
-          },
-          {
-            "components": [
-              {
-                "internalType": "address",
-                "name": "currentOwner",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "previousOwner",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "buyer",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "creator",
-                "type": "address"
-              }
-            ],
-            "internalType": "struct HouseBusiness.Contributor",
-            "name": "contributor",
-            "type": "tuple"
-          }
-        ],
-        "internalType": "struct HouseBusiness.House[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllPayableHouses",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "tokenId",
+            "name": "houseID",
             "type": "uint256"
           },
           {
@@ -1447,7 +1295,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       }
     ],
@@ -1462,7 +1310,17 @@
           },
           {
             "internalType": "uint256",
+            "name": "houseID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "contractId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "historyTypeId",
             "type": "uint256"
           },
           {
@@ -2096,7 +1954,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_houseId",
         "type": "uint256"
       }
     ],

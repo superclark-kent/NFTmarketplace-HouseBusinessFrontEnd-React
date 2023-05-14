@@ -24,8 +24,7 @@ const StyledInput = styled('input')({
 
 export default function Histories({
   classes,
-  tokenID,
-  cHID,
+  houseID,
   histories,
   contracts,
   changinghistoryType,
@@ -49,10 +48,9 @@ export default function Histories({
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
 
-  const handleHistorySave = async (homeHistory, historyIndex) => {
+  const handleHistorySave = async (homeHistory, historyIndex, historyTypeId) => {
     setLoading(true);
     var historyItem = { ...histories[historyIndex] };
-    var _historyType = historyItem.historyType;
     var _houseImg = historyItem.houseImg;
     var _history = historyItem.history;
     var _desc = historyItem.desc;
@@ -61,39 +59,61 @@ export default function Histories({
     var _yearField = Number(historyItem.yearField);
 
     var changedFlag = false;
-    if (_houseImg != cImage && homeHistory.imgNeed === true) {
+    if (homeHistory.imgNeed) {
       _houseImg = await FileUpload(cImage);
+      _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
       changedFlag = true;
     }
-    if (_desc != cPicDesc && homeHistory.descNeed === true) {
-      _desc = cPicDesc;
+    if (_desc != CryptoJS.AES.encrypt(cPicDesc, secretKey).toString() && homeHistory.descNeed) {
+      _desc = CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
       changedFlag = true;
     }
-    if (_brand != cBrand && homeHistory.brandNeed === true) {
-      _brand = cBrand;
+    if (_brand != CryptoJS.AES.encrypt(cBrand, secretKey).toString() && homeHistory.brandNeed) {
+      _brand = CryptoJS.AES.encrypt(cBrand, secretKey).toString();
       changedFlag = true;
     }
-    if (_brandType != cBrandType && homeHistory.brandTypeNeed === true) {
-      _brandType = cBrandType;
+    if (_brandType != CryptoJS.AES.encrypt(cBrandType, secretKey).toString() && homeHistory.brandTypeNeed) {
+      _brandType = CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
       changedFlag = true;
     }
-    if (_yearField != cYearField.valueOf() && homeHistory.yearNeed === true) {
+    if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
       changedFlag = true;
     }
-    if (_history != cHistory) {
-      _history = cHistory;
+    if (_history != CryptoJS.AES.encrypt(cHistory, secretKey).toString()) {
+      _history = CryptoJS.AES.encrypt(cHistory, secretKey).toString();
       changedFlag = true;
     }
 
-    if (changedFlag === true) {
+    if (changedFlag) {
+      // console.table({
+      //   'houseID,': houseID,
+      //   'historyIndex,': historyIndex,
+      //   'historyTypeId,': historyTypeId,
+      //   '_houseImg,': _houseImg,
+      //   '_brand,': _brand,
+      //   '_history,': _history,
+      //   '_desc,': _desc,
+      //   '_brandType,': _brandType,
+      //   '_yearField': _yearField
+      // })
       try {
         await houseBusinessContract.methods
-          .editHistory(tokenID, historyIndex, _houseImg, _brand, _history, _desc, _brandType, _yearField)
+          .editHistory(
+            houseID,
+            historyIndex,
+            historyTypeId,
+            _houseImg,
+            _brand,
+            _history,
+            _desc,
+            _brandType,
+            _yearField
+          )
           .send({ from: account });
 
         initialConf();
-        loadNFT(tokenID);
+        loadNFT(houseID);
         houseSuccess('You changed the history successfully!');
         setLoading(false);
       } catch (error) {
@@ -107,12 +127,24 @@ export default function Histories({
   };
 
   const handleHistoryEdit = async (historyIndex) => {
-    setCImage(histories[historyIndex].houseImg);
-    setCPicDesc(histories[historyIndex].desc);
-    setCBrand(histories[historyIndex].houseBrand);
-    setCBrandType(histories[historyIndex].brandType);
-    setCYearField(new Date(Number(histories[historyIndex].yearField)));
-    setCHistory(histories[historyIndex].history);
+    var bytesCImage = CryptoJS.AES.decrypt(histories[historyIndex].houseImg, secretKey);
+    var decrypteCImage = bytesCImage.toString(CryptoJS.enc.Utf8);
+    var bytesDesc = CryptoJS.AES.decrypt(histories[historyIndex].desc, secretKey);
+    var decryptePicDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+    var bytesBrand = CryptoJS.AES.decrypt(histories[historyIndex].houseBrand, secretKey);
+    var decrypteBrand = bytesBrand.toString(CryptoJS.enc.Utf8);
+    var bytesBrandType = CryptoJS.AES.decrypt(histories[historyIndex].brandType, secretKey);
+    var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
+    var bytesYearField = CryptoJS.AES.decrypt(histories[historyIndex].yearField, secretKey);
+    var decryptedYearField = bytesYearField.toString(CryptoJS.enc.Utf8);
+    var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].history, secretKey);
+    var decryptedCHistory = bytesCHistory.toString(CryptoJS.enc.Utf8);
+    setCImage(decrypteCImage);
+    setCPicDesc(decryptePicDesc);
+    setCBrand(decrypteBrand);
+    setCBrandType(decryptedBrandType);
+    setCYearField(new Date(Number(decryptedYearField)));
+    setCHistory(decryptedCHistory);
 
     var dArr = [];
     for (let i = 0; i < histories.length; i++) {
@@ -137,12 +169,15 @@ export default function Histories({
       var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
       var bytesDesc = CryptoJS.AES.decrypt(histories[i].desc, secretKey);
       var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+      var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
+      var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
       tempHistory.push({
         ...histories[i],
         history: decryptedHistory,
         brandType: decryptedBrandType,
         houseBrand: decryptedHouseBrand,
         desc: decryptedDesc,
+        houseImg: decryptedImg
       });
       dArr[i] = true;
     }
@@ -157,7 +192,7 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
-        var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.hID)];
+        var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
@@ -180,11 +215,11 @@ export default function Histories({
 
             {homeHistory.imgNeed === true ? (
               <Grid className={classes.imgLabel}>
-                <label htmlFor={`${item.historyType}-imag`}>
+                <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
                   <Grid>
                     <StyledInput
                       accept="image/*"
-                      id={`${item.historyType}-imag`}
+                      id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
                       multiple
                       type="file"
                       onChange={(e) => {
@@ -274,16 +309,16 @@ export default function Histories({
               rows={4}
               variant="filled"
               className={classes.listHistoryField}
-              value={disabledArr[index] === false || (cHID != null && index === cHID) ? cHistory : item.history}
+              value={disabledArr[index] === false ? cHistory : item.history}
               disabled={disabledArr[index] || loading}
               onChange={(e) => setCHistory(e.target.value)}
             />
-            {item.hID > 0 && (
+            {item.contractId > 0 && (
               <>
                 <IconButton
                   onClick={() => {
-                    console.log('item', item, 'ccc', contracts)
                     const contract = contracts.find((c) => c.contractId == item.contractId);
+                    console.log('contract-->', contract)
                     setCContract(contract);
                     setShowCContract(true);
                   }}
@@ -307,7 +342,7 @@ export default function Histories({
                   </Grid>
                 ) : (
                   <>
-                    <IconButton onClick={() => handleHistorySave(homeHistory, index)}>
+                    <IconButton onClick={() => handleHistorySave(homeHistory, index, item.historyTypeId)}>
                       <SaveAsIcon />
                     </IconButton>
                     <IconButton onClick={() => initialConf()}>
@@ -320,7 +355,11 @@ export default function Histories({
           </ListItem>
         );
       })}
-      <ContractDetailDialog open={showCContract} onClose={() => setShowCContract(false)} contract={cContract} />
+      <ContractDetailDialog
+        open={showCContract}
+        onClose={() => setShowCContract(false)}
+        contract={cContract}
+      />
     </Grid>
   );
 }
