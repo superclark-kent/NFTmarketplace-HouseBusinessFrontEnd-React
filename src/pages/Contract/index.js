@@ -472,7 +472,7 @@ export default function Contract() {
                     ContractID: <Box component={'b'}>{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    Contract Type: <Box component={'b'}>{item.contractType}</Box>
+                    Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
                     Company: <Box component={'b'}>{item.companyName}</Box>

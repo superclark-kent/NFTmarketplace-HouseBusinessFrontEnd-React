@@ -60,9 +60,14 @@ export default function Histories({
 
     var changedFlag = false;
     if (homeHistory.imgNeed) {
-      _houseImg = await FileUpload(cImage);
-      _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
-      changedFlag = true;
+      if (typeof cImage == 'string') {
+        _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
+        changedFlag = true;
+      } else {
+        _houseImg = await FileUpload(cImage);
+        _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
+        changedFlag = true;
+      }
     }
     if (_desc != CryptoJS.AES.encrypt(cPicDesc, secretKey).toString() && homeHistory.descNeed) {
       _desc = CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
@@ -86,17 +91,6 @@ export default function Histories({
     }
 
     if (changedFlag) {
-      // console.table({
-      //   'houseID,': houseID,
-      //   'historyIndex,': historyIndex,
-      //   'historyTypeId,': historyTypeId,
-      //   '_houseImg,': _houseImg,
-      //   '_brand,': _brand,
-      //   '_history,': _history,
-      //   '_desc,': _desc,
-      //   '_brandType,': _brandType,
-      //   '_yearField': _yearField
-      // })
       try {
         await houseBusinessContract.methods
           .editHistory(
@@ -171,6 +165,7 @@ export default function Histories({
       var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
       var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
       var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
+      console.log('de', decryptedImg)
       tempHistory.push({
         ...histories[i],
         history: decryptedHistory,
