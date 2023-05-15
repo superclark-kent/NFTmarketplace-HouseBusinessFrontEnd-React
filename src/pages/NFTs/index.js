@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { connect, useDispatch } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
 import { Box, Button, Grid } from '@mui/material';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
@@ -13,20 +14,22 @@ import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, HouseBusinessAddress } from 'mainConfig';
 
-export default function Nfts() {
+function Nfts(props) {
   const navigate = useNavigate()
   const nftClasses = useNftStyle()
+  const dispatch = useDispatch();
   const { account } = useWeb3React()
+  const walletAccount = props.account.account;
   const web3 = useWeb3()
   const houseBusinessContract = useHouseBusinessContract()
   const [allMyNFTs, setAllMyNFTs] = useState([])
 
   const loadNFTs = async () => {
-    if (account) {
+    if (walletAccount) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
+        if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
@@ -63,8 +66,16 @@ export default function Nfts() {
   }
 
   useEffect(() => {
-    if (account) {
+    if (account || walletAccount) {
       loadNFTs()
+    }
+    
+    if (account) {
+      dispatch(setAccount(account));
+    } else if (walletAccount) {
+      dispatch(setAccount(walletAccount));
+    } else {
+      dispatch(setAccount(null));
     }
   }, [account])
 
@@ -132,3 +143,12 @@ export default function Nfts() {
     </Grid>
   )
 }
+
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(Nfts);

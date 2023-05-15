@@ -1,4 +1,5 @@
 import React, { Fragment, cloneElement, useEffect, useState } from "react";
+import { useDispatch, connect } from 'react-redux';
 import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
@@ -29,7 +30,9 @@ import Zoom from "@mui/material/Zoom";
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 
-import { Grid, Button, TextField } from '@mui/material';
+import {
+	Grid, Button, TextField
+} from '@mui/material';
 
 // Icons
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
@@ -48,9 +51,10 @@ import WidgetsIcon from "@mui/icons-material/Widgets";
 import useHeaderStyles from "assets/styles/headerStyle";
 
 import {
-  useCleanContract, useHouseBusinessContract
+	useCleanContract, useHouseBusinessContract
 } from "hooks/useContractHelpers";
 import { houseInfo, houseWarning } from "hooks/useToast";
+import { setAccount } from "redux/actions/account";
 
 import defaultAvatar from "assets/images/avatar.png";
 import Coinbase from "assets/images/Coinbase.png";
@@ -65,719 +69,739 @@ import { useCookies } from "react-cookie";
 import Modal from "@mui/material/Modal";
 
 const style = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "1px solid black",
-  boxShadow: 24,
-  p: 4,
-  borderRadius: "10px",
+	position: "absolute",
+	top: "50%",
+	left: "50%",
+	transform: "translate(-50%, -50%)",
+	width: 400,
+	bgcolor: "background.paper",
+	border: "1px solid black",
+	boxShadow: 24,
+	p: 4,
+	borderRadius: "10px",
 };
 
 export const pages = [
-  {
-    label: "Dashboard",
-    router: "../../house/app",
-  },
-  {
-    label: "My NFTs",
-    router: "../../house/myNfts",
-  },
-  {
-    label: "Mint NFT",
-    router: "../../house/mint",
-  },
-  {
-    label: "Stake NFT",
-    router: "../../house/staking",
-  },
-  {
-    label: "Create Contract",
-    router: "../../contract/create",
-  },
-  {
-    label: "My Contracts",
-    router: "../../contract/main",
-  },
+	{
+		label: "Dashboard",
+		router: "../../house/app",
+	},
+	{
+		label: "My NFTs",
+		router: "../../house/myNfts",
+	},
+	{
+		label: "Mint NFT",
+		router: "../../house/mint",
+	},
+	{
+		label: "Stake NFT",
+		router: "../../house/staking",
+	},
+	{
+		label: "Create Contract",
+		router: "../../contract/create",
+	},
+	{
+		label: "My Contracts",
+		router: "../../contract/main",
+	},
 ];
 
 export const houseMenu = [
-  {
-    label: "Dashboard",
-    router: "../../house/app",
-    authRequired: false,
-  },
-  {
-    label: "My NFTs",
-    router: "../../house/myNfts",
-    authRequired: true,
-  },
-  {
-    label: "Mint NFT",
-    router: "../../house/mint",
-    authRequired: true,
-  },
-  {
-    label: "Stake NFT",
-    router: "../../house/staking",
-    authRequired: true,
-  },
+	{
+		label: "Dashboard",
+		router: "../../house/app",
+		authRequired: false,
+	},
+	{
+		label: "My NFTs",
+		router: "../../house/myNfts",
+		authRequired: true,
+	},
+	{
+		label: "Mint NFT",
+		router: "../../house/mint",
+		authRequired: true,
+	},
+	{
+		label: "Stake NFT",
+		router: "../../house/staking",
+		authRequired: true,
+	},
 ];
 
 export const contractMenu = [
-  {
-    label: "Create Contract",
-    router: "../../contract/create",
-    authRequired: true,
-  },
-  {
-    label: "Contract",
-    router: "../../contract/main",
-    authRequired: true,
-  },
+	{
+		label: "Create Contract",
+		router: "../../contract/create",
+		authRequired: true,
+	},
+	{
+		label: "Contract",
+		router: "../../contract/main",
+		authRequired: true,
+	},
 ];
 
 export const adminMenu = [
-  {
-    label: "Admin",
-    router: "../../admin/main",
-    authRequired: true,
-  },
+	{
+		label: "Admin",
+		router: "../../admin/main",
+		authRequired: true,
+	},
 ];
 
 export const thirdPartyMenu = [
-  {
-    label: "Third Party",
-    router: "../../third-party/main",
-    authRequired: true,
-  },
+	{
+		label: "Third Party",
+		router: "../../third-party/main",
+		authRequired: true,
+	},
 ];
 
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
+	shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  transition: theme.transitions.create(["margin", "width"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(["margin", "width"], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+	transition: theme.transitions.create(["margin", "width"], {
+		easing: theme.transitions.easing.sharp,
+		duration: theme.transitions.duration.leavingScreen,
+	}),
+	...(open && {
+		width: `calc(100% - ${drawerWidth}px)`,
+		marginLeft: `${drawerWidth}px`,
+		transition: theme.transitions.create(["margin", "width"], {
+			easing: theme.transitions.easing.easeOut,
+			duration: theme.transitions.duration.enteringScreen,
+		}),
+	}),
 }));
 
 function ScrollTop(props) {
-  const { children, window } = props;
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
-  const trigger = useScrollTrigger({
-    target: window ? window() : undefined,
-    disableHysteresis: true,
-    threshold: 100,
-  });
+	const { children, window } = props;
+	// Note that you normally won't need to set the window ref as useScrollTrigger
+	// will default to window.
+	// This is only being set here because the demo is in an iframe.
+	const trigger = useScrollTrigger({
+		target: window ? window() : undefined,
+		disableHysteresis: true,
+		threshold: 100,
+	});
 
-  const handleClick = (event) => {
-    const anchor = (event.target.ownerDocument || document).querySelector(
-      "#back-to-top-anchor"
-    );
+	const handleClick = (event) => {
+		const anchor = (event.target.ownerDocument || document).querySelector(
+			"#back-to-top-anchor"
+		);
 
-    if (anchor) {
-      anchor.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    }
-  };
+		if (anchor) {
+			anchor.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+		}
+	};
 
-  return (
-    <Zoom in={trigger}>
-      <Box
-        onClick={handleClick}
-        role="presentation"
-        sx={{ position: "fixed", bottom: 16, right: 16 }}
-      >
-        {children}
-      </Box>
-    </Zoom>
-  );
+	return (
+		<Zoom in={trigger}>
+			<Box
+				onClick={handleClick}
+				role="presentation"
+				sx={{ position: "fixed", bottom: 16, right: 16 }}
+			>
+				{children}
+			</Box>
+		</Zoom>
+	);
 }
 
 function ElevationScroll(props) {
-  const { children, window } = props;
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
-  const trigger = useScrollTrigger({
-    disableHysteresis: true,
-    threshold: 0,
-    target: window ? window() : undefined,
-  });
+	const { children, window } = props;
+	// Note that you normally won't need to set the window ref as useScrollTrigger
+	// will default to window.
+	// This is only being set here because the demo is in an iframe.
+	const trigger = useScrollTrigger({
+		disableHysteresis: true,
+		threshold: 0,
+		target: window ? window() : undefined,
+	});
 
-  return cloneElement(children, {
-    elevation: trigger ? 4 : 0,
-  });
+	return cloneElement(children, {
+		elevation: trigger ? 4 : 0,
+	});
 }
 
-export default function Header(props) {
-  const classes = useHeaderStyles();
-  const navigate = useNavigate();
-  const { account, activate, deactivate, library } = useWeb3React();
-  const houseBusinessContract = useHouseBusinessContract();
-  const cleanContract = useCleanContract();
 
-  const [notifies, setNotifies] = useState([]);
-  const [badgeLeng, setBadgeLeng] = useState("");
-  const [cookies, setCookie] = useCookies(["housebusiness"]);
-  const [isMember, setIsMember] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [notifyOpen, setNotifyOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+function Header(props) {
+	const dispatch = useDispatch();
+	const classes = useHeaderStyles();
+	const navigate = useNavigate();
+	const { account, activate, deactivate, library } = useWeb3React();
+	const walletAccount = props.account.account;
+	const houseBusinessContract = useHouseBusinessContract();
+	const cleanContract = useCleanContract();
 
-  const isUserMenuOpen = Boolean(userMenuOpen);
-  const isNotifyOpen = Boolean(notifyOpen);
+	const [notifies, setNotifies] = useState([]);
+	const [badgeLeng, setBadgeLeng] = useState("");
+	const [cookies, setCookie] = useCookies(["housebusiness"]);
+	const [isMember, setIsMember] = useState(false);
+	const [userMenuOpen, setUserMenuOpen] = useState(false);
+	const [notifyOpen, setNotifyOpen] = useState(false);
+	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [open, setOpen] = useState(false);
+	const [isWalletInstalled, setIsWalletInstalled] = useState(false);
 
-  const toggleDrawer = () => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
+	const isUserMenuOpen = Boolean(userMenuOpen);
+	const isNotifyOpen = Boolean(notifyOpen);
 
-    setDrawerOpen(!drawerOpen);
-  };
+	const toggleDrawer = () => (event) => {
+		if (
+			event.type === "keydown" &&
+			(event.key === "Tab" || event.key === "Shift")
+		) {
+			return;
+		}
 
-  const pathname = location.pathname;
+		setDrawerOpen(!drawerOpen);
+	};
 
-  const handleMenuClick = (page) => { navigate(page.router); };
-  const handleNotify = () => { navigate("../../contract/main"); };
+	const pathname = location.pathname;
 
-  const handleNotifyMenuOpen = (event) => {
-    setCookie("notifies", JSON.stringify(notifies), { path: "/" });
-    setNotifyOpen(event.currentTarget);
-  };
+	const handleMenuClick = (page) => { navigate(page.router); };
+	const handleNotify = () => { navigate("../../contract/main"); };
 
-  const handleProfileMenuOpen = (event) => { setUserMenuOpen(event.currentTarget); };
+	const handleNotifyMenuOpen = (event) => {
+		setCookie("notifies", JSON.stringify(notifies), { path: "/" });
+		setNotifyOpen(event.currentTarget);
+	};
 
-  const handleDisconnectWallet = () => {
-    deactivate();
-    setCookie("connected", false, { path: "/" });
-  };
+	const handleProfileMenuOpen = (event) => { setUserMenuOpen(event.currentTarget); };
 
-  const checkAdmin = async () => {
-    var isMember = await houseBusinessContract.methods
-      .member(account)
-      .call();
-    setIsMember(isMember);
-  };
+	const accountPage = () => {
+		if (walletAccount) {
+			navigate(`../../account/${walletAccount}`);
+		}
+	}
 
-  const loadNotifies = async () => {
-    var notifies = await cleanContract.methods.getAllNotifies(account).call();
-    var arr = [], nArr = [];
-    for (let i = 0; i < notifies.length; i++) {
-      if (notifies[i].status === false) {
-        arr.push(notifies[i]);
-      }
-      if (!cookies.notifies) {
-        nArr.push(notifies[i]);
-      } else if (
-        cookies.notifies.findIndex(
-          (item) => item[3] === notifies[i].notifySentTime
-        ) === -1 &&
-        notifies[i].status === false
-      ) {
-        nArr.push(notifies[i]);
-      }
-    }
+	const handleDisconnectWallet = () => {
+		deactivate();
+		setCookie("connected", false, { path: "/" });
+		dispatch(setAccount(null));
+	};
 
-    setNotifies(arr);
-    setBadgeLeng(nArr.length);
-  };
+	const checkAdmin = async () => {
+		var isMember = await houseBusinessContract.methods
+			.member(account)
+			.call();
+		setIsMember(isMember);
+	};
 
-  useEffect(() => {
-    if (pathname != "/house/app" && !pathname.includes("account")) {
-      if (!account && cookies.connected != "true") {
-        houseInfo("Please connect your wallet");
-        navigate("../../house/app");
-      }
-    }
-    if (account) {
-      checkAdmin();
-      loadNotifies();
-    }
-  }, [account, pathname]);
+	const loadNotifies = async () => {
+		var notifies = await cleanContract.methods.getAllNotifies(account).call({ from: account });
+		var arr = [], nArr = [];
+		for (let i = 0; i < notifies.length; i++) {
+			if (notifies[i].status === false) {
+				arr.push(notifies[i]);
+			}
+			if (!cookies.notifies) {
+				nArr.push(notifies[i]);
+			} else if (
+				cookies.notifies.findIndex(
+					(item) => item[3] === notifies[i].notifySentTime
+				) === -1 &&
+				notifies[i].status === false
+			) {
+				nArr.push(notifies[i]);
+			}
+		}
 
-  const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
-  const [airdropWalletID, setAirdropWalletID] = useState('');
+		setNotifies(arr);
+		setBadgeLeng(nArr.length);
+	};
 
-  const handleOpen = () => {
-    if (typeof window.ethereum === 'undefined') {
-      houseInfo("Please install Metamask");
-      setIsWalletInstalled(false);
-    } else {
-      setIsWalletInstalled(true);
-    }
-    setOpen(true);
-  }
+	useEffect(() => {
+		if (pathname != "/house/app" && !pathname.includes("account")) {
+			// if (!account && cookies.connected != "true") {
+			if (!walletAccount) {
+				houseInfo("Please connect your wallet");
+				navigate("../../house/app");
+			}
+		}
+		if (account) {
+			checkAdmin();
+			loadNotifies();
+		}
+	}, [account, pathname]);
 
-  const handleClose = () => {
-    setOpen(false);
-    setAirdropWalletOpen(false);
-    setAirdropWalletID('');
-  }
+	const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
+	const [airdropWalletID, setAirdropWalletID] = useState('');
 
-  const setProvider = (type) => { window.localStorage.setItem("provider", type); };
+	const handleOpen = () => {
+		if (typeof window.ethereum === 'undefined') {
+			houseInfo("Please install Metamask");
+			setIsWalletInstalled(false);
+		} else {
+			setIsWalletInstalled(true);
+		}
+		setOpen(true);
+	}
 
-  const handleConnectWallet = (con, conName) => {
-    activate(con);
-    setProvider(conName);
-    setCookie("connected", true, { path: "/" });
-    handleClose();
-  };
+	const handleClose = () => {
+		setOpen(false);
+		setAirdropWalletOpen(false);
+		setAirdropWalletID('');
+	}
 
-  const handleInstallWallet = () => {
-    window.open('https://metamask.io/', '_blank');
-    handleClose();
-  }
+	const setProvider = (type) => { window.localStorage.setItem("provider", type); };
 
-  const handleConnectAirdropWallet = () => {
-    setOpen(false);
-    setAirdropWalletOpen(true);
-  }
+	const handleConnectWallet = (con, conName) => {
+		activate(con);
+		setProvider(conName);
+		setCookie("connected", true, { path: "/" });
+		dispatch(setAccount(account));
+		handleClose();
+	};
 
-  const handleCreateAccount = () => {
-    // check the walletID is valid address
-    if (!ethers.utils.isAddress(airdropWalletID)) {
-      houseWarning('Please input valid Ethereum wallet address');
-    } else {
-      navigate(`../../account/${airdropWalletID}`);
-      handleClose();
-    }
+	const handleInstallWallet = () => {
+		window.open('https://metamask.io/', '_blank');
+		handleClose();
+	}
 
-  }
+	const handleConnectAirdropWallet = () => {
+		setOpen(false);
+		setAirdropWalletOpen(true);
+	}
 
-  return (
-    <div>
-      <CssBaseline />
-      <AppBar className={classes.appbar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={toggleDrawer()}
-            edge="start"
-            sx={{ mr: 2 }}
-          >
-            <WidgetsIcon />
-          </IconButton>
+	const handleCreateAccount = () => {
+		// check the walletID is valid address
+		if (!ethers.utils.isAddress(airdropWalletID)) {
+			houseWarning('Please input valid Ethereum wallet address');
+		} else {
+			// set account state with the airdrop wallet id
+			dispatch(setAccount(airdropWalletID));
+			handleClose();
+		}
+	}
 
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
-          >
-            <img alt="house business main logo" src={MainLogo} />
-          </Typography>
+	return (
+		<div>
+			<CssBaseline />
+			<AppBar className={classes.appbar}>
+				<Toolbar>
+					<IconButton
+						color="inherit"
+						aria-label="open drawer"
+						onClick={toggleDrawer()}
+						edge="start"
+						sx={{ mr: 2 }}
+					>
+						<WidgetsIcon />
+					</IconButton>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
-            >
-              House Business History
-            </Typography>
-          </Box>
+					<Typography
+						variant="h6"
+						noWrap
+						component="div"
+						sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
+					>
+						<img alt="house business main logo" src={MainLogo} />
+					</Typography>
 
-          <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton
-              size="large"
-              aria-label={`show ${badgeLeng} new notifications`}
-              // aria-controls={notifyId}
-              onClick={handleNotifyMenuOpen}
-              color="inherit"
-            >
-              {badgeLeng > 0 ? (
-                <Badge badgeContent={badgeLeng} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              ) : (
-                <NotificationsIcon />
-              )}
-            </IconButton>
-            <Tooltip title="Account settings">
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="account of current user"
-                // aria-controls={menuId}
-                aria-haspopup="true"
-                onClick={handleProfileMenuOpen}
-                color="inherit"
-              >
-                <Avatar alt="Borget" src={defaultAvatar} />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      <ElevationScroll {...props}>
-        <Drawer anchor={"left"} open={drawerOpen} onClose={toggleDrawer()}>
-          <Box
-            sx={{ width: 250 }}
-            role="presentation"
-            onClick={toggleDrawer()}
-            onKeyDown={toggleDrawer()}
-          >
-            <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
-              NFT
-            </Box>
-            <Divider />
-            <List>
-              {houseMenu.map((page, index) => {
-                if (page.authRequired === true && !account) {
-                  return null;
-                }
-                return (
-                  <ListItem
-                    button
-                    key={index}
-                    onClick={() => handleMenuClick(page)}
-                  >
-                    <ListItemIcon>
-                      <ExtensionIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={page.label} />
-                  </ListItem>
-                );
-              })}
-            </List>
+					<Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+						<Typography
+							variant="h6"
+							noWrap
+							component="div"
+							sx={{ mr: 2, display: { xs: "none", md: "flex" } }}
+						>
+							House Business History
+						</Typography>
+					</Box>
 
-            {account ? (
-              <>
-                <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
-                  Contract
-                </Box>
-                <Divider />
-                <List>
-                  {contractMenu.map((page, index) => {
-                    if (page.authRequired === true && !account) {
-                      return null;
-                    }
-                    return (
-                      <ListItem
-                        button
-                        key={index}
-                        onClick={() => handleMenuClick(page)}
-                      >
-                        <ListItemIcon>
-                          <ManageSearchIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={page.label} />
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              </>
-            ) : (
-              <></>
-            )}
-            {isMember === true && account ? (
-              <>
-                <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
-                  Admin
-                </Box>
-                <Divider />
-                <List>
-                  {adminMenu.map((page, index) => (
-                    <ListItem
-                      button
-                      key={index}
-                      onClick={() => handleMenuClick(page)}
-                    >
-                      <ListItemIcon>
-                        <AdminPanelSettingsIcon />
-                      </ListItemIcon>
-                      <ListItemText primary={page.label} />
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            ) : (
-              <></>
-            )}
-            {account ? (
-              <>
-                <Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
-                  Third Party
-                </Box>
-                <Divider />
-                <List>
-                  {thirdPartyMenu.map((page, index) => {
-                    if (page.authRequired === true && !account) {
-                      return null;
-                    }
-                    return (
-                      <ListItem
-                        button
-                        key={index}
-                        onClick={() => handleMenuClick(page)}
-                      >
-                        <ListItemIcon>
-                          <AssignmentIndIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={page.label} />
-                      </ListItem>
-                    );
-                  })}
-                </List>
-              </>
-            ) : (
-              <></>
-            )}
-          </Box>
-        </Drawer>
-      </ElevationScroll>
+					<Box sx={{ flexGrow: 1 }} />
+					<Box sx={{ display: { xs: "none", md: "flex" } }}>
+						<IconButton
+							size="large"
+							aria-label={`show ${badgeLeng} new notifications`}
+							// aria-controls={notifyId}
+							onClick={handleNotifyMenuOpen}
+							color="inherit"
+						>
+							{badgeLeng > 0 ? (
+								<Badge badgeContent={badgeLeng} color="error">
+									<NotificationsIcon />
+								</Badge>
+							) : (
+								<NotificationsIcon />
+							)}
+						</IconButton>
+						<Tooltip title="Account settings">
+							<IconButton
+								size="large"
+								edge="end"
+								aria-label="account of current user"
+								// aria-controls={menuId}
+								aria-haspopup="true"
+								onClick={handleProfileMenuOpen}
+								color="inherit"
+							>
+								<Avatar alt="Borget" src={defaultAvatar} />
+							</IconButton>
+						</Tooltip>
+					</Box>
+				</Toolbar>
+			</AppBar>
+			<ElevationScroll {...props}>
+				<Drawer anchor={"left"} open={drawerOpen} onClose={toggleDrawer()}>
+					<Box
+						sx={{ width: 250 }}
+						role="presentation"
+						onClick={toggleDrawer()}
+						onKeyDown={toggleDrawer()}
+					>
+						<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
+							NFT
+						</Box>
+						<Divider />
+						<List>
+							{houseMenu.map((page, index) => {
+								if (page.authRequired === true && !walletAccount) {
+									return null;
+								}
+								return (
+									<ListItem
+										button
+										key={index}
+										onClick={() => handleMenuClick(page)}
+									>
+										<ListItemIcon>
+											<ExtensionIcon />
+										</ListItemIcon>
+										<ListItemText primary={page.label} />
+									</ListItem>
+								);
+							})}
+						</List>
 
-      {/* User Menu */}
-      <Menu
-        anchorEl={userMenuOpen}
-        id="account-menu"
-        open={isUserMenuOpen}
-        onClose={() => setUserMenuOpen(false)}
-        onClick={() => setUserMenuOpen(false)}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            mt: 1.5,
-            "& .MuiAvatar-root": {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            "&:before": {
-              content: '""',
-              display: "block",
-              position: "absolute",
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: "background.paper",
-              transform: "translateY(-50%) rotate(45deg)",
-              zIndex: 0,
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
-        <MenuItem onClick={account ? () => { } : handleOpen}>
-          <ListItemIcon>
-            <AccountBalanceWalletIcon fontSize="small" />
-          </ListItemIcon>
-          {account ? `${account.slice(0, 8)}...` : "Connect Wallet"}
-        </MenuItem>
-        <MenuItem>
-          <ListItemIcon>
-            <PermContactCalendarIcon fontSize="small" />
-          </ListItemIcon>
-          Profile
-        </MenuItem>
-        <Divider />
-        <MenuItem>
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
-        <MenuItem onClick={() => handleDisconnectWallet()}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
-      </Menu>
+						{walletAccount ? (
+							<>
+								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
+									Contract
+								</Box>
+								<Divider />
+								<List>
+									{contractMenu.map((page, index) => {
+										if (page.authRequired === true && !walletAccount) {
+											return null;
+										}
+										return (
+											<ListItem
+												button
+												key={index}
+												onClick={() => handleMenuClick(page)}
+											>
+												<ListItemIcon>
+													<ManageSearchIcon />
+												</ListItemIcon>
+												<ListItemText primary={page.label} />
+											</ListItem>
+										);
+									})}
+								</List>
+							</>
+						) : (
+							<></>
+						)}
+						{isMember === true && walletAccount ? (
+							<>
+								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
+									Admin
+								</Box>
+								<Divider />
+								<List>
+									{adminMenu.map((page, index) => (
+										<ListItem
+											button
+											key={index}
+											onClick={() => handleMenuClick(page)}
+										>
+											<ListItemIcon>
+												<AdminPanelSettingsIcon />
+											</ListItemIcon>
+											<ListItemText primary={page.label} />
+										</ListItem>
+									))}
+								</List>
+							</>
+						) : (
+							<></>
+						)}
+						{walletAccount ? (
+							<>
+								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
+									Third Party
+								</Box>
+								<Divider />
+								<List>
+									{thirdPartyMenu.map((page, index) => {
+										if (page.authRequired === true && !walletAccount) {
+											return null;
+										}
+										return (
+											<ListItem
+												button
+												key={index}
+												onClick={() => handleMenuClick(page)}
+											>
+												<ListItemIcon>
+													<AssignmentIndIcon />
+												</ListItemIcon>
+												<ListItemText primary={page.label} />
+											</ListItem>
+										);
+									})}
+								</List>
+							</>
+						) : (
+							<></>
+						)}
+					</Box>
+				</Drawer>
+			</ElevationScroll>
 
-      {/* Notify Menu */}
-      <Menu
-        sx={{ mt: "45px" }}
-        anchorEl={notifyOpen}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        id="notify-menu"
-        keepMounted
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-        open={isNotifyOpen}
-        onClose={() => setNotifyOpen(false)}
-      >
-        <Paper square sx={{ pb: "50px", width: "500px", boxShadow: "none" }}>
-          <Typography
-            variant="h5"
-            gutterBottom
-            component="div"
-            sx={{ p: 2, pb: 0 }}
-          >
-            Notifies
-          </Typography>
-          <List sx={{ mb: 2 }} onClick={handleNotify}>
-            {notifies.map(({ ccID, nSender, notifyContent }, key) => (
-              <Fragment key={key}>
-                <ListItem button>
-                  <ListItemAvatar>
-                    <Avatar alt="Profile Picture" src={defaultAvatar} />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={notifyContent}
-                    secondary={`From ${nSender} in contract id: ${ccID}`}
-                  />
-                </ListItem>
-              </Fragment>
-            ))}
-          </List>
-        </Paper>
-      </Menu>
+			{/* User Menu */}
+			<Menu
+				anchorEl={userMenuOpen}
+				id="account-menu"
+				open={isUserMenuOpen}
+				onClose={() => setUserMenuOpen(false)}
+				onClick={() => setUserMenuOpen(false)}
+				PaperProps={{
+					elevation: 0,
+					sx: {
+						overflow: "visible",
+						filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+						mt: 1.5,
+						"& .MuiAvatar-root": {
+							width: 32,
+							height: 32,
+							ml: -0.5,
+							mr: 1,
+						},
+						"&:before": {
+							content: '""',
+							display: "block",
+							position: "absolute",
+							top: 0,
+							right: 14,
+							width: 10,
+							height: 10,
+							bgcolor: "background.paper",
+							transform: "translateY(-50%) rotate(45deg)",
+							zIndex: 0,
+						},
+					},
+				}}
+				transformOrigin={{ horizontal: "right", vertical: "top" }}
+				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+			>
+				<MenuItem onClick={walletAccount ? () => { } : handleOpen}>
+					<ListItemIcon>
+						<AccountBalanceWalletIcon fontSize="small" />
+					</ListItemIcon>
+					{walletAccount ? `${walletAccount.slice(0, 8)}...` : "Connect Wallet"}
+				</MenuItem>
+				<MenuItem onClick={accountPage}>
+					<ListItemIcon>
+						<PermContactCalendarIcon fontSize="small" />
+					</ListItemIcon>
+					Profile
+				</MenuItem>
+				<Divider />
+				<MenuItem>
+					<ListItemIcon>
+						<Settings fontSize="small" />
+					</ListItemIcon>
+					Settings
+				</MenuItem>
+				<MenuItem onClick={() => handleDisconnectWallet()}>
+					<ListItemIcon>
+						<Logout fontSize="small" />
+					</ListItemIcon>
+					Logout
+				</MenuItem>
+			</Menu>
 
-      <Toolbar id="back-to-top-anchor" />
-      <ScrollTop {...props}>
-        <Fab
-          color="primary"
-          size="small"
-          aria-label="scroll back to top"
-          className={classes.topScroll}
-        >
-          <KeyboardArrowUpIcon />
-        </Fab>
-      </ScrollTop>
+			{/* Notify Menu */}
+			<Menu
+				sx={{ mt: "45px" }}
+				anchorEl={notifyOpen}
+				anchorOrigin={{
+					vertical: "top",
+					horizontal: "right",
+				}}
+				id="notify-menu"
+				keepMounted
+				transformOrigin={{
+					vertical: "top",
+					horizontal: "right",
+				}}
+				open={isNotifyOpen}
+				onClose={() => setNotifyOpen(false)}
+			>
+				<Paper square sx={{ pb: "50px", width: "500px", boxShadow: "none" }}>
+					<Typography
+						variant="h5"
+						gutterBottom
+						component="div"
+						sx={{ p: 2, pb: 0 }}
+					>
+						Notifies
+					</Typography>
+					<List sx={{ mb: 2 }} onClick={handleNotify}>
+						{notifies.map(({ ccID, nSender, notifyContent }, key) => (
+							<Fragment key={key}>
+								<ListItem button>
+									<ListItemAvatar>
+										<Avatar alt="Profile Picture" src={defaultAvatar} />
+									</ListItemAvatar>
+									<ListItemText
+										primary={notifyContent}
+										secondary={`From ${nSender} in contract id: ${ccID}`}
+									/>
+								</ListItem>
+							</Fragment>
+						))}
+					</List>
+				</Paper>
+			</Menu>
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Select Wallet
-          </Typography>
+			<Toolbar id="back-to-top-anchor" />
+			<ScrollTop {...props}>
+				<Fab
+					color="primary"
+					size="small"
+					aria-label="scroll back to top"
+					className={classes.topScroll}
+				>
+					<KeyboardArrowUpIcon />
+				</Fab>
+			</ScrollTop>
 
-          <MenuItem
-            onClick={() => {
-              isWalletInstalled ?
-                handleConnectWallet(connectorsByName.injected, "injected") :
-                handleInstallWallet();
-            }}
-          >
-            <ListItemIcon>
-              <Avatar alt="metamask" src={Metamask} />
-            </ListItemIcon>
-            MetaMask
-          </MenuItem>
+			<Modal
+				open={open}
+				onClose={handleClose}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
+			>
+				<Box sx={style}>
+					<Typography id="modal-modal-title" variant="h6" component="h2">
+						Select Wallet
+					</Typography>
 
-          <MenuItem
-            onClick={() => {
-              handleConnectWallet(
-                connectorsByName.walletConnect,
-                "walletConnect"
-              );
-            }}
-          >
-            <ListItemIcon>
-              <Avatar alt="walletconnect" src={WalletConnectAvatar} />
-            </ListItemIcon>
-            Wallet Connect
-          </MenuItem>
+					<MenuItem
+						onClick={() => {
+							isWalletInstalled ?
+								handleConnectWallet(connectorsByName.injected, "injected") :
+								handleInstallWallet();
+						}}
+					>
+						<ListItemIcon>
+							<Avatar alt="metamask" src={Metamask} />
+						</ListItemIcon>
+						MetaMask
+					</MenuItem>
 
-          <MenuItem
-            onClick={() => {
-              handleConnectWallet(
-                connectorsByName.coinbaseWallet,
-                "coinbaseWallet"
-              );
-            }}
-          >
-            <ListItemIcon>
-              <Avatar alt="coinbase" src={Coinbase} />
-            </ListItemIcon>
-            Coinbase
-          </MenuItem>
+					<MenuItem
+						onClick={() => {
+							handleConnectWallet(
+								connectorsByName.walletConnect,
+								"walletConnect"
+							);
+						}}
+					>
+						<ListItemIcon>
+							<Avatar alt="walletconnect" src={WalletConnectAvatar} />
+						</ListItemIcon>
+						Wallet Connect
+					</MenuItem>
 
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Other Options
-          </Typography>
+					<MenuItem
+						onClick={() => {
+							handleConnectWallet(
+								connectorsByName.coinbaseWallet,
+								"coinbaseWallet"
+							);
+						}}
+					>
+						<ListItemIcon>
+							<Avatar alt="coinbase" src={Coinbase} />
+						</ListItemIcon>
+						Coinbase
+					</MenuItem>
 
-          <MenuItem
-            onClick={() => {
-              handleConnectAirdropWallet();
-            }}
-          >
-            {/* <ListItemIcon>
+					<Typography id="modal-modal-title" variant="h6" component="h2">
+						Other Options
+					</Typography>
+
+					<MenuItem
+						onClick={() => {
+							handleConnectAirdropWallet();
+						}}
+					>
+						{/* <ListItemIcon>
               <Avatar alt="coinbase" src={Coinbase} />
             </ListItemIcon> */}
-            Connect your Airdrop wallet
-          </MenuItem>
-        </Box>
-      </Modal>
+						Connect your Airdrop wallet
+					</MenuItem>
+				</Box>
+			</Modal>
 
-      <Modal
-        open={airdropWalletOpen}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        size="small"
-      >
-        <Box sx={style}>
-          <Grid container spacing={3}>
-            <Grid item md={12}>
-              <Box component={'h3'}>Set Airdrop Wallet ID</Box>
-              <Grid item md={12} sx={{ display: 'flex' }}>
-                <Grid item md={8}>
-                  <TextField
-                    value={airdropWalletID}
-                    fullWidth
-                    onChange={(e) => setAirdropWalletID(e.target.value)}
-                    placeholder="Airdrop Wallet ID"
-                    inputProps={{ 'aria-label': 'package' }}
-                  />
-                </Grid>
-                <Button
-                  size="small"
-                  color="primary"
-                  onClick={handleCreateAccount}
-                  startIcon={<SaveIcon />}
-                  variant="contained"
-                  style={{ marginLeft: '20px' }}
-                >
-                  Save
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Box>
-      </Modal>
-    </div>
-  );
+			<Modal
+				open={airdropWalletOpen}
+				onClose={handleClose}
+				aria-labelledby="modal-modal-title"
+				aria-describedby="modal-modal-description"
+				size="small"
+			>
+				<Box sx={style}>
+					<Grid container spacing={3}>
+						<Grid item md={12}>
+							<Box component={'h3'}>Set Airdrop Wallet ID</Box>
+							<Grid item md={12} sx={{ display: 'flex' }}>
+								<Grid item md={8}>
+									<TextField
+										value={airdropWalletID}
+										fullWidth
+										onChange={(e) => setAirdropWalletID(e.target.value)}
+										placeholder="Airdrop Wallet ID"
+										inputProps={{ 'aria-label': 'package' }}
+									/>
+								</Grid>
+								<Button
+									size="small"
+									color="primary"
+									onClick={handleCreateAccount}
+									startIcon={<SaveIcon />}
+									variant="contained"
+									style={{ marginLeft: '20px' }}
+								>
+									Save
+								</Button>
+							</Grid>
+						</Grid>
+					</Grid>
+				</Box>
+			</Modal>
+		</div>
+	);
 }
+
+function mapStateToProps(state) {
+	return {
+		account: state.account,
+	};
+}
+
+export default connect(mapStateToProps)(Header);

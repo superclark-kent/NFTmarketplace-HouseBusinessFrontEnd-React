@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import dotenv from "dotenv";
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
+import { useWeb3React } from '@web3-react/core';
 dotenv.config();
 
 import {
-    Box, Button,
-    Grid,
-    Paper, styled
+    Box, Button, Divider, Grid, IconButton, InputBase,
+    Paper, styled, TextField, Alert
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
 import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
@@ -23,7 +23,7 @@ const style = {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 400,
+    width: 500,
     bgcolor: "background.paper",
     border: "1px solid black",
     boxShadow: 24,
@@ -31,11 +31,12 @@ const style = {
     borderRadius: "10px",
 };
 
+import { OperatorAddress, apiURL } from 'mainConfig';
 import {
+    useOperatorContract,
     useERC20Contract,
-    useOperatorContract
+    useWeb3Content
 } from "hooks/useContractHelpers";
-import { OperatorAddress } from 'mainConfig';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -46,27 +47,55 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function AirdropWallet() {
-    // const { account } = useWeb3React();
+    const { account } = useWeb3React();
+    const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
     const ERC20TokenContract = useERC20Contract();
 
+    const navigate = useNavigate();
     const location = useLocation();
-    const { walletID } = useParams();
+    const { walletID: urlWalletID } = useParams();
+    const [walletID, setWalletID] = useState(urlWalletID);
+    const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
-    // const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
+    const [amountToDeposit, setAmountToDeposit] = useState('');
+    const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
     const [paymentAmount, setPaymentAmount] = useState(1000);
     const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
+        setWalletID(urlWalletID);
+    }, [urlWalletID]);
+
+    useEffect(() => {
+        if (account) {
+            setWalletID(account);
+        } else {
+            setWalletID(urlWalletID);
+        }
+    }, [account]);
+
+    useEffect(() => {
+        getCreditBalance();
+    }, [walletID]);
+
+    useEffect(() => {
         // Create PaymentIntent as soon as the page loads
-        fetch("http://localhost:5000/create-payment-intent", {
+        fetch(`${apiURL}/create-payment-intent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount: paymentAmount }),
+            body: JSON.stringify({
+                amount: paymentAmount,
+                currency: 'usd'
+            }),
         })
             .then((res) => res.json())
             .then((data) => setClientSecret(data.clientSecret));
+
+        if (account) {
+            setWalletID(account);
+        }
     }, []);
 
     useEffect(async () => {
@@ -78,7 +107,7 @@ export default function AirdropWallet() {
                 stripe.retrievePaymentIntent(clientSecretNew).then(({ paymentIntent }) => {
                     switch (paymentIntent.status) {
                         case "succeeded":
-                            houseSuccess("Payment succeeded!");
+                            houseSuccess("Payment succeeded!, please wait for a while to receive the airdrop minted $HBT.");
                             airdropERC20Token();
                             break;
                         case "processing":
@@ -106,30 +135,79 @@ export default function AirdropWallet() {
     };
 
     const getCreditBalance = async () => {
-        // Get the ERC20 token balance.
-        OperatorContract.methods.balanceOf(walletID).call()
-            .then(creditBalance => {
-                setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
-            })
-            .catch(err => console.log(err));
+        try {
+            // Get the ERC20 token balance.
+            const creditBalance = await OperatorContract.methods.balanceOf(walletID).call();
+            setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     const airdropERC20Token = () => {
-        // mint ERC20 token
-        ERC20TokenContract.methods
-            .mint(OperatorAddress, Web3.utils.toWei(`${paymentAmount}`, 'ether'))
-            .send({ from: OperatorAddress })
+        try {
+            const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
+            const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
+
+            const transactionObject = {
+                to: OperatorAddress,
+                data
+            };
+
+            // mint ERC20 token
+            fetch(`${apiURL}/signTransaction`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    transactionObject
+                }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                    getCreditBalance();
+                })
+                .catch(err => {
+                    throw new Error(err);
+                });
+
+        } catch (err) {
+            houseError(err);
+        }
+        navigate(`${window.location.pathname}`);
+    };
+
+    const handleDeposit = async (e) => {
+        if (!account) {
+            return;
+        }
+
+        // Rough Validation
+        if (amountToDeposit <= 0) {
+            setMessage('Invalid amount');
+            return;
+        }
+
+        const amountInWei = Web3.utils.toWei(`${amountToDeposit}`, 'ether');
+
+        // Approve the token amount
+        await ERC20TokenContract.methods.approve(OperatorAddress, amountInWei).send({ from: account });
+
+        // Deposit the $HBT
+        OperatorContract.methods
+            .deposit(amountInWei)
+            .send({ from: account })
             .then(receipt => {
-                console.log(receipt);
+                houseSuccess('Successfully Deposited');
+                getCreditBalance();
             })
             .catch(error => {
                 console.error(error);
             });
-    }
 
-    useEffect(() => {
-        getCreditBalance();
-    }, [walletID]);
+        setMessage('');
+        setOperatorAddressOpen(false);
+    }
 
     return (
         <>
@@ -163,38 +241,58 @@ export default function AirdropWallet() {
                     <Button onClick={() => setCheckoutFormOpen(true)} variant="contained" color="secondary" style={{ marginTop: '20px' }}>
                         Purchase Credit $HBT ($10)
                     </Button>
-                    <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
+                    <Button onClick={() => setOperatorAddressOpen(true)} variant="contained" color="primary" style={{ marginTop: '20px' }} disabled={account ? false : true}>
                         Deposit $HBT
-                    </Button>
-                    <Button variant="contained" color="primary" style={{ marginTop: '20px' }} disabled>
-                        Deposit ETH
                     </Button>
                 </Box>
             </Grid>
-            {/* <Modal
-                open={operatorAddressOpen}
-                onClose={() => setOperatorAddressOpen(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                size="small"
-            >
-                <Box sx={style}>
-                    <Grid container spacing={3}>
-                        <Grid item md={12}>
-                            <Box component={'h3'}>Please send your $HBT to the Operator smart contract address below.</Box>
-                            <Grid item md={12} sx={{ display: 'flex' }}>
-                                <Grid item md={12}>
-                                    <Item>
-                                        <div style={{ flex: '1' }}>
-                                            {OperatorAddress}
-                                        </div>
-                                    </Item>
+
+            {account && (
+                <Modal
+                    open={operatorAddressOpen}
+                    onClose={() => setOperatorAddressOpen(false)}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                    size="small"
+                >
+                    <Box sx={style}>
+                        <Grid container spacing={3}>
+                            <Grid item md={12}>
+                                <Box component={'h3'}>Deposit $HBT to the credit account directly.</Box>
+                                <Grid item md={12} sx={{ display: 'flex' }}>
+                                    <Grid item md={12}>
+                                        <Item>
+                                            <div style={{ flex: '1' }}>
+                                                {OperatorAddress}
+                                            </div>
+                                        </Item>
+                                    </Grid>
                                 </Grid>
+                                <Grid item md={12} sx={{ display: 'flex', marginTop: '20px' }}>
+                                    {/* Set the desired height in pixels */}
+                                    <Grid item md={8} sx={{ height: '60px' }}>
+                                        <TextField
+                                            value={amountToDeposit}
+                                            fullWidth
+                                            onChange={(e) => setAmountToDeposit(e.target.value)}
+                                            placeholder="$HBT amount to deposit"
+                                            inputProps={{ 'aria-label': 'package' }}
+                                        />
+                                    </Grid>
+                                    <Grid item md={4}>
+                                        <Button onClick={handleDeposit} variant="contained" color="secondary" sx={{ marginLeft: '50px', height: '55px' }}>
+                                            Deposit
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                                {/* Show any error or success messages */}
+                                {message && <Alert className="my-alert" severity="error">{message}</Alert>
+                                }
                             </Grid>
                         </Grid>
-                    </Grid>
-                </Box>
-            </Modal> */}
+                    </Box>
+                </Modal>
+            )}
 
             <Modal
                 open={checkoutFormOpen}
