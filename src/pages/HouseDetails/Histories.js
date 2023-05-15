@@ -192,8 +192,9 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
+        console.log(item, historyTypes)
         var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
-        return (
+        {homeHistory && (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
               className={classes.listhistoryType}
@@ -353,7 +354,7 @@ export default function Histories({
               </>
             )}
           </ListItem>
-        );
+        )}
       })}
       <ContractDetailDialog
         open={showCContract}

@@ -330,7 +330,7 @@ function Header(props) {
 			checkAdmin();
 			loadNotifies();
 		}
-	}, [account, pathname]);
+	}, [walletAccount, pathname]);
 
 	useEffect(() => {
 		if (account) {

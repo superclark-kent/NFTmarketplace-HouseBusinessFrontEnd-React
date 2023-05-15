@@ -129,7 +129,8 @@ function HouseDetails(props) {
             tokenURI: decryptedData,
             tokenName: decryptedName,
             tokenType: decryptedType,
-          });
+		  });
+			
           var dArr = [];
           for (let i = 0; i < chistories.length; i++) {
             dArr[i] = true;
