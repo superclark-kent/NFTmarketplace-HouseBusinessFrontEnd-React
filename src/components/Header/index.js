@@ -291,13 +291,13 @@ function Header(props) {
 
 	const checkAdmin = async () => {
 		var isMember = await houseBusinessContract.methods
-			.member(account)
+			.member(walletAccount)
 			.call();
 		setIsMember(isMember);
 	};
 
 	const loadNotifies = async () => {
-		var notifies = await cleanContract.methods.getAllNotifies(account).call({ from: account });
+		var notifies = await cleanContract.methods.getAllNotifies(walletAccount).call();
 		var arr = [], nArr = [];
 		for (let i = 0; i < notifies.length; i++) {
 			if (notifies[i].status === false) {
@@ -321,17 +321,26 @@ function Header(props) {
 
 	useEffect(() => {
 		if (pathname != "/house/app" && !pathname.includes("account")) {
-			// if (!account && cookies.connected != "true") {
-			if (!walletAccount) {
+			if (!walletAccount && cookies.connected != "true") {
 				houseInfo("Please connect your wallet");
 				navigate("../../house/app");
 			}
 		}
-		if (account) {
+		if (walletAccount) {
 			checkAdmin();
 			loadNotifies();
 		}
 	}, [account, pathname]);
+
+	useEffect(() => {
+		if (account) {
+			dispatch(setAccount(account));
+		} else if (walletAccount) {
+			dispatch(setAccount(walletAccount));
+		} else {
+			dispatch(setAccount(null));
+		}
+	}, [account]);
 
 	const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
 	const [airdropWalletID, setAirdropWalletID] = useState('');
@@ -378,6 +387,7 @@ function Header(props) {
 			houseWarning('Please input valid Ethereum wallet address');
 		} else {
 			// set account state with the airdrop wallet id
+			setCookie("connected", true, { path: "/" });
 			dispatch(setAccount(airdropWalletID));
 			handleClose();
 		}

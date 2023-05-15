@@ -19,8 +19,8 @@ function Nfts(props) {
   const navigate = useNavigate()
   const nftClasses = useNftStyle()
   const dispatch = useDispatch();
-  const { account } = useWeb3React()
   const walletAccount = props.account.account;
+  const { account } = useWeb3React()
   const web3 = useWeb3()
   const houseBusinessContract = useHouseBusinessContract()
   const [allMyNFTs, setAllMyNFTs] = useState([])
@@ -67,10 +67,6 @@ function Nfts(props) {
   }
 
   useEffect(() => {
-    if (account || walletAccount) {
-      loadNFTs()
-    }
-    
     if (account) {
       dispatch(setAccount(account));
     } else if (walletAccount) {
@@ -79,6 +75,12 @@ function Nfts(props) {
       dispatch(setAccount(null));
     }
   }, [account])
+
+  useEffect(() => {
+    if (account || walletAccount) {
+      loadNFTs()
+    }
+  }, [account, walletAccount]);
 
   return (
     <Grid>

@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
+import { setAccount } from "redux/actions/account";
 
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
@@ -35,10 +37,12 @@ const style = {
   },
 };
 
-export default function HouseDetails() {
+function HouseDetails(props) {
   const navigate = useNavigate();
   const { account } = useWeb3React();
   const web3 = useWeb3();
+  const dispatch = useDispatch();
+  const walletAccount = props.account.account;
   const { houseNftID } = useParams();
 
   const cleanContract = useCleanContract();
@@ -84,7 +88,7 @@ export default function HouseDetails() {
   };
 
   const loadNFT = async (_id) => {
-    var allMyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
+    var allMyContracts = await cleanContract.methods.getAllContractsByOwner(walletAccount).call();
     var cArr = [];
     for (let i = 0; i < allMyContracts.length; i++) {
       const contract = decryptContract(allMyContracts[i]);
@@ -95,7 +99,7 @@ export default function HouseDetails() {
     }
     setContracts(cArr);
 
-    var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
+    var nfts = await houseBusinessContract.methods.getAllHouses().call();
     var nft = nfts.filter((item) => item.houseID === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
 
@@ -105,8 +109,8 @@ export default function HouseDetails() {
       if (nft.contributor.buyer) {
         setSpecialBuyer(nft.contributor.buyer);
       }
-      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, account).call();
-      if (nft.contributor.currentOwner === account || confirm === true) {
+      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, walletAccount).call();
+      if (nft.contributor.currentOwner === walletAccount || confirm === true) {
         var flag = false;
         for (let i = 0; i < pages.length; i++) {
           if (pages[i].router === _id) {
@@ -300,6 +304,14 @@ export default function HouseDetails() {
 
   useEffect(() => {
     if (account) {
+      dispatch(setAccount(account));
+    } else if (walletAccount) {
+      dispatch(setAccount(walletAccount));
+    } else {
+      dispatch(setAccount(null));
+    }
+
+    if (walletAccount) {
       initialConfig();
     }
   }, [account]);
@@ -328,7 +340,7 @@ export default function HouseDetails() {
           </Grid>
           <NFTdetail
             classes={classes}
-            account={account}
+            account={walletAccount}
             simpleNFT={simpleNFT}
             buyerFlag={buyerFlag}
             setBuyerFlag={setBuyerFlag}
@@ -352,7 +364,7 @@ export default function HouseDetails() {
               loadNFT={loadNFT}
               disconnectContract={handleDisconnectContract}
             />
-            {simpleNFT.contributor.currentOwner === `${account}` ? (
+            {simpleNFT.contributor.currentOwner === `${walletAccount}` ? (
               <Grid className={classes.addHistorySection}>
                 <NewHistory
                   classes={classes}
@@ -400,3 +412,11 @@ export default function HouseDetails() {
     </>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(HouseDetails);

@@ -146,7 +146,7 @@ export default function AirdropWallet() {
 
     const airdropERC20Token = () => {
         try {
-            const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
+            const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
             const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
 
             const transactionObject = {
@@ -164,7 +164,7 @@ export default function AirdropWallet() {
             })
                 .then(res => res.json())
                 .then(data => {
-                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                    houseSuccess(`Congratulations, you received ${paymentAmount / 100} $HBT token airdrop.`);
                     getCreditBalance();
                 })
                 .catch(err => {
@@ -228,7 +228,7 @@ export default function AirdropWallet() {
                 <Grid item xs={12}>
                     <Item>
                         <div style={{ flex: '1' }}>
-                            {creditBalance}
+                            {creditBalance} $HBT
                         </div>
                     </Item>
                 </Grid>
