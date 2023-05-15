@@ -16,7 +16,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY);
+const stripePromise = loadStripe('pk_test_51N3Z16DOT8tnmBX5f8D6Aq1gqvvg3M7PZtAgnc2SyjJsfuvegcaswpvcf5aaIXZNaNLQNzl6lGgCN8rMfZisxixd00UAuDlQSW');
 
 const style = {
     position: "absolute",
