@@ -240,6 +240,10 @@ export default function HouseDetails() {
   };
 
   const handleBuyerEdit = async () => {
+    if (web3.utils.fromWei(simpleNFT.price) == 0) {
+      houseWarning("Please set NFT price to set payable");
+      return;
+    }
     await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
     houseSuccess('Success!');
     setSpecialBuyer('');
@@ -252,6 +256,7 @@ export default function HouseDetails() {
       houseInfo("Please connect your wallet!")
     } else {
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
+      console.log('house', _housePrice)
       // const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
       await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
       houseSuccess("You have successfully set your House price!")
