@@ -79,7 +79,7 @@ export default function HouseDetails() {
   const initialConfig = async () => {
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);
@@ -90,14 +90,16 @@ export default function HouseDetails() {
   };
 
   const loadNFT = async (_id) => {
-    var allMyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
+    var allContracts = await cleanContract.methods.getAllCleanContracts().call();
     var cArr = [];
-    for (let i = 0; i < allMyContracts.length; i++) {
-      const contract = decryptContract(allMyContracts[i]);
-      cArr.push({
-        ...contract,
-        label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
-      });
+    for (let i = 0; i < allContracts.length; i++) {
+      if ((allContracts[i].owner).toLowerCase() == account.toLowerCase()) {
+        const contract = decryptContract(allContracts[i]);
+        cArr.push({
+          ...contract,
+          label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
+        });
+      }
     }
     setContracts(cArr);
 

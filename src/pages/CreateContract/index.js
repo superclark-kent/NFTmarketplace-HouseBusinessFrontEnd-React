@@ -175,7 +175,7 @@ export default function CreateContract() {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
     hTypes.map(item => {
       arr.push({

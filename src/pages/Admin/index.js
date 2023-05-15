@@ -116,7 +116,7 @@ export default function Admin() {
   const [countArray, setCountArray] = useState([]);
   const [uploadedCount, setUploadedCount] = useState(0);
 
-  const [validateFlag, setValidateFlag] = useState(false);
+  const [validateFlag, setValidateFlag] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
 
@@ -154,7 +154,6 @@ export default function Admin() {
     var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
     var _uploadedCount = await CleanContract.methods.ccCounter().call()
-
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
@@ -166,7 +165,6 @@ export default function Admin() {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
-
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -175,7 +173,8 @@ export default function Admin() {
 
     setVisibleProperty(tempList);
 
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    console.log('hTypes', hTypes)
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
@@ -270,6 +269,7 @@ export default function Admin() {
     }
     setLoading(false);
   };
+
   const AddNewCategory = async () => {
     if (NCategory !== '') {
       if (CategoryList.findIndex((item) => item.cartegoryName.toUpperCase() === NCategory.toUpperCase()) === -1) {

@@ -61,7 +61,7 @@ export default function Histories({
     var changedFlag = false;
     if (homeHistory.imgNeed) {
       if (typeof cImage == 'string') {
-        _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
+        _houseImg = CryptoJS.AES.encrypt(cImage, secretKey).toString()
         changedFlag = true;
       } else {
         _houseImg = await FileUpload(cImage);
@@ -165,7 +165,6 @@ export default function Histories({
       var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
       var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
       var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
-      console.log('de', decryptedImg)
       tempHistory.push({
         ...histories[i],
         history: decryptedHistory,

@@ -29,6 +29,7 @@ export default function NftHistory({ classes, historyTypes }) {
   const [loading, setLoading] = useState(false);
   const [newHistory, setNewHistory] = useState("");
   const [Hdata, setHData] = useState([]);
+  const [addFlag, setAddFlag] = useState(false);
 
   const label = { inputProps: { "aria-label": "History Checkbox" } };
 
@@ -58,21 +59,21 @@ export default function NftHistory({ classes, historyTypes }) {
     obj["percent"] = 0;
     setNewItem(obj);
     setNewHistory("");
+    setAddFlag(true);
   };
 
   const handleRemove = async (item, itemIndex) => {
-    if (item === newItem) {
-      setNewItem(null);
-    } else {
-      await houseBusinessContract.methods
-        .removeHistoryType(item.id)
-        .send({ from: account });
+    const historyId = item.hID != undefined ? item.hID : item.id;
+    try {
+      const tx = await houseBusinessContract.methods.removeHistoryType(historyId).send({ from: account });
       let temp = [...Hdata];
       delete temp[itemIndex];
       temp = temp.filter((item) => !isEmpty(item));
       setHData(temp);
       setAllTypes(temp);
       houseSuccess("Success Deleted");
+    } catch (err) {
+      console.log('err', err)
     }
   };
 
@@ -81,7 +82,7 @@ export default function NftHistory({ classes, historyTypes }) {
     obj["percent"] = item.percent;
     obj[changeType] = checked;
     var eArr = [];
-    for (let i = 0; i < Hdata.length; i++) {
+    for (let i = 0; i < allTypes.length; i++) {
       if (i === hIndex) {
         eArr.push(true);
       } else {
@@ -103,30 +104,51 @@ export default function NftHistory({ classes, historyTypes }) {
 
   const handleSave = async (historyItem, typeID) => {
     setLoading(true);
-    await houseBusinessContract.methods
-      .addOrEditHType(
-        typeID,
-        historyItem.hLabel,
-        historyItem.connectContract,
-        historyItem.imgNeed,
-        historyItem.brandNeed,
-        historyItem.descNeed,
-        historyItem.brandTypeNeed,
-        historyItem.yearNeed,
-        historyItem.checkMark
-      )
-      .send({ from: account });
-    let temp = [...Hdata];
-    temp[typeID] = historyItem;
-    setHData(temp);
-    setAllTypes(Hdata);
-    houseSuccess("Saved Success");
+    try {
+      if (addFlag) {
+        await houseBusinessContract.methods
+          .addHistoryType(
+            typeID,
+            historyItem.hLabel,
+            historyItem.connectContract,
+            historyItem.imgNeed,
+            historyItem.brandNeed,
+            historyItem.descNeed,
+            historyItem.brandTypeNeed,
+            historyItem.yearNeed,
+            historyItem.checkMark
+          )
+          .send({ from: account });
+      } else {
+        await houseBusinessContract.methods
+          .editHistoryType(
+            typeID,
+            historyItem.hLabel,
+            historyItem.connectContract,
+            historyItem.imgNeed,
+            historyItem.brandNeed,
+            historyItem.descNeed,
+            historyItem.brandTypeNeed,
+            historyItem.yearNeed,
+            historyItem.checkMark
+          )
+          .send({ from: account });
+      }
+      let temp = [...Hdata];
+      temp[typeID] = historyItem;
+      setHData(temp);
+      setAllTypes(temp);
+      const eArr = new Array(temp.length).fill(false);
+      setEditArr(eArr);
+      houseSuccess("Saved Success");
+    } catch (err) {
+      console.log('err')
+    }
     setLoading(false);
   };
 
   const updateData = () => {
-    var hArr = [],
-      eArr = [];
+    var hArr = [], eArr = [];
     for (let i = 0; i < Hdata.length; i++) {
       hArr.push({
         id: i,
@@ -139,6 +161,7 @@ export default function NftHistory({ classes, historyTypes }) {
           id: Hdata.length,
           ...newItem,
         });
+        eArr.push(true);
       }
     }
     setEditingIndex(null);
@@ -147,14 +170,14 @@ export default function NftHistory({ classes, historyTypes }) {
     setEditingItem({});
   };
 
-
   useEffect(() => {
     setHData(historyTypes);
+    setAllTypes(historyTypes)
   }, [historyTypes]);
 
   useEffect(() => {
-    updateData();
-  }, [newItem, Hdata]);
+    if (newItem != null) updateData();
+  }, [newItem]);
 
   return (
     <Grid item md={12}>
@@ -360,7 +383,7 @@ export default function NftHistory({ classes, historyTypes }) {
                 </label>
               </Grid>
               <Grid item className={classes.grid}>
-                {editArr[itemIndex] === true || item.newItem === true ? (
+                {editArr[itemIndex] === true ? (
                   <>
                     {
                       loading === true ?
