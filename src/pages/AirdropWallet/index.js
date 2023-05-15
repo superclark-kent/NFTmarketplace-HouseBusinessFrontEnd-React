@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import dotenv from "dotenv";
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
+import { useWeb3React } from '@web3-react/core';
 dotenv.config();
 
 import {

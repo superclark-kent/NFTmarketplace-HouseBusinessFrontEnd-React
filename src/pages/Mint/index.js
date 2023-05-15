@@ -68,7 +68,11 @@ function Mint(props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!account && !walletAccount) {
+    if (account) {
+      dispatch(setAccount(account));
+    } else if (walletAccount) {
+      dispatch(setAccount(walletAccount));
+    } else {
       dispatch(setAccount(null));
     }
   }, [account]);
