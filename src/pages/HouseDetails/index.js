@@ -60,6 +60,8 @@ export default function HouseDetails() {
   const [brand, setBrand] = useState('');
   const [brandType, setBrandType] = useState('');
   const [solorDate, setSolorDate] = useState(new Date().valueOf());
+  const [MPrice, setMprice] = useState(0.01);
+  const [Hprice, setHprice] = useState(1);
 
   const [loading, setLoading] = useState(false);
 
@@ -75,12 +77,16 @@ export default function HouseDetails() {
   const [historyTypes, setHistoryTypes] = useState([]);
 
   const initialConfig = async () => {
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     var hTypes = await houseBusinessContract.methods.getHistoryType().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);
     }
     setHistoryTypes(allHTypes);
+    setMprice(web3.utils.fromWei(minPrice));
+    setHprice(web3.utils.fromWei(maxPrice));
   };
 
   const loadNFT = async (_id) => {
@@ -255,8 +261,15 @@ export default function HouseDetails() {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
+      if (Number(housePrice) < Number(MPrice)) {
+        houseWarning(`Please set the NFT price above the min price`);
+        return;
+      }
+      if (Number(housePrice) > Number(Hprice)) {
+        houseWarning(`Please Set the NFT price below the max price`);
+        return;
+      }
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      console.log('house', _housePrice)
       // const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
       await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
       houseSuccess("You have successfully set your House price!")
