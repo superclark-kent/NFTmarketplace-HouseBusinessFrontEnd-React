@@ -12,6 +12,7 @@ import useNftStyle from 'assets/styles/nftStyle';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
+import { setAccount } from "redux/actions/account";
 import { secretKey, zeroAddress, HouseBusinessAddress } from 'mainConfig';
 
 function Nfts(props) {

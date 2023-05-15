@@ -12,7 +12,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
 import useHouseMintStyle from "assets/styles/houseMintStyle";
 import CryptoJS from "crypto-js";
-import { useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
 import FileUpload from "utils/ipfs";
