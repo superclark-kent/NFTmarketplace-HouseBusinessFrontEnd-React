@@ -121,13 +121,6 @@ export default function Contract() {
   };
 
   const handleContractSigner = async (item) => {
-    // console.log('item', item.creator, item.contractSigner, account)
-    // var contractSigner = account === item.creator ? item.contractSigner : item.creator;
-    // console.log('contractSigner', contractSigner)
-    // if (contractSigner != zeroAddress && contractSigner != '') {
-    //   houseError('You already added contract signer');
-    // } else {
-    console.log('here', item.contractId, cSC)
     if (cSC === '') {
       houseError('Contract Signer is empty');
     } else {

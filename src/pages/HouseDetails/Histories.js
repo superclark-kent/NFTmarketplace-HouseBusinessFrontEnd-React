@@ -186,7 +186,7 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
-        var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
+        var homeHistory = historyTypes[item.historyTypeId];
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField

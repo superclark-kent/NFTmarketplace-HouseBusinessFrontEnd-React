@@ -1330,11 +1330,6 @@
       {
         "components": [
           {
-            "internalType": "uint256",
-            "name": "hID",
-            "type": "uint256"
-          },
-          {
             "internalType": "string",
             "name": "hLabel",
             "type": "string"
@@ -1625,11 +1620,6 @@
     ],
     "name": "historyTypes",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "hID",
-        "type": "uint256"
-      },
       {
         "internalType": "string",
         "name": "hLabel",

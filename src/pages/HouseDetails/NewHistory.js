@@ -41,7 +41,7 @@ export default function NewHistory({
   const [homeHistory, setHomeHistory] = useState(null);
 
   useEffect(() => {
-    setHomeHistory(historyTypes[historyTypes.findIndex((item) => item.hID === hID)]);
+    setHomeHistory(historyTypes[hID]);
   }, [hID]);
 
   return (
@@ -54,6 +54,7 @@ export default function NewHistory({
         label="History Type"
         value={hID}
         onChange={(e) => {
+          console.log('ddd', e.target.value)
           setHID(e.target.value);
           setCContract(0);
         }}
@@ -61,7 +62,7 @@ export default function NewHistory({
         variant="filled"
       >
         {historyTypes.map((historyItem, hIndex) => (
-          <MenuItem key={hIndex} value={historyItem.hID}>
+          <MenuItem key={hIndex} value={hIndex}>
             {historyItem.hLabel}
           </MenuItem>
         ))}

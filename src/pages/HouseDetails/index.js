@@ -1,25 +1,26 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
+import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
+import { BigNumber } from 'ethers';
 import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
+import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
 import { decryptContract } from 'utils';
-import { BigNumber } from 'ethers';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
-import NewHistory from './NewHistory';
 import NFTdetail from './NFTdetail';
-import { useWeb3 } from 'hooks/useWeb3';
+import NewHistory from './NewHistory';
 
 const style = {
   position: 'absolute',
@@ -165,7 +166,7 @@ export default function HouseDetails() {
       _brandType = '',
       _yearField = 0;
 
-    var homeHistory = historyTypes.filter((option) => option.hID === hID)[0];
+    var homeHistory = historyTypes[hID];
 
     if (homeHistory.imgNeed === true) {
       if (!image) {
@@ -192,14 +193,14 @@ export default function HouseDetails() {
       var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
       var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
       var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
-      var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
+      var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();  
 
       try {
         await houseBusinessContract.methods
           .addHistory(
             Number(_houseId),
             Number(cContract),
-            Number(homeHistory.hID),
+            hID,
             encryptedHouseImage,
             encryptedBrand,
             encryptedHistory,
@@ -296,6 +297,7 @@ export default function HouseDetails() {
   };
 
   const handleImageChange = async (e) => {
+    console.log('img', e.target.files[0])
     var uploadedImage = e.target.files[0];
     if (uploadedImage) {
       setImage(uploadedImage);

@@ -237,7 +237,6 @@ export default function Header(props) {
   const [notifies, setNotifies] = useState([]);
   const [badgeLeng, setBadgeLeng] = useState("");
   const [cookies, setCookie] = useCookies(["housebusiness"]);
-  const [notifyList, setNotifyList] = useCookies(["notifyList"]);
   const [isMember, setIsMember] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isUserMenuOpen = Boolean(userMenuOpen);

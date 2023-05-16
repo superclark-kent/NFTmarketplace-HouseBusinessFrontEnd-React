@@ -137,7 +137,6 @@ function Mint(props) {
                   throw new Error(err);
                 });
             } else {
-              console.log('metamask account: ', account, encryptedName, ipUrl, encryptedType, encryptedDes);
               try {
                 await houseBusinessContract.methods
                 .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)

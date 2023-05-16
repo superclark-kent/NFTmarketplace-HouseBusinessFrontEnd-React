@@ -63,9 +63,8 @@ export default function NftHistory({ classes, historyTypes }) {
   };
 
   const handleRemove = async (item, itemIndex) => {
-    const historyId = item.hID != undefined ? item.hID : item.id;
     try {
-      const tx = await houseBusinessContract.methods.removeHistoryType(historyId).send({ from: account });
+      const tx = await houseBusinessContract.methods.removeHistoryType(itemIndex).send({ from: account });
       let temp = [...Hdata];
       delete temp[itemIndex];
       temp = temp.filter((item) => !isEmpty(item));
@@ -119,8 +118,8 @@ export default function NftHistory({ classes, historyTypes }) {
             historyItem.checkMark
           )
           .send({ from: account });
-      } else {
-        await houseBusinessContract.methods
+        } else {
+          await houseBusinessContract.methods
           .editHistoryType(
             typeID,
             historyItem.hLabel,
@@ -131,7 +130,7 @@ export default function NftHistory({ classes, historyTypes }) {
             historyItem.brandTypeNeed,
             historyItem.yearNeed,
             historyItem.checkMark
-          )
+            )
           .send({ from: account });
       }
       let temp = [...Hdata];
@@ -140,6 +139,7 @@ export default function NftHistory({ classes, historyTypes }) {
       setAllTypes(temp);
       const eArr = new Array(temp.length).fill(false);
       setEditArr(eArr);
+      setAddFlag(false);
       houseSuccess("Saved Success");
     } catch (err) {
       console.log('err')

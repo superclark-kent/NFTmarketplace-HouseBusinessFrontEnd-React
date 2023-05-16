@@ -116,7 +116,7 @@ export default function Admin() {
   const [countArray, setCountArray] = useState([]);
   const [uploadedCount, setUploadedCount] = useState(0);
 
-  const [validateFlag, setValidateFlag] = useState(false);
+  const [validateFlag, setValidateFlag] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
 

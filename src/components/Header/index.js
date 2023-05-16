@@ -280,9 +280,7 @@ function Header(props) {
 	};
 
 	const checkAdmin = async () => {
-		var isMember = await houseBusinessContract.methods
-			.member(account)
-			.call();
+		var isMember = await houseBusinessContract.methods.member(account).call();
 		setIsMember(isMember);
 	};
 
