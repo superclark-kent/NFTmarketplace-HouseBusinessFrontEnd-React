@@ -330,7 +330,7 @@ function Header(props) {
 			checkAdmin();
 			loadNotifies();
 		}
-	}, [walletAccount, pathname]);
+	}, [account, walletAccount, pathname]);
 
 	useEffect(() => {
 		if (account) {
@@ -347,7 +347,7 @@ function Header(props) {
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {
-			houseInfo("Please install Metamask");
+			// houseInfo("Please install Metamask");
 			setIsWalletInstalled(false);
 		} else {
 			setIsWalletInstalled(true);

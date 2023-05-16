@@ -15,7 +15,7 @@ import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
 import FileUpload from 'utils/ipfs';
-import { secretKey } from 'mainConfig';
+import { secretKey, apiURL } from 'mainConfig';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 
 const StyledInput = styled('input')({
@@ -24,7 +24,7 @@ const StyledInput = styled('input')({
 
 export default function Histories({
   classes,
-  houseID,
+  tokenId,
   histories,
   contracts,
   changinghistoryType,
@@ -32,10 +32,10 @@ export default function Histories({
   historyTypes,
   loadNFT,
   disconnectContract,
+  walletAccount
 }) {
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-
   const [cHistories, setCHistories] = useState([]);
   const [disabledArr, setDisabledArr] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ export default function Histories({
 
     if (changedFlag) {
       // console.table({
-      //   'houseID,': houseID,
+      //   'tokenId,': tokenId,
       //   'historyIndex,': historyIndex,
       //   'historyTypeId,': historyTypeId,
       //   '_houseImg,': _houseImg,
@@ -98,32 +98,58 @@ export default function Histories({
       //   '_yearField': _yearField
       // })
       try {
-        await houseBusinessContract.methods
+        const data = houseBusinessContract.methods
           .editHistory(
-            houseID,
+            tokenId,
             historyIndex,
-            historyTypeId,
+            // historyTypeId,
             _houseImg,
             _brand,
             _history,
             _desc,
             _brandType,
-            _yearField
+            _yearField,
+            walletAccount
           )
-          .send({ from: account });
+          .encodeABI();
 
-        initialConf();
-        loadNFT(houseID);
-        houseSuccess('You changed the history successfully!');
-        setLoading(false);
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address
+        };
+
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
+        })
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+
+            initialConf();
+            loadNFT(tokenId);
+            houseSuccess('You changed the history successfully!');
+          })
+          .catch(err => {
+            houseError(err)
+          });
       } catch (error) {
         console.log(error);
-        setLoading(false);
       }
     } else {
       houseInfo('There is nothing to change');
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   const handleHistoryEdit = async (historyIndex) => {
@@ -192,169 +218,170 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
-        console.log(item, historyTypes)
         var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
-        {homeHistory && (
-          <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
-            <TextField
-              className={classes.listhistoryType}
-              id="filled-select-currency"
-              select
-              label="History Type"
-              value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
-              onChange={(e) => setChangingHistoryType(e.target.value)}
-              variant="filled"
-              // disabled={disabledArr[index] || loading}
-              disabled={true}
-            >
-              {historyTypes.map((option) => (
-                <MenuItem key={option.hLabel} value={option.hLabel}>
-                  {option.hLabel}
-                </MenuItem>
-              ))}
-            </TextField>
+        {
+          homeHistory && (
+            <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
+              <TextField
+                className={classes.listhistoryType}
+                id="filled-select-currency"
+                select
+                label="History Type"
+                value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
+                onChange={(e) => setChangingHistoryType(e.target.value)}
+                variant="filled"
+                // disabled={disabledArr[index] || loading}
+                disabled={true}
+              >
+                {historyTypes.map((option) => (
+                  <MenuItem key={option.hLabel} value={option.hLabel}>
+                    {option.hLabel}
+                  </MenuItem>
+                ))}
+              </TextField>
 
-            {homeHistory.imgNeed === true ? (
-              <Grid className={classes.imgLabel}>
-                <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
-                  <Grid>
-                    <StyledInput
-                      accept="image/*"
-                      id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
-                      multiple
-                      type="file"
-                      onChange={(e) => {
-                        var uploadedImage = e.target.files[0];
-                        if (uploadedImage) {
-                          setCImage(uploadedImage);
-                        }
-                      }}
-                      disabled={disabledArr[index] || loading}
-                    />
-                    <IconButton
-                      color="primary"
-                      aria-label="upload picture"
-                      component="span"
-                      disabled={disabledArr[index] || loading}
-                    >
-                      <Avatar
-                        alt="Image"
-                        src={
-                          disabledArr[index] === false && typeof cImage === 'object'
-                            ? URL.createObjectURL(cImage)
-                            : item.houseImg
-                        }
+              {homeHistory.imgNeed === true ? (
+                <Grid className={classes.imgLabel}>
+                  <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
+                    <Grid>
+                      <StyledInput
+                        accept="image/*"
+                        id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
+                        multiple
+                        type="file"
+                        onChange={(e) => {
+                          var uploadedImage = e.target.files[0];
+                          if (uploadedImage) {
+                            setCImage(uploadedImage);
+                          }
+                        }}
+                        disabled={disabledArr[index] || loading}
                       />
-                    </IconButton>
-                  </Grid>
-                </label>
-              </Grid>
-            ) : null}
-            {homeHistory.descNeed === true ? (
-              <TextField
-                id="standard-multiline-static"
-                label={'Picture Description'}
-                rows={4}
-                variant="filled"
-                className={classes.addHistoryField}
-                value={disabledArr[index] === false ? cPicDesc : item.desc}
-                disabled={disabledArr[index] || loading}
-                onChange={(e) => setCPicDesc(e.target.value)}
-              />
-            ) : null}
-            {homeHistory.brandNeed === true ? (
-              <TextField
-                id="standard-multiline-static"
-                label={'Brand'}
-                rows={4}
-                variant="filled"
-                className={classes.addHistoryField}
-                value={disabledArr[index] === false ? cBrand : item.houseBrand}
-                disabled={disabledArr[index] || loading}
-                onChange={(e) => setCBrand(e.target.value)}
-              />
-            ) : null}
-            {homeHistory.brandTypeNeed === true ? (
-              <TextField
-                id="standard-multiline-static"
-                label={'Brand Type'}
-                rows={4}
-                variant="filled"
-                className={classes.addHistoryField}
-                value={disabledArr[index] === false ? cBrandType : item.brandType}
-                disabled={disabledArr[index] || loading}
-                onChange={(e) => setCBrandType(e.target.value)}
-              />
-            ) : null}
-            {homeHistory.yearNeed === true ? (
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <Grid container justify="space-around">
-                  <DatePicker
-                    views={['year', 'month', 'day']}
-                    label="Date"
-                    //format={"DD/MM/YYYY"}
-                    value={disabledArr[index] === true ? new Date(Number(item.yearField)) : cYearField}
-                    onChange={(date) => setCYearField(date)}
-                    disabled={disabledArr[index] || loading}
-                    renderInput={(params) => (
-                      <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
-                    )}
-                  />
+                      <IconButton
+                        color="primary"
+                        aria-label="upload picture"
+                        component="span"
+                        disabled={disabledArr[index] || loading}
+                      >
+                        <Avatar
+                          alt="Image"
+                          src={
+                            disabledArr[index] === false && typeof cImage === 'object'
+                              ? URL.createObjectURL(cImage)
+                              : item.houseImg
+                          }
+                        />
+                      </IconButton>
+                    </Grid>
+                  </label>
                 </Grid>
-              </LocalizationProvider>
-            ) : null}
-
-            <TextField
-              id="standard-multiline-static"
-              label={'Other information'}
-              rows={4}
-              variant="filled"
-              className={classes.listHistoryField}
-              value={disabledArr[index] === false ? cHistory : item.history}
-              disabled={disabledArr[index] || loading}
-              onChange={(e) => setCHistory(e.target.value)}
-            />
-            {item.contractId > 0 && (
-              <>
-                <IconButton
-                  onClick={() => {
-                    const contract = contracts.find((c) => c.contractId == item.contractId);
-                    console.log('contract-->', contract)
-                    setCContract(contract);
-                    setShowCContract(true);
-                  }}
-                >
-                  <DocumentIcon />
-                </IconButton>
-                <IconButton onClick={() => disconnectContract(index, item.contractId)}>
-                  <SubtitlesOffIcon />
-                </IconButton>
-              </>
-            )}
-            {disabledArr[index] === true ? (
-              <IconButton onClick={() => handleHistoryEdit(index)}>
-                <EditIcon />
-              </IconButton>
-            ) : (
-              <>
-                {loading === true ? (
-                  <Grid className={classes.grid}>
-                    <CircularProgress />
+              ) : null}
+              {homeHistory.descNeed === true ? (
+                <TextField
+                  id="standard-multiline-static"
+                  label={'Picture Description'}
+                  rows={4}
+                  variant="filled"
+                  className={classes.addHistoryField}
+                  value={disabledArr[index] === false ? cPicDesc : item.desc}
+                  disabled={disabledArr[index] || loading}
+                  onChange={(e) => setCPicDesc(e.target.value)}
+                />
+              ) : null}
+              {homeHistory.brandNeed === true ? (
+                <TextField
+                  id="standard-multiline-static"
+                  label={'Brand'}
+                  rows={4}
+                  variant="filled"
+                  className={classes.addHistoryField}
+                  value={disabledArr[index] === false ? cBrand : item.houseBrand}
+                  disabled={disabledArr[index] || loading}
+                  onChange={(e) => setCBrand(e.target.value)}
+                />
+              ) : null}
+              {homeHistory.brandTypeNeed === true ? (
+                <TextField
+                  id="standard-multiline-static"
+                  label={'Brand Type'}
+                  rows={4}
+                  variant="filled"
+                  className={classes.addHistoryField}
+                  value={disabledArr[index] === false ? cBrandType : item.brandType}
+                  disabled={disabledArr[index] || loading}
+                  onChange={(e) => setCBrandType(e.target.value)}
+                />
+              ) : null}
+              {homeHistory.yearNeed === true ? (
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <Grid container justify="space-around">
+                    <DatePicker
+                      views={['year', 'month', 'day']}
+                      label="Date"
+                      //format={"DD/MM/YYYY"}
+                      value={disabledArr[index] === true ? new Date(Number(item.yearField)) : cYearField}
+                      onChange={(date) => setCYearField(date)}
+                      disabled={disabledArr[index] || loading}
+                      renderInput={(params) => (
+                        <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
+                      )}
+                    />
                   </Grid>
-                ) : (
-                  <>
-                    <IconButton onClick={() => handleHistorySave(homeHistory, index, item.historyTypeId)}>
-                      <SaveAsIcon />
-                    </IconButton>
-                    <IconButton onClick={() => initialConf()}>
-                      <CancelIcon />
-                    </IconButton>
-                  </>
-                )}
-              </>
-            )}
-          </ListItem>
-        )}
+                </LocalizationProvider>
+              ) : null}
+
+              <TextField
+                id="standard-multiline-static"
+                label={'Other information'}
+                rows={4}
+                variant="filled"
+                className={classes.listHistoryField}
+                value={disabledArr[index] === false ? cHistory : item.history}
+                disabled={disabledArr[index] || loading}
+                onChange={(e) => setCHistory(e.target.value)}
+              />
+              {item.contractId > 0 && (
+                <>
+                  <IconButton
+                    onClick={() => {
+                      const contract = contracts.find((c) => c.contractId == item.contractId);
+                      console.log('contract-->', contract)
+                      setCContract(contract);
+                      setShowCContract(true);
+                    }}
+                  >
+                    <DocumentIcon />
+                  </IconButton>
+                  <IconButton onClick={() => disconnectContract(index, item.contractId)}>
+                    <SubtitlesOffIcon />
+                  </IconButton>
+                </>
+              )}
+              {disabledArr[index] === true ? (
+                <IconButton onClick={() => handleHistoryEdit(index)}>
+                  <EditIcon />
+                </IconButton>
+              ) : (
+                <>
+                  {loading === true ? (
+                    <Grid className={classes.grid}>
+                      <CircularProgress />
+                    </Grid>
+                  ) : (
+                    <>
+                      <IconButton onClick={() => handleHistorySave(homeHistory, index, item.historyTypeId)}>
+                        <SaveAsIcon />
+                      </IconButton>
+                      <IconButton onClick={() => initialConf()}>
+                        <CancelIcon />
+                      </IconButton>
+                    </>
+                  )}
+                </>
+              )}
+            </ListItem>
+          )
+        }
       })}
       <ContractDetailDialog
         open={showCContract}

@@ -87,7 +87,7 @@ export default function Staking() {
 
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
-      var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].houseID)[0];
+      var stakedNFT = allnfts.filter((item) => item.tokenId === stakednfts[i].tokenId)[0];
 
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
@@ -117,8 +117,8 @@ export default function Staking() {
 
   const handleStaking = async (item, index) => {
     try {
-      await houseBusinessContract.methods.approve(StakingAddress, item.houseID).send({ from: account });
-      await stakingContract.methods.stake(item.houseID, stakingVals[index]).send({ from: account });
+      await houseBusinessContract.methods.approve(StakingAddress, item.tokenId).send({ from: account });
+      await stakingContract.methods.stake(item.tokenId, stakingVals[index]).send({ from: account });
       houseSuccess('You staked house NFT successfully.');
       loadNFTs();
     } catch (error) {
@@ -143,7 +143,7 @@ export default function Staking() {
     console.log(cItem);
     try {
       setLoading(true);
-      await stakingContract.methods.unstake(item.houseID).send({ from: account });
+      await stakingContract.methods.unstake(item.tokenId).send({ from: account });
       houseSuccess('You unstaked house NFT successfully.');
       loadNFTs();
     } catch (error) {
@@ -271,7 +271,7 @@ export default function Staking() {
                           <Button
                             variant="outlined"
                             onClick={async () => {
-                              var flag = await stakingContract.methods.stakingFinished(item.houseID).call();
+                              var flag = await stakingContract.methods.stakingFinished(item.tokenId).call();
                               if (flag === false) {
                                 setCItem(item);
                                 handleConfirmOpen();

@@ -13,7 +13,7 @@ import useNftStyle from 'assets/styles/nftStyle';
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { setAccount } from "redux/actions/account";
-import { secretKey, zeroAddress } from 'mainConfig';
+import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 
 function Nfts(props) {
   const navigate = useNavigate()
@@ -47,23 +47,49 @@ function Nfts(props) {
   }
 
   const handlePayable = async (item, payable) => {
-    // const estimateGas = await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).estimateGas();
+    // const estimateGas = await houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable).estimateGas();
     // console.log('estimate gas', estimateGas)
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
     try {
-      await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
-      houseSuccess("Your House NFT can be sold from now.")
-      loadNFTs()
+      const data = houseBusinessContract.methods.setPayable(item.tokenId, zeroAddress, payable, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: houseBusinessContract.options.address
+      }
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+              setLoading(false);
+            });
+          }
+          houseSuccess("Your House NFT can be sold from now.")
+          loadNFTs()
+        })
+        .catch(err => {
+          houseError(err)
+        });
+
     } catch (error) {
       console.log(error)
     }
   }
 
   const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.houseID}`)
+    navigate(`../../item/${item.tokenId}`)
   }
 
   useEffect(() => {
