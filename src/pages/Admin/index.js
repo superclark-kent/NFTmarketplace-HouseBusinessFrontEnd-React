@@ -174,7 +174,6 @@ export default function Admin() {
     setVisibleProperty(tempList);
 
     var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    console.log('hTypes', hTypes)
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;

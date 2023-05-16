@@ -115,7 +115,7 @@ function Mint(props) {
               console.log('walletAccount: ', walletAccount);
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(walletAccount, encryptedName, ipUrl, encryptedType, encryptedDes)
+                .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
                 .encodeABI();
 
               const transactionObject = {
@@ -137,10 +137,14 @@ function Mint(props) {
                   throw new Error(err);
                 });
             } else {
-              console.log('metamask account: ', account);
-              await houseBusinessContract.methods
-                .mintHouse(account, encryptedName, ipUrl, encryptedType, encryptedDes)
-                .send({ from: account });
+              console.log('metamask account: ', account, encryptedName, ipUrl, encryptedType, encryptedDes);
+              try {
+                await houseBusinessContract.methods
+                .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
+                  .send({ from: account });
+              } catch (err) {
+                console.log('err', err)
+              }
             }
 
             setLoading(false);
