@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { Button, Grid } from '@mui/material';
 import { Box } from '@mui/system';
@@ -11,14 +12,16 @@ import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
 import MoreDetail from './MoreDetail';
+import { setAllHouseNFTs, setAllMyNFTs } from 'redux/actions/houseNft';
 
-export default function Dashboard() {
+function Dashboard(props) {
   const nftClasses = useNftStyle()
   const { account } = useWeb3React()
   const web3 = useWeb3()
+  const dispatch = useDispatch();
+  const allMyNFTs = props.houseNft.allMyNFTs;
   const houseBusinessContract = useHouseBusinessContract()
   const navigate = useNavigate()
-  const [allMyNFTs, setAllMyNFTs] = useState([])
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -49,9 +52,9 @@ export default function Dashboard() {
         if (nfts[i].contributor.currentOwner === `${account}`) continue;
         otherNFTs.push(nfts[i]);
       }
-      setAllMyNFTs(otherNFTs);
+      dispatch(setAllMyNFTs(otherNFTs));
     } else {
-      setAllMyNFTs(nfts);
+      dispatch(setAllMyNFTs(nfts));
     }
   }
 
@@ -130,3 +133,12 @@ export default function Dashboard() {
     </Grid>
   )
 }
+
+function mapStateToProps(state) {
+	return {
+    account: state.account,
+    houseNft: state.houseNft
+	};
+}
+
+export default connect(mapStateToProps)(Dashboard);
