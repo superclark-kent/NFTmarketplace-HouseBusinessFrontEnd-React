@@ -54,7 +54,6 @@ export default function NewHistory({
         label="History Type"
         value={hID}
         onChange={(e) => {
-          console.log('ddd', e.target.value)
           setHID(e.target.value);
           setCContract(0);
         }}
@@ -72,7 +71,7 @@ export default function NewHistory({
           {homeHistory.connectContract === true ? (
             <ConnectContract
               classes={classes}
-              contracts={contracts.filter((item) => item.contractType == homeHistory.hID)}
+              contracts={contracts.filter((item, idx) => item.contractType == hID)}
               cContract={cContract}
               setCContract={setCContract}
               handleConnectContract={handleConnectContract}

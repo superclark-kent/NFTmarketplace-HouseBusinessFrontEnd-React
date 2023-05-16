@@ -356,7 +356,6 @@ export default function Admin() {
   };
 
   useEffect(async () => {
-    console.log('account', account)
     initialConfig2();
   }, [account]);
 

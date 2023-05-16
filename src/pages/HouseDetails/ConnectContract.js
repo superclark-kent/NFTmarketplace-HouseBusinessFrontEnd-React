@@ -1,6 +1,7 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { Grid, IconButton, MenuItem, Select } from '@mui/material';
 import { Box } from '@mui/system';
+import { useEffect } from 'react';
 
 export default function ConnectContract({ classes, contracts, cContract, setCContract }) {
   const handleClearClick = () => {

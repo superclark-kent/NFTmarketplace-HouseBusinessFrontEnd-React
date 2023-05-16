@@ -51,7 +51,6 @@ function Mint(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const classes = useHouseMintStyle();
-  const walletAccount = props.account.account;
   const web3 = useWeb3Content()
   const houseBusinessContract = useHouseBusinessContract();
 
@@ -67,9 +66,7 @@ function Mint(props) {
   useEffect(() => {
     if (account) {
       dispatch(setAccount(account));
-    } else if (walletAccount) {
-      dispatch(setAccount(walletAccount));
-    } else {
+    }else {
       dispatch(setAccount(null));
     }
   }, [account]);
@@ -81,7 +78,7 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
-    if (!account && !walletAccount) {
+    if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
@@ -112,7 +109,6 @@ function Mint(props) {
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
 
             if (!account) {
-              console.log('walletAccount: ', walletAccount);
               // Create transaction data
               const data = houseBusinessContract.methods
                 .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
