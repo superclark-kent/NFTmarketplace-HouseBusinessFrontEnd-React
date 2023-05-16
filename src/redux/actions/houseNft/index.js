@@ -4,11 +4,11 @@ import {
     ALLMYNFTS
 } from '../../constants'
 
-export const setAllHouseNFTs = () => {
+export const setAllHouseNFTs = (nfts) => {
     return dispatch => {
         return dispatch({
             type: ALLHOUSENFTS,
-            data: ['all house data here']
+            data: nfts
         })
     }
 }

@@ -19,7 +19,7 @@ import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpe
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
 import FileUpload from "utils/ipfs";
-import { HouseBusinessAddress, apiURL } from 'mainConfig';
+import { apiURL } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
@@ -119,7 +119,7 @@ function Mint(props) {
 							.encodeABI();
 
 						const transactionObject = {
-							to: HouseBusinessAddress,
+							to: houseBusinessContract.options.address,
 							data
 						};
 

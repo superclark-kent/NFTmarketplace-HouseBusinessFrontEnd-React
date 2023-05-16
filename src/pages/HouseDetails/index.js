@@ -16,7 +16,7 @@ import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHel
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 import { decryptContract } from 'utils';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
 import NewHistory from './NewHistory';
@@ -285,6 +285,17 @@ function HouseDetails(props) {
 	};
 
 	const handleBuyerEdit = async () => {
+		// check if the buyer is valid
+		if (!ethers.utils.isAddress(specialBuyer)) {
+			houseWarning('Please input valid Ethereum wallet address');
+			return;
+		}
+
+		if (specialBuyer === walletAccount) {
+			houseWarning('You are already owner of this NFT');
+			return;
+		}
+
 		const data = houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, true, walletAccount).encodeABI();
 
 		const transactionObject = {
