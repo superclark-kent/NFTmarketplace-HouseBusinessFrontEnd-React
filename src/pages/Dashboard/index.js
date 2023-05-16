@@ -56,9 +56,13 @@ export default function Dashboard() {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
-      houseSuccess("You bought successfully!")
-      loadNFTs()
+      try {
+        await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
+        houseSuccess("You bought successfully!")
+        loadNFTs()
+      } catch (err) {
+        console.log('err', err)
+      }
     }
   }
 

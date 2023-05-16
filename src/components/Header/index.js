@@ -1,10 +1,11 @@
-import React, { Fragment, cloneElement, useEffect, useState } from "react";
-import { useDispatch, connect } from 'react-redux';
-import { styled } from "@mui/material/styles";
+import { Fragment, cloneElement, useEffect, useState } from "react";
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { ethers } from "ethers";
+import { styled } from "@mui/material/styles";
 import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
 
+import SaveIcon from '@mui/icons-material/Save';
 import MuiAppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
@@ -25,16 +26,9 @@ import Paper from "@mui/material/Paper";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Zoom from "@mui/material/Zoom";
-import LoadingButton from '@mui/lab/LoadingButton';
-import SaveIcon from '@mui/icons-material/Save';
-
-import {
-	Grid, Button, TextField
-} from '@mui/material';
-
-// Icons
+import useScrollTrigger from "@mui/material/useScrollTrigger";
+import { Button, Grid, TextField } from '@mui/material';
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
@@ -46,27 +40,23 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import Settings from "@mui/icons-material/Settings";
 import WidgetsIcon from "@mui/icons-material/Widgets";
+import Modal from "@mui/material/Modal";
 
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import {
-	useCleanContract, useHouseBusinessContract
-} from "hooks/useContractHelpers";
+import { useCleanContract, useHouseBusinessContract } from "hooks/useContractHelpers";
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
 
-import defaultAvatar from "assets/images/avatar.png";
 import Coinbase from "assets/images/Coinbase.png";
 import Metamask from "assets/images/Metamask.png";
 import MainLogo from "assets/images/Offero.png";
 import WalletConnectAvatar from "assets/images/WalletConnect.png";
+import defaultAvatar from "assets/images/avatar.png";
 import { connectorsByName } from "mainConfig";
 import { useCookies } from "react-cookie";
 
-// ------------
-
-import Modal from "@mui/material/Modal";
 
 const style = {
 	position: "absolute",
@@ -231,7 +221,6 @@ function ElevationScroll(props) {
 		elevation: trigger ? 4 : 0,
 	});
 }
-
 
 function Header(props) {
 	const dispatch = useDispatch();
