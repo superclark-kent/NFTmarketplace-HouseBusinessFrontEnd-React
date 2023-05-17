@@ -24,7 +24,6 @@ export default function Dashboard() {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
       .then(gNFTs => {
-
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
           var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
@@ -38,30 +37,32 @@ export default function Dashboard() {
             tokenName: decryptedName,
             tokenType: decryptedType
           })
-          console.log('nfts', nfts)
-
+        }
+        if (account) {
+          var otherNFTs = [];
+          for (var i = 0; i < nfts.length; i++) {
+            if (nfts[i].contributor.currentOwner === `${account}`) continue;
+            otherNFTs.push(nfts[i]);
+          }
+          setAllMyNFTs(otherNFTs);
+        } else {
+          setAllMyNFTs(nfts);
         }
       })
       .catch(err => console.log(err));
-    if (account) {
-      var otherNFTs = [];
-      for (var i = 0; i < nfts.length; i++) {
-        if (nfts[i].contributor.currentOwner === `${account}`) continue;
-        otherNFTs.push(nfts[i]);
-      }
-      setAllMyNFTs(otherNFTs);
-    } else {
-      setAllMyNFTs(nfts);
-    }
   }
 
   const handleBuyNFT = async (item) => {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
-      houseSuccess("You bought successfully!")
-      loadNFTs()
+      try {
+        await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
+        houseSuccess("You bought successfully!")
+        loadNFTs()
+      } catch (err) {
+        console.log('err', err)
+      }
     }
   }
 
@@ -94,7 +95,7 @@ export default function Dashboard() {
                     <img className={nftClasses.nftImg} src={item.tokenURI} />
                   </Grid>
                   <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName} - ${item.houseID}`}</Box>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
                   </Grid>
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>

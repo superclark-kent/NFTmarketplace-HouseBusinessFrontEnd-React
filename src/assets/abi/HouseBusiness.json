@@ -342,7 +342,92 @@
       {
         "indexed": true,
         "internalType": "uint256",
+        "name": "hID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "label",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "connectContract",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "imgNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "brandNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "descNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "brandTypeNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "yearNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "checkMark",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "hTypeCounter",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "HistoryTypeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "hIndex",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "hTypeCounter",
         "type": "uint256"
       },
       {
@@ -800,19 +885,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_newMember",
-        "type": "address"
-      }
-    ],
-    "name": "addMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "_historyIndex",
         "type": "uint256"
@@ -858,7 +930,20 @@
         "type": "bool"
       }
     ],
-    "name": "addOrEditHType",
+    "name": "addHistoryType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newMember",
+        "type": "address"
+      }
+    ],
+    "name": "addMember",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1186,6 +1271,114 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_historyIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_label",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "_connectContract",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_imgNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_brandNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_descNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_brandTypeNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_yearNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_checkMark",
+        "type": "bool"
+      }
+    ],
+    "name": "editHistoryType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllHistoryTypes",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "hLabel",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "connectContract",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "imgNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "brandNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "descNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "brandTypeNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "yearNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "checkMark",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct HouseBusiness.HistoryType[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getAllHouses",
     "outputs": [
@@ -1363,66 +1556,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getHistoryType",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "hID",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "hLabel",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "connectContract",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "imgNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "descNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandTypeNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "yearNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "checkMark",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct HouseBusiness.HistoryType[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -1478,12 +1611,135 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "historyTypes",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "hLabel",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "connectContract",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "imgNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "brandNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "descNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "brandTypeNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "yearNeed",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "checkMark",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "houseCounter",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "houseHistories",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "hID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "houseID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "contractId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "historyTypeId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "houseImg",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "houseBrand",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "desc",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "history",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "brandType",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "yearField",
         "type": "uint256"
       }
     ],
@@ -1561,11 +1817,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_dest",
-        "type": "address"
-      },
       {
         "internalType": "string",
         "name": "_name",

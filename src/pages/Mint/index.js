@@ -5,16 +5,13 @@ import styled from "@emotion/styled";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-  Button, FormLabel, Grid, Stack,
-  TextField
-} from "@mui/material";
+import { Button, FormLabel, Grid, Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
-import CryptoJS from "crypto-js";
 import useHouseMintStyle from "assets/styles/houseMintStyle";
+import CryptoJS from "crypto-js";
 import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
@@ -54,7 +51,6 @@ function Mint(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const classes = useHouseMintStyle();
-  const walletAccount = props.account.account;
   const web3 = useWeb3Content()
   const houseBusinessContract = useHouseBusinessContract();
 
@@ -70,9 +66,7 @@ function Mint(props) {
   useEffect(() => {
     if (account) {
       dispatch(setAccount(account));
-    } else if (walletAccount) {
-      dispatch(setAccount(walletAccount));
-    } else {
+    }else {
       dispatch(setAccount(null));
     }
   }, [account]);
@@ -84,7 +78,7 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
-    if (!account && !walletAccount) {
+    if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
@@ -115,10 +109,9 @@ function Mint(props) {
             var encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
 
             if (!account) {
-              console.log('walletAccount: ', walletAccount);
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(walletAccount, encryptedName, ipUrl, encryptedType, encryptedDes)
+                .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
                 .encodeABI();
 
               const transactionObject = {
@@ -140,10 +133,13 @@ function Mint(props) {
                   throw new Error(err);
                 });
             } else {
-              console.log('metamask account: ', account);
-              await houseBusinessContract.methods
-                .mintHouse(account, encryptedName, ipUrl, encryptedType, encryptedDes)
-                .send({ from: account });
+              try {
+                await houseBusinessContract.methods
+                .mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes)
+                  .send({ from: account });
+              } catch (err) {
+                console.log('err', err)
+              }
             }
 
             setLoading(false);

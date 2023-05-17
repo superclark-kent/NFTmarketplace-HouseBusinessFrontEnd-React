@@ -60,9 +60,14 @@ export default function Histories({
 
     var changedFlag = false;
     if (homeHistory.imgNeed) {
-      _houseImg = await FileUpload(cImage);
-      _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
-      changedFlag = true;
+      if (typeof cImage == 'string') {
+        _houseImg = CryptoJS.AES.encrypt(cImage, secretKey).toString()
+        changedFlag = true;
+      } else {
+        _houseImg = await FileUpload(cImage);
+        _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
+        changedFlag = true;
+      }
     }
     if (_desc != CryptoJS.AES.encrypt(cPicDesc, secretKey).toString() && homeHistory.descNeed) {
       _desc = CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
@@ -86,17 +91,6 @@ export default function Histories({
     }
 
     if (changedFlag) {
-      // console.table({
-      //   'houseID,': houseID,
-      //   'historyIndex,': historyIndex,
-      //   'historyTypeId,': historyTypeId,
-      //   '_houseImg,': _houseImg,
-      //   '_brand,': _brand,
-      //   '_history,': _history,
-      //   '_desc,': _desc,
-      //   '_brandType,': _brandType,
-      //   '_yearField': _yearField
-      // })
       try {
         await houseBusinessContract.methods
           .editHistory(
@@ -192,7 +186,7 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
-        var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
+        var homeHistory = historyTypes[item.historyTypeId];
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
@@ -318,7 +312,6 @@ export default function Histories({
                 <IconButton
                   onClick={() => {
                     const contract = contracts.find((c) => c.contractId == item.contractId);
-                    console.log('contract-->', contract)
                     setCContract(contract);
                     setShowCContract(true);
                   }}
@@ -359,6 +352,7 @@ export default function Histories({
         open={showCContract}
         onClose={() => setShowCContract(false)}
         contract={cContract}
+        historyTypes={historyTypes}
       />
     </Grid>
   );

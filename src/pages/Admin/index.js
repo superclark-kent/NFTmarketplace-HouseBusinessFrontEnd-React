@@ -146,17 +146,14 @@ export default function Admin() {
     },
   ];
 
-  const initialConfig = async () => {
-    if (!account) return;
-
+  const initialConfig1 = async () => {
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    
     var penalty = await stakingContract.methods.penalty().call();
     var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    
+    var _uploadedCount = await CleanContract.methods.ccCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
@@ -167,13 +164,7 @@ export default function Admin() {
     setApyValues(allApys[1]);
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
-
-    var isMember = await houseBusinessContract.methods.member(account).call();
-    if (isMember === false) {
-      houseError("You aren't admin");
-      navigate('../../house/app');
-    }
-
+    setUploadedCount(_uploadedCount);
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -181,10 +172,8 @@ export default function Admin() {
     }
 
     setVisibleProperty(tempList);
-    setCountArray(await houseBusinessContract.methods.getTotalInfo().call({ from: account }));
-    // setUploadedCount(await CleanContract.methods.getUploadedCounter().call({ from: account }));
 
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
@@ -193,6 +182,20 @@ export default function Admin() {
 
     setHistoryTypes(allHTypes);
   };
+
+  const initialConfig2 = async () => {
+    if (account) {
+      var isMember = await houseBusinessContract.methods.member(account).call();
+      if (isMember === false) {
+        houseError("You aren't admin");
+        navigate('../../house/app');
+      }
+      const Category = await thirdPartyContract.methods.getAllCategories().call();
+      setCategoryList(Category.filter((item) => item[1] != ''));
+      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call()
+      setCountArray(totalInfo);
+    }
+  }
 
   const AccessAdmin = () => {
     if (adminEmail != 'admin@mail.co' || adminPass != 'admin123!@#') {
@@ -265,6 +268,7 @@ export default function Admin() {
     }
     setLoading(false);
   };
+
   const AddNewCategory = async () => {
     if (NCategory !== '') {
       if (CategoryList.findIndex((item) => item.cartegoryName.toUpperCase() === NCategory.toUpperCase()) === -1) {
@@ -318,7 +322,7 @@ export default function Admin() {
   const DeleteSelectedCategory = async () => {
     if (DeleteCategory !== '') {
       await thirdPartyContract.methods.deleteCategory(DeleteCategory).send({ from: account });
-      const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
+      const Category = await thirdPartyContract.methods.getAllCategories().call();
       setCategoryList(Category.filter((item) => item[1] != ''));
       // setPersonName(personName.filter(item => item != DeleteCategory));
       SetDeleteCategory('');
@@ -352,15 +356,12 @@ export default function Admin() {
   };
 
   useEffect(async () => {
-    initialConfig();
-    var minPrice = await houseBusinessContract.methods.minPrice().call();
-    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    setMprice(web3.utils.fromWei(minPrice));
-    setHprice(web3.utils.fromWei(maxPrice));
+    initialConfig2();
+  }, [account]);
 
-    const Category = await thirdPartyContract.methods.getAllCategories().call({ from: account });
-    setCategoryList(Category.filter((item) => item[1] != ''));
-  }, []);
+  useEffect(() => {
+    initialConfig1()
+  }, [])
 
   return (
     <Grid>
@@ -494,7 +495,7 @@ export default function Admin() {
                     id="demo-simple-select-autowidth"
                     value={apySelect}
                     onChange={(e) => handleApySelectChange(e)}
-                    autowidth={true}
+                    autoWidth
                   >
                     {apyTypes.map((item, index) => (
                       <MenuItem value={item} key={index}>
