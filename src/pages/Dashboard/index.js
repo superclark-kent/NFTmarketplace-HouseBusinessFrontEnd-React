@@ -43,7 +43,6 @@ function Dashboard(props) {
             tokenType: decryptedType
           })
           dispatch(setAllHouseNFTs(nfts));
-
         }
       })
       .catch(err => console.log(err));
@@ -87,23 +86,33 @@ function Dashboard(props) {
         console.log('err', err)
       }
     }
+  }
 
-    const handleClickMoreDetail = async (item) => {
-      navigate(`../../item/${item.tokenId}`)
+  const handleClickMoreDetail = async (item) => {
+    navigate(`../../item/${item.tokenId}`)
+  }
+
+  useEffect(() => {
+    if (account) {
+      dispatch(setAccount(account));
+    } else {
+      dispatch(setAccount(null));
     }
+  }, []);
 
-    useEffect(() => {
-      if (account) {
-        dispatch(setAccount(account));
-      }
-    }, [account])
+  useEffect(() => {
+    console.log('useEffect triggered with walletAccount:', walletAccount);
+    if (walletAccount) {
+      loadNFTs();
+    }
+  }, [walletAccount]);
 
   return (
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
         {
-          allMyNFTs.length > 0 ? allMyNFTs.map((item) => {
+          allNFTs.length > 0 ? allNFTs.map((item) => {
             return (
               <Grid
                 item
@@ -126,11 +135,11 @@ function Dashboard(props) {
                       <Box component={'span'}>Owned By</Box>
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
-                    {web3.utils.fromWei(item.price) > 0 && 
-                    <Grid className={nftClasses.nftHousePrice}>
-                      <Box component={'span'}>Current Price</Box>
-                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                    </Grid>}
+                    {web3.utils.fromWei(item.price) > 0 &&
+                      <Grid className={nftClasses.nftHousePrice}>
+                        <Box component={'span'}>Current Price</Box>
+                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
+                      </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
@@ -147,19 +156,20 @@ function Dashboard(props) {
                     {account ? <MoreDetail account={account} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
                   </Grid>
                 </Grid>
-              )
-            }) : ''
-          }
-        </Grid>
+              </Grid>
+            )
+          }): ''
+        }
       </Grid>
-    )
-  }
+    </Grid>
+  )
+}
 
-  function mapStateToProps(state) {
-    return {
-      account: state.account,
-      houseNft: state.houseNft
-    };
-  }
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+    houseNft: state.houseNft
+  };
+}
 
-  export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps)(Dashboard);

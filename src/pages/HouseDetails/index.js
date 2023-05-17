@@ -12,7 +12,6 @@ import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
-import { BigNumber } from 'ethers';
 import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';

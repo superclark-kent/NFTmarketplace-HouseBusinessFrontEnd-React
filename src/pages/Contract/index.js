@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
 import { connect, useDispatch } from 'react-redux';
 import { setAccount } from 'redux/actions/account';
@@ -86,6 +87,12 @@ function Contract(props) {
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
     }
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      allHTypes.push(hTypes[i]);
+    }
+    setHistoryTypes(allHTypes);
     setCSArr(arr);
     setNotifyArr(arr);
     setAllContracts(allCons);
@@ -96,6 +103,8 @@ function Contract(props) {
     setRNotifyArr(arr);
     setAllReceiveContracts(allOCons);
     setLoading(false);
+
+    console.log(allCons, allOCons);
   };
 
   const handleSign = async (item) => {
@@ -271,32 +280,6 @@ function Contract(props) {
     return `${dy}-${mt}-${yr}`;
   };
 
-  const getAllHistoryTypes = async () => {
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      allHTypes.push(hTypes[i]);
-    }
-    setHistoryTypes(allHTypes);
-  }
-
-  useEffect(() => {
-    if (walletAccount) {
-      getAllHistoryTypes();
-      loadContracts();
-    }
-  }, [walletAccount]);
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else if (walletAccount) {
-      dispatch(setAccount(walletAccount));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account]);
-
   useEffect(() => {
     if (account) {
       dispatch(setAccount(account));
@@ -304,6 +287,13 @@ function Contract(props) {
       dispatch(setAccount(null));
     }
   }, []);
+
+  useEffect(() => {
+    if (walletAccount) {
+      loadContracts();
+    }
+  }, [walletAccount]);
+  
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);
