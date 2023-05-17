@@ -87,7 +87,7 @@ function Contract(props) {
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
     }
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);
@@ -212,6 +212,7 @@ function Contract(props) {
                 houseError(`Error: ${error.message}`);
               });
             }
+            houseSuccess("Contract signer successfully added.");
             loadContracts();
             setTimeout(loadContracts, 3000);
           })
@@ -244,7 +245,7 @@ function Contract(props) {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
+    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
       if (item.contractId === sentNotifies[i].ccId) {
@@ -259,12 +260,40 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
-        const estimateGas = await cleanContract.methods
-          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
-        await cleanContract.methods
-          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
-          .send({ from: account });
-        loadContracts();
+        try {
+
+          const data = cleanContract.methods
+            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
+            .encodeABI();
+          const transactionObject = {
+            data,
+            to: cleanContract.options.address
+          };
+          // Send trx data and sign
+          fetch(`${apiURL}/signTransaction`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionObject,
+              user: walletAccount
+            }),
+          })
+            .then(res => {
+              if (res.status !== 200) {
+                return res.json().then(error => {
+                  houseError(`Error: ${error.message}`);
+                });
+              }
+              houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
+              loadContracts();
+            })
+            .catch(err => {
+              houseError(err)
+            });
+        } catch (err) {
+          console.log(err);
+          houseError('Something went wrong');
+        }
       } else {
         houseError('You already sent notify to this signer');
         setLoading(false);
@@ -293,7 +322,7 @@ function Contract(props) {
       loadContracts();
     }
   }, [walletAccount]);
-  
+
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);

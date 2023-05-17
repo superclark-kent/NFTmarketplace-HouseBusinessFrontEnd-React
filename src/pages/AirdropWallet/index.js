@@ -77,6 +77,7 @@ export default function AirdropWallet() {
     }, [account]);
 
     useEffect(() => {
+        navigate(`../../account/${walletID}`);
         getCreditBalance();
     }, [walletID]);
 

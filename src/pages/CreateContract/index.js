@@ -202,7 +202,7 @@ function CreateContract(props) {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
     let arr = [];
     hTypes.map((item, idx) => {
       arr.push({
@@ -224,15 +224,7 @@ function CreateContract(props) {
     } else {
       dispatch(setAccount(null));
     }
-  }, [account]);
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, []);
+  }, [account, walletAccount]);
 
   return (
     <Stack

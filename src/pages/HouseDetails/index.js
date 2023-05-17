@@ -21,6 +21,7 @@ import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
 import NFTdetail from './NFTdetail';
 import NewHistory from './NewHistory';
+import { useWeb3 } from 'hooks/useWeb3';
 
 const style = {
 	position: 'absolute',
