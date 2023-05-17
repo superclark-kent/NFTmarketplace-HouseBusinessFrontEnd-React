@@ -39,9 +39,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "contractType",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "indexed": false,
@@ -187,6 +187,11 @@
         "internalType": "address",
         "name": "_contractSigner",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
       }
     ],
     "name": "addContractSigner",
@@ -312,9 +317,9 @@
         "type": "string"
       },
       {
-        "internalType": "uint256",
+        "internalType": "string",
         "name": "_contractType",
-        "type": "uint256"
+        "type": "string"
       },
       {
         "internalType": "address",
@@ -345,6 +350,11 @@
         "internalType": "string",
         "name": "_currency",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
       }
     ],
     "name": "ccCreation",
@@ -375,9 +385,9 @@
             "type": "string"
           },
           {
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "contractType",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "internalType": "string",
@@ -476,9 +486,9 @@
             "type": "string"
           },
           {
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "contractType",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "internalType": "string",
@@ -628,9 +638,9 @@
             "type": "string"
           },
           {
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "contractType",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "internalType": "string",
@@ -735,6 +745,11 @@
         "internalType": "uint256",
         "name": "ccID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_notifier",
+        "type": "address"
       }
     ],
     "name": "sendNotify",
@@ -748,6 +763,11 @@
         "internalType": "uint256",
         "name": "ccID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newSigner",
+        "type": "address"
       }
     ],
     "name": "signContract",

@@ -1836,11 +1836,6 @@
         "internalType": "uint256",
         "name": "_hIndex",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_tokenOwner",
-        "type": "address"
       }
     ],
     "name": "removeHistoryType",
