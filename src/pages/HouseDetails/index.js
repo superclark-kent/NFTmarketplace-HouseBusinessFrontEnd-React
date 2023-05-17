@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { connect, useDispatch } from 'react-redux';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
 import { setAccount } from "redux/actions/account";
-
+import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
+import { BigNumber } from 'ethers';
 import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
@@ -19,9 +20,8 @@ import { decryptContract } from 'utils';
 import { BigNumber, ethers } from 'ethers';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
-import NewHistory from './NewHistory';
 import NFTdetail from './NFTdetail';
-import { useWeb3 } from 'hooks/useWeb3';
+import NewHistory from './NewHistory';
 
 const style = {
 	position: 'absolute',
@@ -64,6 +64,8 @@ function HouseDetails(props) {
 	const [brand, setBrand] = useState('');
 	const [brandType, setBrandType] = useState('');
 	const [solorDate, setSolorDate] = useState(new Date().valueOf());
+	const [MPrice, setMprice] = useState(0.01);
+	const [Hprice, setHprice] = useState(1);
 
 	const [loading, setLoading] = useState(false);
 
@@ -79,12 +81,16 @@ function HouseDetails(props) {
 	const [historyTypes, setHistoryTypes] = useState([]);
 
 	const initialConfig = async () => {
-		var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+		var minPrice = await houseBusinessContract.methods.minPrice().call();
+		var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+		var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
 		var allHTypes = [];
 		for (let i = 0; i < hTypes.length; i++) {
 			allHTypes.push(hTypes[i]);
 		}
 		setHistoryTypes(allHTypes);
+		setMprice(web3.utils.fromWei(minPrice));
+		setHprice(web3.utils.fromWei(maxPrice));
 	};
 
 	const loadNFT = async (_id) => {
@@ -333,6 +339,14 @@ function HouseDetails(props) {
 		if (!walletAccount) {
 			houseInfo("Please connect your wallet!")
 		} else {
+			if (Number(housePrice) < Number(MPrice)) {
+				houseWarning(`Please set the NFT price above the min price`);
+				return;
+			}
+			if (Number(housePrice) > Number(Hprice)) {
+				houseWarning(`Please Set the NFT price below the max price`);
+				return;
+			}
 			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
 			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(tokenId), _housePrice).estimateGas();
 			const data = houseBusinessContract.methods.changeHousePrice(Number(tokenId), _housePrice, walletAccount).encodeABI();

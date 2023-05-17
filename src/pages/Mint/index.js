@@ -5,16 +5,13 @@ import styled from "@emotion/styled";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import SaveAsIcon from "@mui/icons-material/SaveAs";
 import LoadingButton from "@mui/lab/LoadingButton";
-import {
-	Button, FormLabel, Grid, Stack,
-	TextField
-} from "@mui/material";
+import { Button, FormLabel, Grid, Stack, TextField } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
-import CryptoJS from "crypto-js";
 import useHouseMintStyle from "assets/styles/houseMintStyle";
+import CryptoJS from "crypto-js";
 import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
@@ -67,15 +64,13 @@ function Mint(props) {
 	const [houseDescription, setHouseDescription] = useState(new Date("1970"));
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		if (account) {
-			dispatch(setAccount(account));
-		} else if (walletAccount) {
-			dispatch(setAccount(walletAccount));
-		} else {
-			dispatch(setAccount(null));
-		}
-	}, [account]);
+  useEffect(() => {
+    if (account) {
+      dispatch(setAccount(account));
+    }else {
+      dispatch(setAccount(null));
+    }
+  }, [account]);
 
 	const handleImageChange = async (e) => {
 		var uploadedImage = e.target.files[0];

@@ -41,7 +41,7 @@ export default function NewHistory({
   const [homeHistory, setHomeHistory] = useState(null);
 
   useEffect(() => {
-    setHomeHistory(historyTypes[historyTypes.findIndex((item) => item.hID === hID)]);
+    setHomeHistory(historyTypes[hID]);
   }, [hID]);
 
   return (
@@ -61,7 +61,7 @@ export default function NewHistory({
         variant="filled"
       >
         {historyTypes.map((historyItem, hIndex) => (
-          <MenuItem key={hIndex} value={historyItem.hID}>
+          <MenuItem key={hIndex} value={hIndex}>
             {historyItem.hLabel}
           </MenuItem>
         ))}
@@ -71,7 +71,7 @@ export default function NewHistory({
           {homeHistory.connectContract === true ? (
             <ConnectContract
               classes={classes}
-              contracts={contracts.filter((item) => item.contractType == homeHistory.hID)}
+              contracts={contracts.filter((item, idx) => item.contractType == hID)}
               cContract={cContract}
               setCContract={setCContract}
               handleConnectContract={handleConnectContract}

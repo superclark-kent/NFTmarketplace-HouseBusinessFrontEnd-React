@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { connect, useDispatch } from 'react-redux';
 import { setAccount } from 'redux/actions/account';
@@ -9,8 +8,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useCleanContract } from 'hooks/useContractHelpers';
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
@@ -88,12 +86,6 @@ function Contract(props) {
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
     }
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      allHTypes.push(hTypes[i]);
-    }
-    setHistoryTypes(allHTypes);
     setCSArr(arr);
     setNotifyArr(arr);
     setAllContracts(allCons);
@@ -219,6 +211,7 @@ function Contract(props) {
           });
       }
     }
+    // }
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {
@@ -257,8 +250,8 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
-        // const estimateGas = await cleanContract.methods
-        //   .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
+        const estimateGas = await cleanContract.methods
+          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
         await cleanContract.methods
           .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
           .send({ from: account });
@@ -278,8 +271,18 @@ function Contract(props) {
     return `${dy}-${mt}-${yr}`;
   };
 
+  const getAllHistoryTypes = async () => {
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      allHTypes.push(hTypes[i]);
+    }
+    setHistoryTypes(allHTypes);
+  }
+
   useEffect(() => {
     if (walletAccount) {
+      getAllHistoryTypes();
       loadContracts();
     }
   }, [walletAccount]);
@@ -308,36 +311,40 @@ function Contract(props) {
   }
 
   const SaveNewSigner = async (k) => {
-    let temp = [...allContracts];
-    const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner, walletAccount).encodeABI();
-    const transactionObject = {
-      data,
-      to: cleanContract.options.address
-    };
+    try {
+      let temp = [...allContracts];
+      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: cleanContract.options.address
+      };
 
-    // Send trx data and sign
-    fetch(`${apiURL}/signTransaction`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        transactionObject,
-        user: walletAccount
-      }),
-    })
-      .then(res => {
-        if (res.status !== 200) {
-          return res.json().then(error => {
-            houseError(`Error: ${error.message}`);
-          });
-        }
-        temp[k].contractSigner = CSigner;
-        setAllContracts(temp);
-        houseSuccess('Successed Changing Signer!');
-        setEditFlag(-1);
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
       })
-      .catch(err => {
-        houseError(err)
-      });
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+            });
+          }
+          temp[k].contractSigner = CSigner;
+          setAllContracts(temp);
+          houseSuccess('Successed Changing Signer!');
+          setEditFlag(-1);
+        })
+        .catch(err => {
+          houseError(err)
+        });
+    } catch (err) {
+      console.log('err', err)
+    }
   };
 
   return (
@@ -593,7 +600,7 @@ function Contract(props) {
                     ContractID: <Box component={'b'}>{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    Contract Type: <Box component={'b'}>{item.contractType}</Box>
+                    Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
                     Company: <Box component={'b'}>{item.companyName}</Box>

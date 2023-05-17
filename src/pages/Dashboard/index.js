@@ -29,7 +29,6 @@ function Dashboard(props) {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
       .then(gNFTs => {
-
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
           var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
@@ -43,80 +42,68 @@ function Dashboard(props) {
             tokenName: decryptedName,
             tokenType: decryptedType
           })
-          console.log('nfts', nfts)
           dispatch(setAllHouseNFTs(nfts));
 
         }
       })
       .catch(err => console.log(err));
-    // if (walletAccount) {
-    //   var otherNFTs = [];
-    //   for (var i = 0; i < nfts.length; i++) {
-    //     if (nfts[i].contributor.currentOwner === `${walletAccount}`) continue;
-    //     otherNFTs.push(nfts[i]);
-    //   }
-    //   dispatch(setAllMyNFTs(otherNFTs));
-    // } else {
-    //   dispatch(setAllMyNFTs(nfts));
-    // }
   }
 
   const handleBuyNFT = async (item) => {
     if (!walletAccount) {
       houseInfo("Please connect your wallet!")
     } else {
-      const data = houseBusinessContract.methods.buyHouseNft(item.tokenId, walletAccount).encodeABI();
-      const transactionObject = {
-        data,
-        to: houseBusinessContract.options.address,
-        value: item.price
-      }
+      try {
+        const data = houseBusinessContract.methods.buyHouseNft(item.tokenId, walletAccount).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address,
+          value: item.price
+        }
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          houseSuccess("You bought successfully!")
-          loadNFTs()
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
         })
-        .catch(err => {
-          houseError(err)
-        });
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            houseSuccess("You bought successfully!")
+            loadNFTs()
+          })
+          .catch(err => {
+            houseError(err)
+          });
+      } catch (err) {
+        console.log('err', err)
+      }
     }
-  }
 
-  const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.tokenId}`)
-  }
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
+    const handleClickMoreDetail = async (item) => {
+      navigate(`../../item/${item.tokenId}`)
     }
-  }, [account])
 
-  useEffect(() => {
-    loadNFTs();
-  }, []);
+    useEffect(() => {
+      if (account) {
+        dispatch(setAccount(account));
+      }
+    }, [account])
 
   return (
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
         {
-          allNFTs.length > 0 ? allNFTs.map((item) => {
+          allMyNFTs.length > 0 ? allMyNFTs.map((item) => {
             return (
               <Grid
                 item
@@ -124,7 +111,7 @@ function Dashboard(props) {
                 lg={4}
                 md={6}
                 sm={6}
-                key={item.tokenId}
+                key={item.houseID}
                 className={nftClasses.nftHouseItem}
               >
                 <Grid className={nftClasses.nftHouseCard}>
@@ -132,22 +119,22 @@ function Dashboard(props) {
                     <img className={nftClasses.nftImg} src={item.tokenURI} />
                   </Grid>
                   <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName} - ${item.tokenId}`}</Box>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
                   </Grid>
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>
                       <Box component={'span'}>Owned By</Box>
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
-                    {web3.utils.fromWei(item.price) > 0 &&
-                      <Grid className={nftClasses.nftHousePrice}>
-                        <Box component={'span'}>Current Price</Box>
-                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                      </Grid>}
+                    {web3.utils.fromWei(item.price) > 0 && 
+                    <Grid className={nftClasses.nftHousePrice}>
+                      <Box component={'span'}>Current Price</Box>
+                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
+                    </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
-                      (item.contributor.currentOwner !== walletAccount) && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                      (item.contributor.buyer === zeroAddress || item.contributor.buyer === account) && item.nftPayable === true ?
                         <Button
                           variant='outlined'
                           onClick={() => handleBuyNFT(item)}
@@ -157,23 +144,22 @@ function Dashboard(props) {
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
                         </Button> : <></>
                     }
-                    {walletAccount ? <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
+                    {account ? <MoreDetail account={account} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
                   </Grid>
                 </Grid>
-              </Grid>
-            )
-          }) : ''
-        }
+              )
+            }) : ''
+          }
+        </Grid>
       </Grid>
-    </Grid>
-  )
-}
+    )
+  }
 
-function mapStateToProps(state) {
-  return {
-    account: state.account,
-    houseNft: state.houseNft
-  };
-}
+  function mapStateToProps(state) {
+    return {
+      account: state.account,
+      houseNft: state.houseNft
+    };
+  }
 
-export default connect(mapStateToProps)(Dashboard);
+  export default connect(mapStateToProps)(Dashboard);

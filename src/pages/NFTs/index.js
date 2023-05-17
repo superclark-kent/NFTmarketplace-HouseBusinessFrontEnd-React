@@ -26,11 +26,11 @@ function Nfts(props) {
   const [allMyNFTs, setAllMyNFTs] = useState([])
 
   const loadNFTs = async () => {
-    if (walletAccount) {
+    if (account) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
+        if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
@@ -95,8 +95,6 @@ function Nfts(props) {
   useEffect(() => {
     if (account) {
       dispatch(setAccount(account));
-    } else if (walletAccount) {
-      dispatch(setAccount(walletAccount));
     } else {
       dispatch(setAccount(null));
     }

@@ -202,11 +202,11 @@ function CreateContract(props) {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
-    hTypes.map(item => {
+    hTypes.map((item, idx) => {
       arr.push({
-        idx: item.hID,
+        idx: idx,
         value: item.hLabel,
         label: item.hLabel,
         flag: item.connectContract

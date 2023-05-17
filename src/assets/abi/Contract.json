@@ -200,103 +200,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "allContractsByOwner",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "allContractsBySigner",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "allNotifies",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "nSender",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "nReceiver",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "ccID",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "notifySentTime",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "notifyContent",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "status",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "ccCounter",
     "outputs": [
@@ -363,14 +266,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      }
-    ],
-    "name": "getAllContractsByOwner",
+    "inputs": [],
+    "name": "getAllCleanContracts",
     "outputs": [
       {
         "components": [
@@ -423,16 +320,6 @@
             "internalType": "address",
             "name": "owner",
             "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "creatorApproval",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "creatorSignDate",
-            "type": "uint256"
           },
           {
             "internalType": "address",
@@ -534,11 +421,6 @@
             "internalType": "uint256",
             "name": "creatorSignDate",
             "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "contractSigner",
-            "type": "address"
           },
           {
             "internalType": "bool",
