@@ -1109,7 +1109,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_houseID",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
@@ -1127,7 +1127,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "houseID",
+        "name": "houseId",
         "type": "uint256"
       },
       {
@@ -1173,7 +1173,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "__houseId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -2050,7 +2050,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_houseID",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
