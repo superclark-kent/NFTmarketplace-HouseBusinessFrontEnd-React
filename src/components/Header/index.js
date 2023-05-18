@@ -271,8 +271,8 @@ function Header(props) {
 	const handleProfileMenuOpen = (event) => { setUserMenuOpen(event.currentTarget); };
 
 	const accountPage = () => {
-		if (account) {
-			navigate(`../../account/${account}`);
+		if (walletAccount) {
+			navigate(`../../account/${walletAccount}`);
 		}
 	}
 
@@ -465,7 +465,7 @@ function Header(props) {
 						<Divider />
 						<List>
 							{houseMenu.map((page, index) => {
-								if (page.authRequired === true && !account) {
+								if (page.authRequired === true && !walletAccount) {
 									return null;
 								}
 								return (
@@ -483,7 +483,7 @@ function Header(props) {
 							})}
 						</List>
 
-						{account ? (
+						{walletAccount ? (
 							<>
 								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
 									Contract
@@ -491,7 +491,7 @@ function Header(props) {
 								<Divider />
 								<List>
 									{contractMenu.map((page, index) => {
-										if (page.authRequired === true && !account) {
+										if (page.authRequired === true && !walletAccount) {
 											return null;
 										}
 										return (
@@ -512,7 +512,7 @@ function Header(props) {
 						) : (
 							<></>
 						)}
-						{isMember === true && account ? (
+						{isMember === true && walletAccount ? (
 							<>
 								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
 									Admin
@@ -536,7 +536,7 @@ function Header(props) {
 						) : (
 							<></>
 						)}
-						{account ? (
+						{walletAccount ? (
 							<>
 								<Box component={"h3"} gutterBottom sx={{ p: 2, pb: 0 }}>
 									Third Party
@@ -544,7 +544,7 @@ function Header(props) {
 								<Divider />
 								<List>
 									{thirdPartyMenu.map((page, index) => {
-										if (page.authRequired === true && !account) {
+										if (page.authRequired === true && !walletAccount) {
 											return null;
 										}
 										return (
@@ -605,11 +605,11 @@ function Header(props) {
 				transformOrigin={{ horizontal: "right", vertical: "top" }}
 				anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
 			>
-				<MenuItem onClick={account ? () => { } : handleOpen}>
+				<MenuItem onClick={walletAccount ? () => { } : handleOpen}>
 					<ListItemIcon>
 						<AccountBalanceWalletIcon fontSize="small" />
 					</ListItemIcon>
-					{account ? `${account.slice(0, 8)}...` : "Connect Wallet"}
+					{walletAccount ? `${walletAccount.slice(0, 8)}...` : "Connect Wallet"}
 				</MenuItem>
 				<MenuItem onClick={accountPage}>
 					<ListItemIcon>

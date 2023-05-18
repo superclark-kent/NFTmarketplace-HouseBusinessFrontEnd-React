@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { setAccount } from 'redux/actions/account';
 import dotenv from "dotenv";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
@@ -46,7 +48,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-export default function AirdropWallet() {
+function AirdropWallet(props) {
     const { account } = useWeb3React();
     const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
@@ -54,8 +56,9 @@ export default function AirdropWallet() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { walletID: urlWalletID } = useParams();
-    const [walletID, setWalletID] = useState(urlWalletID);
+    const { walletID } = useParams();
+    const dispatch = useDispatch();
+    const walletAccount = props.account.account;
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
     const [amountToDeposit, setAmountToDeposit] = useState('');
@@ -65,21 +68,23 @@ export default function AirdropWallet() {
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
-        setWalletID(urlWalletID);
-    }, [urlWalletID]);
+        dispatch(setAccount(walletID));
+    }, [walletID]);
 
     useEffect(() => {
         if (account) {
-            setWalletID(account);
+            dispatch(setAccount(account));
         } else {
-            setWalletID(urlWalletID);
+            dispatch(setAccount(walletID));
         }
-    }, [account]);
+    }, [account, walletID]);
 
     useEffect(() => {
-        navigate(`../../account/${walletID}`);
-        getCreditBalance();
-    }, [walletID]);
+        if (walletAccount) {
+            navigate(`../../account/${walletAccount}`);
+            getCreditBalance();
+        }
+    }, [walletAccount]);
 
     useEffect(() => {
         // Create PaymentIntent as soon as the page loads
@@ -320,3 +325,11 @@ export default function AirdropWallet() {
         </>
     );
 }
+
+function mapStateToProps(state) {
+    return {
+        account: state.account
+    };
+}
+
+export default connect(mapStateToProps)(AirdropWallet);
