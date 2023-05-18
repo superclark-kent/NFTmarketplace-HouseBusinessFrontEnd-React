@@ -14,6 +14,7 @@ export const setAllHouseNFTs = (nfts) => {
 }
 
 export const setAllMyNFTs = (nfts) => {
+    console.log('nfts', nfts);
     return dispatch => {
         return dispatch({
             type: ALLMYNFTS,

@@ -198,9 +198,11 @@ export default function AirdropWallet() {
         OperatorContract.methods
             .deposit(amountInWei)
             .send({ from: account })
-            .then(receipt => {
-                houseSuccess('Successfully Deposited');
-                getCreditBalance();
+            .then(res => {
+                if (res.status === 200) {
+                    houseSuccess('Successfully Deposited');
+                    getCreditBalance();
+                }
             })
             .catch(error => {
                 console.error(error);

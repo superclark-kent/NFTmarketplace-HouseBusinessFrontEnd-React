@@ -24,7 +24,7 @@ const StyledInput = styled('input')({
 
 export default function Histories({
   classes,
-  tokenId,
+  houseID,
   histories,
   contracts,
   changinghistoryType,
@@ -92,11 +92,12 @@ export default function Histories({
 
     if (changedFlag) {
       try {
+        console.log('walletAccount', walletAccount)
         const data = houseBusinessContract.methods
           .editHistory(
-            tokenId,
+            houseID,
             historyIndex,
-            // historyTypeId,
+            historyTypeId,
             _houseImg,
             _brand,
             _history,
@@ -130,7 +131,7 @@ export default function Histories({
             }
 
             initialConf();
-            loadNFT(tokenId);
+            loadNFT(houseID);
             houseSuccess('You changed the history successfully!');
           })
           .catch(err => {
@@ -223,8 +224,8 @@ export default function Histories({
               value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
-              // disabled={disabledArr[index] || loading}
-              disabled={true}
+              disabled={disabledArr[index] || loading}
+              // disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>
@@ -233,95 +234,95 @@ export default function Histories({
               ))}
             </TextField>
 
-              {homeHistory.imgNeed === true ? (
-                <Grid className={classes.imgLabel}>
-                  <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
-                    <Grid>
-                      <StyledInput
-                        accept="image/*"
-                        id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
-                        multiple
-                        type="file"
-                        onChange={(e) => {
-                          var uploadedImage = e.target.files[0];
-                          if (uploadedImage) {
-                            setCImage(uploadedImage);
-                          }
-                        }}
-                        disabled={disabledArr[index] || loading}
-                      />
-                      <IconButton
-                        color="primary"
-                        aria-label="upload picture"
-                        component="span"
-                        disabled={disabledArr[index] || loading}
-                      >
-                        <Avatar
-                          alt="Image"
-                          src={
-                            disabledArr[index] === false && typeof cImage === 'object'
-                              ? URL.createObjectURL(cImage)
-                              : item.houseImg
-                          }
-                        />
-                      </IconButton>
-                    </Grid>
-                  </label>
-                </Grid>
-              ) : null}
-              {homeHistory.descNeed === true ? (
-                <TextField
-                  id="standard-multiline-static"
-                  label={'Picture Description'}
-                  rows={4}
-                  variant="filled"
-                  className={classes.addHistoryField}
-                  value={disabledArr[index] === false ? cPicDesc : item.desc}
-                  disabled={disabledArr[index] || loading}
-                  onChange={(e) => setCPicDesc(e.target.value)}
-                />
-              ) : null}
-              {homeHistory.brandNeed === true ? (
-                <TextField
-                  id="standard-multiline-static"
-                  label={'Brand'}
-                  rows={4}
-                  variant="filled"
-                  className={classes.addHistoryField}
-                  value={disabledArr[index] === false ? cBrand : item.houseBrand}
-                  disabled={disabledArr[index] || loading}
-                  onChange={(e) => setCBrand(e.target.value)}
-                />
-              ) : null}
-              {homeHistory.brandTypeNeed === true ? (
-                <TextField
-                  id="standard-multiline-static"
-                  label={'Brand Type'}
-                  rows={4}
-                  variant="filled"
-                  className={classes.addHistoryField}
-                  value={disabledArr[index] === false ? cBrandType : item.brandType}
-                  disabled={disabledArr[index] || loading}
-                  onChange={(e) => setCBrandType(e.target.value)}
-                />
-              ) : null}
-              {homeHistory.yearNeed === true ? (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <Grid container justify="space-around">
-                    <DatePicker
-                      views={['year', 'month', 'day']}
-                      label="Date"
-                      //format={"DD/MM/YYYY"}
-                      value={disabledArr[index] === true ? new Date(Number(item.yearField)) : cYearField}
-                      onChange={(date) => setCYearField(date)}
+            {homeHistory.imgNeed === true ? (
+              <Grid className={classes.imgLabel}>
+                <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
+                  <Grid>
+                    <StyledInput
+                      accept="image/*"
+                      id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
+                      multiple
+                      type="file"
+                      onChange={(e) => {
+                        var uploadedImage = e.target.files[0];
+                        if (uploadedImage) {
+                          setCImage(uploadedImage);
+                        }
+                      }}
                       disabled={disabledArr[index] || loading}
-                      renderInput={(params) => (
-                        <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
-                      )}
                     />
+                    <IconButton
+                      color="primary"
+                      aria-label="upload picture"
+                      component="span"
+                      disabled={disabledArr[index] || loading}
+                    >
+                      <Avatar
+                        alt="Image"
+                        src={
+                          disabledArr[index] === false && typeof cImage === 'object'
+                            ? URL.createObjectURL(cImage)
+                            : item.houseImg
+                        }
+                      />
+                    </IconButton>
                   </Grid>
-                </LocalizationProvider>
-              ) : null}
+                </label>
+              </Grid>
+            ) : null}
+            {homeHistory.descNeed === true ? (
+              <TextField
+                id="standard-multiline-static"
+                label={'Picture Description'}
+                rows={4}
+                variant="filled"
+                className={classes.addHistoryField}
+                value={disabledArr[index] === false ? cPicDesc : item.desc}
+                disabled={disabledArr[index] || loading}
+                onChange={(e) => setCPicDesc(e.target.value)}
+              />
+            ) : null}
+            {homeHistory.brandNeed === true ? (
+              <TextField
+                id="standard-multiline-static"
+                label={'Brand'}
+                rows={4}
+                variant="filled"
+                className={classes.addHistoryField}
+                value={disabledArr[index] === false ? cBrand : item.houseBrand}
+                disabled={disabledArr[index] || loading}
+                onChange={(e) => setCBrand(e.target.value)}
+              />
+            ) : null}
+            {homeHistory.brandTypeNeed === true ? (
+              <TextField
+                id="standard-multiline-static"
+                label={'Brand Type'}
+                rows={4}
+                variant="filled"
+                className={classes.addHistoryField}
+                value={disabledArr[index] === false ? cBrandType : item.brandType}
+                disabled={disabledArr[index] || loading}
+                onChange={(e) => setCBrandType(e.target.value)}
+              />
+            ) : null}
+            {homeHistory.yearNeed === true ? (
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Grid container justify="space-around">
+                  <DatePicker
+                    views={['year', 'month', 'day']}
+                    label="Date"
+                    //format={"DD/MM/YYYY"}
+                    value={disabledArr[index] === true ? new Date(Number(item.yearField)) : cYearField}
+                    onChange={(date) => setCYearField(date)}
+                    disabled={disabledArr[index] || loading}
+                    renderInput={(params) => (
+                      <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
+                    )}
+                  />
+                </Grid>
+              </LocalizationProvider>
+            ) : null}
 
             <TextField
               id="standard-multiline-static"

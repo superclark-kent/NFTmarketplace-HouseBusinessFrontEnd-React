@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import LoadingButton from "@mui/lab/LoadingButton";
 import { Button, Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
@@ -12,7 +13,7 @@ import { houseInfo, houseSuccess, houseError } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 import MoreDetail from './MoreDetail';
-import { setAllHouseNFTs, setAllMyNFTs } from 'redux/actions/houseNft';
+import { setAllHouseNFTs } from 'redux/actions/houseNft';
 import { setAccount } from 'redux/actions/account';
 
 function Dashboard(props) {
@@ -20,10 +21,11 @@ function Dashboard(props) {
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const dispatch = useDispatch();
-  const { allMyNFTs, allNFTs } = props.houseNft;
+  const { allNFTs } = props.houseNft;
   const walletAccount = props.account.account;
   const houseBusinessContract = useHouseBusinessContract()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false);
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -52,8 +54,9 @@ function Dashboard(props) {
     if (!walletAccount) {
       houseInfo("Please connect your wallet!")
     } else {
+      setLoading(true);
       try {
-        const data = houseBusinessContract.methods.buyHouseNft(item.tokenId, walletAccount).encodeABI();
+        const data = houseBusinessContract.methods.buyHouseNft(item.houseID, walletAccount).encodeABI();
         const transactionObject = {
           data,
           to: houseBusinessContract.options.address,
@@ -85,11 +88,12 @@ function Dashboard(props) {
       } catch (err) {
         console.log('err', err)
       }
+      setLoading(false);
     }
   }
 
   const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.tokenId}`)
+    navigate(`../../item/${item.houseID}`)
   }
 
   useEffect(() => {
@@ -111,8 +115,9 @@ function Dashboard(props) {
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
+        {console.log(allNFTs, walletAccount)}
         {
-          allNFTs.length > 0 ? allNFTs.map((item) => {
+          (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
             return (
               <Grid
                 item
@@ -143,22 +148,24 @@ function Dashboard(props) {
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
-                      (item.contributor.buyer === zeroAddress || item.contributor.buyer === account) && item.nftPayable === true ?
-                        <Button
-                          variant='outlined'
+                      item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                        <LoadingButton
+                          variant='contained'
                           onClick={() => handleBuyNFT(item)}
+                          loadingPosition="end"
+                          disabled={loading}
                           className={nftClasses.nftHouseButton}
-                          startIcon={<BusinessCenterIcon />}
+                          endIcon={<BusinessCenterIcon />}
                         >
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
-                        </Button> : <></>
+                        </LoadingButton> : <></>
                     }
-                    {account ? <MoreDetail account={account} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
+                    {walletAccount ? <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
                   </Grid>
                 </Grid>
               </Grid>
             )
-          }): ''
+          }) : ''
         }
       </Grid>
     </Grid>

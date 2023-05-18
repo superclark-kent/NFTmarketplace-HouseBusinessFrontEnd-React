@@ -11,17 +11,18 @@ import { setAccount } from "redux/actions/account";
 import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
+import { BigNumber, ethers } from 'ethers';
 import HouseLoading from 'components/HouseLoading';
 import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
+import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 import { decryptContract } from 'utils';
-import { BigNumber, ethers } from 'ethers';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
 import NFTdetail from './NFTdetail';
 import NewHistory from './NewHistory';
-import { useWeb3 } from 'hooks/useWeb3';
+import { hi } from 'date-fns/locale';
 
 const style = {
 	position: 'absolute',
@@ -94,19 +95,21 @@ function HouseDetails(props) {
 	};
 
 	const loadNFT = async (_id) => {
-		var allMyContracts = await cleanContract.methods.getAllContractsByOwner(walletAccount).call();
+		var allContracts = await cleanContract.methods.getAllCleanContracts().call();
 		var cArr = [];
-		for (let i = 0; i < allMyContracts.length; i++) {
-			const contract = decryptContract(allMyContracts[i]);
-			cArr.push({
-				...contract,
-				label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
-			});
+		for (let i = 0; i < allContracts.length; i++) {
+			if ((allContracts[i].owner).toLowerCase() == walletAccount.toLowerCase()) {
+				const contract = decryptContract(allContracts[i]);
+				cArr.push({
+					...contract,
+					label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
+				});
+			}
 		}
 		setContracts(cArr);
 
 		var nfts = await houseBusinessContract.methods.getAllHouses().call();
-		var nft = nfts.filter((item) => item.tokenId === _id)[0];
+		var nft = nfts.filter((item) => item.houseID === _id)[0];
 		var chistories = await houseBusinessContract.methods.getHistory(_id).call();
 
 		setHistories(chistories);
@@ -115,7 +118,7 @@ function HouseDetails(props) {
 			if (nft.contributor.buyer) {
 				setSpecialBuyer(nft.contributor.buyer);
 			}
-			var confirm = await houseBusinessContract.methods.checkAllowedList(nft.tokenId, walletAccount).call();
+			var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, walletAccount).call();
 			if (nft.contributor.currentOwner === walletAccount || confirm === true) {
 				var flag = false;
 				for (let i = 0; i < pages.length; i++) {
@@ -136,7 +139,6 @@ function HouseDetails(props) {
 						tokenName: decryptedName,
 						tokenType: decryptedType,
 					});
-
 					var dArr = [];
 					for (let i = 0; i < chistories.length; i++) {
 						dArr[i] = true;
@@ -160,7 +162,7 @@ function HouseDetails(props) {
 
 	const handleAddHistory = async () => {
 		setLoading(true);
-		var _tokenId = simpleNFT.tokenId,
+		var _houseID = simpleNFT.houseID,
 			_houseImg = '',
 			_history = history || '',
 			_desc = '',
@@ -168,7 +170,7 @@ function HouseDetails(props) {
 			_brandType = '',
 			_yearField = 0;
 
-		var homeHistory = historyTypes.filter((option) => option.hID === hID)[0];
+		var homeHistory = historyTypes[hID];
 
 		if (homeHistory.imgNeed === true) {
 			if (!image) {
@@ -199,8 +201,9 @@ function HouseDetails(props) {
 
 			const data = houseBusinessContract.methods
 				.addHistory(
-					_tokenId,
+					Number(_houseID),
 					Number(cContract),
+					hID,
 					encryptedHouseImage,
 					encryptedBrand,
 					encryptedHistory,
@@ -233,12 +236,10 @@ function HouseDetails(props) {
 					houseSuccess('You added the history successfully!');
 				})
 				.catch(err => {
-					houseError(err)
-					setLoading(false);
-					return;
+					houseError(err.message)
 				});
 
-			loadNFT(_tokenId);
+			loadNFT(_houseID);
 			setHID('0');
 			setHistory('');
 			setImage('');
@@ -254,10 +255,10 @@ function HouseDetails(props) {
 	};
 
 	const handleDisconnectContract = async (hIndex, contractId) => {
-		const tokenId = simpleNFT.tokenId;
+		const houseID = simpleNFT.houseID;
 		setLoading(true);
 		try {
-			const data = houseBusinessContract.methods.disconnectContract(tokenId, hIndex, contractId, walletAccount).encodeABI();
+			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId, walletAccount).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
 				data
@@ -278,7 +279,7 @@ function HouseDetails(props) {
 						});
 					}
 					houseSuccess('You disconnected contract sucessfully!');
-					loadNFT(tokenId);
+					loadNFT(houseID);
 				})
 				.catch(err => {
 					houseError(err)
@@ -291,6 +292,10 @@ function HouseDetails(props) {
 	};
 
 	const handleBuyerEdit = async () => {
+		if (web3.utils.fromWei(simpleNFT.price) == 0) {
+			houseWarning("Please set NFT price to set payable");
+			return;
+		}
 		// check if the buyer is valid
 		if (!ethers.utils.isAddress(specialBuyer)) {
 			houseWarning('Please input valid Ethereum wallet address');
@@ -302,7 +307,7 @@ function HouseDetails(props) {
 			return;
 		}
 
-		const data = houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, true, walletAccount).encodeABI();
+		const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true, walletAccount).encodeABI();
 
 		const transactionObject = {
 			to: houseBusinessContract.options.address,
@@ -331,11 +336,10 @@ function HouseDetails(props) {
 		houseSuccess('Success!');
 		setSpecialBuyer('');
 		setBuyerFlag(false);
-		loadNFT(simpleNFT.tokenId);
+		loadNFT(simpleNFT.houseID);
 	};
 
-	const changeHousePrice = async (tokenId, housePrice) => {
-		console.log('tokenId', tokenId, typeof tokenId)
+	const changeHousePrice = async (houseID, housePrice) => {
 		if (!walletAccount) {
 			houseInfo("Please connect your wallet!")
 		} else {
@@ -348,8 +352,8 @@ function HouseDetails(props) {
 				return;
 			}
 			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(tokenId), _housePrice).estimateGas();
-			const data = houseBusinessContract.methods.changeHousePrice(Number(tokenId), _housePrice, walletAccount).encodeABI();
+			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
+			const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice, walletAccount).encodeABI();
 
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
@@ -379,7 +383,7 @@ function HouseDetails(props) {
 				});
 
 			houseSuccess("You have successfully set your House price!")
-			loadNFT(tokenId);
+			loadNFT(houseID);
 		}
 	}
 
@@ -390,9 +394,9 @@ function HouseDetails(props) {
 		}
 		let data;
 		if (buyerFlag === true) {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.tokenId, specialBuyer, flag, walletAccount).encodeABI();
+			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag, walletAccount).encodeABI();
 		} else {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.tokenId, zeroAddress, flag, walletAccount).encodeABI();
+			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag, walletAccount).encodeABI();
 		}
 
 		const transactionObject = {
@@ -425,7 +429,7 @@ function HouseDetails(props) {
 		houseSuccess('Success!');
 		setSpecialBuyer('');
 		setBuyerFlag(false);
-		loadNFT(simpleNFT.tokenId);
+		loadNFT(simpleNFT.houseID);
 	};
 
 	const handleImageChange = async (e) => {
@@ -462,7 +466,7 @@ function HouseDetails(props) {
 
 	return (
 		<>
-			{simpleNFT.tokenName ? (
+			{(simpleNFT && simpleNFT.tokenName) ? (
 				<Grid container spacing={5}>
 					<Grid item xl={6} md={12}>
 						<Grid className={classes.nftMedia}>
@@ -493,8 +497,9 @@ function HouseDetails(props) {
 							changinghistoryType={changinghistoryType}
 							setChangingHistoryType={setChangingHistoryType}
 							historyTypes={historyTypes}
-							tokenId={simpleNFT.tokenId}
+							houseID={simpleNFT.houseID}
 							loadNFT={loadNFT}
+							walletAccount={walletAccount}
 							disconnectContract={handleDisconnectContract}
 						/>
 						{simpleNFT.contributor.currentOwner === `${walletAccount}` ? (

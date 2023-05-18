@@ -50,7 +50,7 @@ function CreateContract(props) {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [contractType, setContractType] = useState('1');
+  const [contractType, setContractType] = useState(1);
   const [currency, setCurrency] = useState("MATIC");
   const [agreedPrice, setAgreedPrice] = useState("");
 
@@ -202,7 +202,7 @@ function CreateContract(props) {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
     hTypes.map((item, idx) => {
       arr.push({

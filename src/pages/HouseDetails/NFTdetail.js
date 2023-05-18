@@ -69,7 +69,7 @@ export default function NFTdetail({
           }
           <Button
               variant="outlined"
-              onClick={() => changeHousePrice(simpleNFT.tokenId, housePrice)}
+              onClick={() => changeHousePrice(simpleNFT.houseID, housePrice)}
               className={classes.nftHouseButton}
               startIcon={<BusinessCenterIcon />}
             >
