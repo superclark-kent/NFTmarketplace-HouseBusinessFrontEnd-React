@@ -46,6 +46,7 @@ export default function Contract() {
     setLoading(true);
 
     const allCleanContracts = await houseDocContract.methods.getAllCleanContracts().call();
+
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
       if (allCleanContracts[i].owner == account) {
@@ -128,6 +129,7 @@ export default function Contract() {
       setLoading(true);
       try {
         await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+
         loadContracts();
         setTimeout(loadContracts, 3000);
       } catch (err) {

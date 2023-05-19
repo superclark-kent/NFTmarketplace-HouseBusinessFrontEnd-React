@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 
+import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
@@ -311,6 +310,7 @@ export default function HouseDetails() {
   };
 
   const handleImageChange = async (e) => {
+    console.log('img', e.target.files[0])
     var uploadedImage = e.target.files[0];
     if (uploadedImage) {
       setImage(uploadedImage);
