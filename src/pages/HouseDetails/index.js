@@ -3,8 +3,9 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
-import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';

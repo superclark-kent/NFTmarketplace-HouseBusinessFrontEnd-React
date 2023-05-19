@@ -14,9 +14,7 @@ import { HouseBusinessAddress, apiURL } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { setAccount } from "redux/actions/account";
 import FileUpload from "utils/ipfs";
-import { HouseBusinessAddress, apiURL } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
