@@ -1,22 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, ListItem, TextField, MenuItem, IconButton, Avatar, CircularProgress } from '@mui/material';
 import styled from '@emotion/styled';
+import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useEffect, useState } from 'react';
 
-import EditIcon from '@mui/icons-material/Edit';
-import SaveAsIcon from '@mui/icons-material/SaveAs';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
 import SubtitlesOffIcon from '@mui/icons-material/SubtitlesOff';
+import { useWeb3React } from '@web3-react/core';
+import ContractDetailDialog from 'components/ContractDetailDialog';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
-import { useWeb3React } from '@web3-react/core';
-import CryptoJS from 'crypto-js';
-import FileUpload from 'utils/ipfs';
 import { secretKey } from 'mainConfig';
-import ContractDetailDialog from 'components/ContractDetailDialog';
+import FileUpload from 'utils/ipfs';
 
 const StyledInput = styled('input')({
   display: 'none',
@@ -44,7 +43,7 @@ export default function Histories({
   const [cBrand, setCBrand] = useState('');
   const [cBrandType, setCBrandType] = useState('');
   const [cYearField, setCYearField] = useState('');
-  const [cHistory, setCHistory] = useState('');
+  const [otherInfo, setOtherInfo] = useState('');
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
 
@@ -52,7 +51,7 @@ export default function Histories({
     setLoading(true);
     var historyItem = { ...histories[historyIndex] };
     var _houseImg = historyItem.houseImg;
-    var _history = historyItem.history;
+    var _otherInfo = historyItem.otherInfo;
     var _desc = historyItem.desc;
     var _brand = historyItem.houseBrand;
     var _brandType = historyItem.brandType;
@@ -60,43 +59,48 @@ export default function Histories({
 
     var changedFlag = false;
     if (homeHistory.imgNeed) {
-      _houseImg = await FileUpload(cImage);
-      _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
+      if (typeof cImage == 'string') {
+        _houseImg = cImage
+        changedFlag = true;
+      } else {
+        _houseImg = await FileUpload(cImage);
+        changedFlag = true;
+      }
+    }
+    if (_desc != cPicDesc && homeHistory.descNeed) {
+      _desc = cPicDesc, secretKey;
       changedFlag = true;
     }
-    if (_desc != CryptoJS.AES.encrypt(cPicDesc, secretKey).toString() && homeHistory.descNeed) {
-      _desc = CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
+    if (_brand != cBrand && homeHistory.brandNeed) {
+      _brand = cBrand;
       changedFlag = true;
     }
-    if (_brand != CryptoJS.AES.encrypt(cBrand, secretKey).toString() && homeHistory.brandNeed) {
-      _brand = CryptoJS.AES.encrypt(cBrand, secretKey).toString();
-      changedFlag = true;
-    }
-    if (_brandType != CryptoJS.AES.encrypt(cBrandType, secretKey).toString() && homeHistory.brandTypeNeed) {
-      _brandType = CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
+    if (_brandType != cBrandType && homeHistory.brandTypeNeed) {
+      _brandType = cBrandType;
       changedFlag = true;
     }
     if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
       changedFlag = true;
     }
-    if (_history != CryptoJS.AES.encrypt(cHistory, secretKey).toString()) {
-      _history = CryptoJS.AES.encrypt(cHistory, secretKey).toString();
+    if (_otherInfo != otherInfo) {
+      _otherInfo = otherInfo;
       changedFlag = true;
     }
 
+    console.table({
+      "houseID": houseID,
+      "historyIndex": historyIndex,
+      "historyTypeId": historyTypeId,
+      "_houseImg": _houseImg,
+      "_brand": _brand,
+      "_otherInfo": _otherInfo,
+      "_desc": _desc,
+      "_brandType": _brandType,
+      "_yearFiel": _yearField
+    })
+
     if (changedFlag) {
-      // console.table({
-      //   'houseID,': houseID,
-      //   'historyIndex,': historyIndex,
-      //   'historyTypeId,': historyTypeId,
-      //   '_houseImg,': _houseImg,
-      //   '_brand,': _brand,
-      //   '_history,': _history,
-      //   '_desc,': _desc,
-      //   '_brandType,': _brandType,
-      //   '_yearField': _yearField
-      // })
       try {
         await houseBusinessContract.methods
           .editHistory(
@@ -105,7 +109,7 @@ export default function Histories({
             historyTypeId,
             _houseImg,
             _brand,
-            _history,
+            _otherInfo,
             _desc,
             _brandType,
             _yearField
@@ -127,24 +131,12 @@ export default function Histories({
   };
 
   const handleHistoryEdit = async (historyIndex) => {
-    var bytesCImage = CryptoJS.AES.decrypt(histories[historyIndex].houseImg, secretKey);
-    var decrypteCImage = bytesCImage.toString(CryptoJS.enc.Utf8);
-    var bytesDesc = CryptoJS.AES.decrypt(histories[historyIndex].desc, secretKey);
-    var decryptePicDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
-    var bytesBrand = CryptoJS.AES.decrypt(histories[historyIndex].houseBrand, secretKey);
-    var decrypteBrand = bytesBrand.toString(CryptoJS.enc.Utf8);
-    var bytesBrandType = CryptoJS.AES.decrypt(histories[historyIndex].brandType, secretKey);
-    var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
-    var bytesYearField = CryptoJS.AES.decrypt(histories[historyIndex].yearField, secretKey);
-    var decryptedYearField = bytesYearField.toString(CryptoJS.enc.Utf8);
-    var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].history, secretKey);
-    var decryptedCHistory = bytesCHistory.toString(CryptoJS.enc.Utf8);
-    setCImage(decrypteCImage);
-    setCPicDesc(decryptePicDesc);
-    setCBrand(decrypteBrand);
-    setCBrandType(decryptedBrandType);
-    setCYearField(new Date(Number(decryptedYearField)));
-    setCHistory(decryptedCHistory);
+    setCImage(histories[historyIndex].houseImg);
+    setCPicDesc(histories[historyIndex].desc);
+    setCBrand(histories[historyIndex].houseBrand);
+    setCBrandType(histories[historyIndex].brandType);
+    setCYearField(new Date(Number(histories[historyIndex].yearField)));
+    setOtherInfo(histories[historyIndex].otherInfo);
 
     var dArr = [];
     for (let i = 0; i < histories.length; i++) {
@@ -161,23 +153,13 @@ export default function Histories({
     var dArr = [];
     var tempHistory = [];
     for (let i = 0; i < histories.length; i++) {
-      var bytesHistory = CryptoJS.AES.decrypt(histories[i].history, secretKey);
-      var decryptedHistory = bytesHistory.toString(CryptoJS.enc.Utf8);
-      var bytesBrandType = CryptoJS.AES.decrypt(histories[i].brandType, secretKey);
-      var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
-      var bytesHouseBrand = CryptoJS.AES.decrypt(histories[i].houseBrand, secretKey);
-      var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
-      var bytesDesc = CryptoJS.AES.decrypt(histories[i].desc, secretKey);
-      var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
-      var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
-      var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
       tempHistory.push({
         ...histories[i],
-        history: decryptedHistory,
-        brandType: decryptedBrandType,
-        houseBrand: decryptedHouseBrand,
-        desc: decryptedDesc,
-        houseImg: decryptedImg
+        otherInfo: histories[i].otherInfo,
+        brandType: histories[i].brandType,
+        houseBrand: histories[i].houseBrand,
+        desc: histories[i].desc,
+        houseImg: histories[i].houseImg
       });
       dArr[i] = true;
     }
@@ -192,7 +174,7 @@ export default function Histories({
   return (
     <Grid>
       {cHistories.map((item, index) => {
-        var homeHistory = historyTypes[historyTypes.findIndex((option) => option.hID === item.historyTypeId)];
+        var homeHistory = historyTypes[item.historyTypeId];
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
@@ -309,9 +291,9 @@ export default function Histories({
               rows={4}
               variant="filled"
               className={classes.listHistoryField}
-              value={disabledArr[index] === false ? cHistory : item.history}
+              value={disabledArr[index] === false ? otherInfo : item.otherInfo}
               disabled={disabledArr[index] || loading}
-              onChange={(e) => setCHistory(e.target.value)}
+              onChange={(e) => setOtherInfo(e.target.value)}
             />
             {item.contractId > 0 && (
               <>

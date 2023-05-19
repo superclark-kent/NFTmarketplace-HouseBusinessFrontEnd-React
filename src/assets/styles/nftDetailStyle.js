@@ -68,6 +68,18 @@ const useNftDetailStyle = makeStyles((theme) => ({
     transition: "all 0.3s ease !important",
     width: "100%",
   },
+  changePriceBtn: {
+    width: '60%',
+    color: "#1976d2 !important",
+    backgroundColor: "transparent !important",
+    border: "2px solid #5142FC !important",
+    fontWeight: "bold",
+    boxSizing: "border-box !important",
+    padding: "11px 35px !important",
+    borderRadius: "30px !important",
+    transition: "all 0.3s ease !important",
+    marginLeft: '30px !important'
+  },
   connectContract: {
     marginTop: "16px",
     marginBottom: "16px",

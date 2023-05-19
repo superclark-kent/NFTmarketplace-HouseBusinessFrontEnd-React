@@ -30,12 +30,6 @@
         "internalType": "address",
         "name": "allowed",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "AllowListAdded",
@@ -61,12 +55,6 @@
         "internalType": "address",
         "name": "allowed",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "AllowListRemoved",
@@ -148,12 +136,6 @@
         "internalType": "uint256",
         "name": "contractId",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "ContractDisconnected",
@@ -226,12 +208,6 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "history",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
         "name": "desc",
         "type": "string"
       },
@@ -245,12 +221,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "yearField",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
         "type": "uint256"
       }
     ],
@@ -299,12 +269,6 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "history",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
         "name": "desc",
         "type": "string"
       },
@@ -319,113 +283,9 @@
         "internalType": "uint256",
         "name": "yearField",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "HistoryEdited",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "hIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "HistoryTypeRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "hID",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "label",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "connectContract",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "imgNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brandNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "descNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brandTypeNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "yearNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "checkMark",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "HistoryTypeUpdated",
     "type": "event"
   },
   {
@@ -460,12 +320,6 @@
         "internalType": "string",
         "name": "initialDesc",
         "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "HouseMinted",
@@ -503,12 +357,6 @@
         "internalType": "uint256",
         "name": "price",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "HouseNftBought",
@@ -544,31 +392,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "status",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "HouseStakedStatusSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -590,65 +413,9 @@
         "internalType": "bool",
         "name": "nftPayable",
         "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
       }
     ],
     "name": "PayableSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "royalty",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "RoyaltyCreatorSet",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "royalty",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "RoyaltyMarketSet",
     "type": "event"
   },
   {
@@ -664,12 +431,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "newPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
         "type": "uint256"
       }
     ],
@@ -773,7 +534,7 @@
       },
       {
         "internalType": "string",
-        "name": "_history",
+        "name": "_otherInfo",
         "type": "string"
       },
       {
@@ -793,72 +554,6 @@
       }
     ],
     "name": "addHistory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newMember",
-        "type": "address"
-      }
-    ],
-    "name": "addMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_historyIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_label",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "_connectContract",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_imgNeed",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_brandNeed",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_descNeed",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_brandTypeNeed",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_yearNeed",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_checkMark",
-        "type": "bool"
-      }
-    ],
-    "name": "addOrEditHType",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1161,7 +856,7 @@
       },
       {
         "internalType": "string",
-        "name": "_history",
+        "name": "_otherInfo",
         "type": "string"
       },
       {
@@ -1340,7 +1035,7 @@
           },
           {
             "internalType": "string",
-            "name": "history",
+            "name": "otherInfo",
             "type": "string"
           },
           {
@@ -1363,60 +1058,19 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getHistoryType",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getHousePrice",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "hID",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "hLabel",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "connectContract",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "imgNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "descNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandTypeNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "yearNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "checkMark",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct HouseBusiness.HistoryType[]",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple[]"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1493,6 +1147,75 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "houseHistories",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "hID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "houseID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "contractId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "historyTypeId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "houseImg",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "houseBrand",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "desc",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "otherInfo",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "brandType",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "yearField",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "owner",
         "type": "address"
@@ -1515,19 +1238,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "maxPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -1541,19 +1251,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1640,58 +1337,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_hIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "removeHistoryType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newMember",
-        "type": "address"
-      }
-    ],
-    "name": "removeMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyCreator",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyMarket",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "from",
         "type": "address"
@@ -1744,24 +1389,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_receiver",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "sendToken",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "operator",
         "type": "address"
       },
@@ -1772,19 +1399,6 @@
       }
     ],
     "name": "setApprovalForAll",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "setCContractAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1805,17 +1419,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "_status",
-        "type": "bool"
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
       }
     ],
-    "name": "setHouseStakedStatus",
+    "name": "setHouseDocContractAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1823,17 +1432,12 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_min",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_max",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_marketplace",
+        "type": "address"
       }
     ],
-    "name": "setMinMaxHousePrice",
+    "name": "setMarketplaceAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1857,45 +1461,6 @@
       }
     ],
     "name": "setPayable",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_royalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "setRoyaltyCreator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_royalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "setRoyaltyMarket",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_address",
-        "type": "address"
-      }
-    ],
-    "name": "setStakingContractAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1940,6 +1505,104 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "test1",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "test2",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "test3",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "hLabel",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "connectContract",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "imgNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "brandNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "descNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "brandTypeNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "yearNeed",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "checkMark",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "value",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IMarketplace.HistoryType",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",

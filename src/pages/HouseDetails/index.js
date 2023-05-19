@@ -5,21 +5,20 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
-import CryptoJS from 'crypto-js';
 
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
-import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
-import { secretKey, zeroAddress } from 'mainConfig';
-import { decryptContract } from 'utils';
 import { BigNumber } from 'ethers';
+import { useHouseBusinessContract, useHouseDocContract, useMarketplaceContract } from 'hooks/useContractHelpers';
+import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
+import { useWeb3 } from 'hooks/useWeb3';
+import { zeroAddress } from 'mainConfig';
+import { decryptContract } from 'utils';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
-import NewHistory from './NewHistory';
 import NFTdetail from './NFTdetail';
-import { useWeb3 } from 'hooks/useWeb3';
+import NewHistory from './NewHistory';
 
 const style = {
   position: 'absolute',
@@ -41,8 +40,9 @@ export default function HouseDetails() {
   const web3 = useWeb3();
   const { houseNftID } = useParams();
 
-  const cleanContract = useCleanContract();
+  const houseDocContract = useHouseDocContract();
   const houseBusinessContract = useHouseBusinessContract();
+  const marketplaceContract = useMarketplaceContract();
 
   const classes = useNftDetailStyle();
   const [simpleNFT, setSimpleNFT] = useState({});
@@ -59,27 +59,26 @@ export default function HouseDetails() {
   const [pictureDesc, setPictureDesc] = useState('');
   const [brand, setBrand] = useState('');
   const [brandType, setBrandType] = useState('');
-  const [solorDate, setSolorDate] = useState(new Date().valueOf());
+  const [solorDate, setSolorDate] = useState(5364662400);
+  const [changeDate, setChangeDate] = useState(false);
   const [MPrice, setMprice] = useState(0.01);
   const [Hprice, setHprice] = useState(1);
-
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const [cContract, setCContract] = useState('');
   const [contracts, setContracts] = useState([]);
-
+  const [historyTypes, setHistoryTypes] = useState([]);
   const [changinghistoryType, setChangingHistoryType] = useState('0');
 
-  const [open, setOpen] = useState(false);
+  
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const [historyTypes, setHistoryTypes] = useState([]);
-
   const initialConfig = async () => {
-    var minPrice = await houseBusinessContract.methods.minPrice().call();
-    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var minPrice = await marketplaceContract.methods.minPrice().call();
+    var maxPrice = await marketplaceContract.methods.maxPrice().call();
+    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);
@@ -88,23 +87,26 @@ export default function HouseDetails() {
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
   };
-
+  
   const loadNFT = async (_id) => {
-    var allMyContracts = await cleanContract.methods.getAllContractsByOwner(account).call({ from: account });
+    var allContracts = await houseDocContract.methods.getAllCleanContracts().call();
+    var _housePrice = await houseBusinessContract.methods.getHousePrice(_id).call();
     var cArr = [];
-    for (let i = 0; i < allMyContracts.length; i++) {
-      const contract = decryptContract(allMyContracts[i]);
-      cArr.push({
-        ...contract,
-        label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
-      });
+    for (let i = 0; i < allContracts.length; i++) {
+      if ((allContracts[i].owner).toLowerCase() == account.toLowerCase()) {
+        const contract = decryptContract(allContracts[i]);
+        cArr.push({
+          ...contract,
+          label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
+        });
+      }
     }
     setContracts(cArr);
+    setTotalPrice(_housePrice)
 
     var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
     var nft = nfts.filter((item) => item.houseID === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
-
     setHistories(chistories);
 
     if (nft) {
@@ -120,18 +122,7 @@ export default function HouseDetails() {
           }
         }
         if (nft) {
-          var bytes = CryptoJS.AES.decrypt(nft.tokenURI, secretKey);
-          var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-          var bytesName = CryptoJS.AES.decrypt(nft.tokenName, secretKey);
-          var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-          var bytesType = CryptoJS.AES.decrypt(nft.tokenType, secretKey);
-          var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
-          setSimpleNFT({
-            ...nft,
-            tokenURI: decryptedData,
-            tokenName: decryptedName,
-            tokenType: decryptedType,
-          });
+          setSimpleNFT(nft);
           var dArr = [];
           for (let i = 0; i < chistories.length; i++) {
             dArr[i] = true;
@@ -163,15 +154,12 @@ export default function HouseDetails() {
       _brandType = '',
       _yearField = 0;
 
-    var homeHistory = historyTypes.filter((option) => option.hID === hID)[0];
+    var homeHistory = historyTypes[hID];
 
     if (homeHistory.imgNeed === true) {
-      if (!image) {
-        houseError('Upload Image');
-        setLoading(false);
-        return;
+      if (image) {
+        _houseImg = await FileUpload(image);
       }
-      _houseImg = await FileUpload(image);
     }
     if (homeHistory.descNeed === true) {
       _desc = pictureDesc;
@@ -183,26 +171,33 @@ export default function HouseDetails() {
       _brandType = brandType;
     }
     if (homeHistory.yearNeed === true) {
-      _yearField = solorDate.valueOf();
+      if (changeDate) _yearField = solorDate.valueOf();
+      else _yearField = 0;
     }
     try {
-      var encryptedHouseImage = CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
-      var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
-      var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
-      var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
-      var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
+      console.table({
+        "_houseId,": Number(_houseId),
+        "cContract,": Number(cContract),
+        "hID,": hID,
+        "HouseImage,": _houseImg,
+        "Brand,": _brand,
+        "History,": _history,
+        "Desc,": _desc,
+        "BrandType,": _brandType,
+        "_yearField": _yearField
+      })
 
       try {
         await houseBusinessContract.methods
           .addHistory(
             Number(_houseId),
             Number(cContract),
-            Number(homeHistory.hID),
-            encryptedHouseImage,
-            encryptedBrand,
-            encryptedHistory,
-            encryptedDesc,
-            encryptedBrandType,
+            hID,
+            _houseImg,
+            _brand,
+            _history,
+            _desc,
+            _brandType,
             _yearField
           )
           .send({ from: account })
@@ -238,26 +233,34 @@ export default function HouseDetails() {
       await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
       houseSuccess('You disconnected contract sucessfully!');
       loadNFT(houseID);
+      setLoading(false);
     } catch (error) {
       houseError('Something went wrong!');
       console.error(error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleBuyerEdit = async () => {
+    setLoading(true);
     if (web3.utils.fromWei(simpleNFT.price) == 0) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
-    await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
+    try {
+      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
+    } catch (err) {
+      console.log('err', err)
+    }
     houseSuccess('Success!');
     setSpecialBuyer('');
     setBuyerFlag(false);
     loadNFT(simpleNFT.houseID);
+    setLoading(false);
   };
 
   const changeHousePrice = async (houseID, housePrice) => {
+    setLoading(true);
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
@@ -270,26 +273,40 @@ export default function HouseDetails() {
         return;
       }
       const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      // const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
-      await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
+      try{
+        await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
+      } catch (err) {
+        console.log('err', err)
+      }
       houseSuccess("You have successfully set your House price!")
       loadNFT(houseID)
+      setLoading(false);
     }
   }
 
   const handlePayable = async (flag) => {
+    setLoading(true);
     if (web3.utils.fromWei(simpleNFT.price) == 0) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
     if (buyerFlag === true) {
-      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag).send({ from: account });
+      try {
+        await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag).send({ from: account });
+      } catch (err) {
+        console.log('err', err)
+      }
     } else {
-      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag).send({ from: account });
+      try {
+        await houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag).send({ from: account });
+      } catch (err) {
+        console.log('err', err)
+      }
     }
     houseSuccess('Success!');
     setSpecialBuyer('');
     setBuyerFlag(false);
+    setLoading(false);
     loadNFT(simpleNFT.houseID);
   };
 
@@ -332,6 +349,9 @@ export default function HouseDetails() {
             classes={classes}
             account={account}
             simpleNFT={simpleNFT}
+            totalPrice={totalPrice}
+            loading={loading}
+            setLoading={setLoading}
             buyerFlag={buyerFlag}
             setBuyerFlag={setBuyerFlag}
             specialBuyer={specialBuyer}
@@ -374,6 +394,7 @@ export default function HouseDetails() {
                   setBrand={setBrand}
                   solorDate={solorDate}
                   setSolorDate={setSolorDate}
+                  setChangeDate={setChangeDate}
                   pictureDesc={pictureDesc}
                   setPictureDesc={setPictureDesc}
                   handleImageChange={handleImageChange}

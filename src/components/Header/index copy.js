@@ -47,7 +47,7 @@ import useHeaderStyles from "assets/styles/headerStyle";
 
 import {
   useHouseBusinessContract,
-  useCleanContract,
+  useHouseDocContract,
 } from "hooks/useContractHelpers";
 import { houseInfo } from "hooks/useToast";
 
@@ -232,12 +232,11 @@ export default function Header(props) {
   const navigate = useNavigate();
   const { account, activate, deactivate } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const cleanContract = useCleanContract();
+  const houseDocContract = useHouseDocContract();
 
   const [notifies, setNotifies] = useState([]);
   const [badgeLeng, setBadgeLeng] = useState("");
   const [cookies, setCookie] = useCookies(["housebusiness"]);
-  const [notifyList, setNotifyList] = useCookies(["notifyList"]);
   const [isMember, setIsMember] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const isUserMenuOpen = Boolean(userMenuOpen);
@@ -287,7 +286,7 @@ export default function Header(props) {
   };
 
   const loadNotifies = async () => {
-    var notifies = await cleanContract.methods
+    var notifies = await houseDocContract.methods
       .getAllNotifies()
       .call({ from: account });
     var arr = [],

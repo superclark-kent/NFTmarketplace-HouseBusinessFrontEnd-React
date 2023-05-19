@@ -1,22 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useWeb3React } from '@web3-react/core';
-import { Box, Button, Grid, TextField } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
-import CryptoJS from 'crypto-js';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { Box, Button, Grid, TextField } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import LoadingButton from '@mui/lab/LoadingButton';
+import { useWeb3React } from '@web3-react/core';
+import { useEffect, useState } from 'react';
 
-import { useHouseBusinessContract, useStakingContract } from 'hooks/useContractHelpers';
 import useNftStyle from 'assets/styles/nftStyle';
 import useStakingStyle from 'assets/styles/stakingStyle';
+import { useHouseBusinessContract, useStakingContract } from 'hooks/useContractHelpers';
 
 import { houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, StakingAddress, zeroAddress } from 'mainConfig';
+import { StakingAddress, zeroAddress } from 'mainConfig';
 
 export default function Staking() {
   const { account } = useWeb3React();
@@ -74,12 +73,9 @@ export default function Staking() {
     for (var i = 0; i < nfts.length; i++) {
       if (nfts[i].contributor.currentOwner === zeroAddress) continue;
 
-      var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
       otherNFTs.push({
         ...nfts[i],
-        staked: false,
-        tokenURI: decryptedData,
+        staked: false
       });
     }
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
@@ -92,16 +88,10 @@ export default function Staking() {
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
 
-      var bytes = CryptoJS.AES.decrypt(stakedNFT.tokenURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-      var bytesName = CryptoJS.AES.decrypt(stakedNFT.tokenName, secretKey);
-      var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
       otherNFTs.push({
         ...stakedNFT,
         startedDate: startedDate,
         endDate: endDate,
-        tokenURI: decryptedData,
-        tokenName: decryptedName,
       });
     }
 

@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import { useWeb3React } from '@web3-react/core';
-import { Box, Button, Grid } from '@mui/material';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
+import { Box, Button, Grid } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
+import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import CryptoJS from "crypto-js";
 
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import useNftStyle from 'assets/styles/nftStyle';
+import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress, HouseBusinessAddress } from 'mainConfig';
+import { HouseBusinessAddress, zeroAddress } from 'mainConfig';
+import { setAccount } from "redux/actions/account";
 
-export default function Nfts() {
+function Nfts(props) {
   const navigate = useNavigate()
   const nftClasses = useNftStyle()
+  const dispatch = useDispatch();
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const houseBusinessContract = useHouseBusinessContract()
@@ -27,15 +29,10 @@ export default function Nfts() {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
         if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
-        var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
-        var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-        var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
-        var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-
+        var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
         otherNFTs.push({
           ...nfts[i],
-          tokenName: decryptedName,
-          tokenURI: decryptedData
+          price: housePrice
         });
       }
       setAllMyNFTs(otherNFTs);
@@ -43,8 +40,6 @@ export default function Nfts() {
   }
 
   const handlePayable = async (item, payable) => {
-    // const estimateGas = await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).estimateGas();
-    // console.log('estimate gas', estimateGas)
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
       return;
@@ -65,6 +60,12 @@ export default function Nfts() {
   useEffect(() => {
     if (account) {
       loadNFTs()
+    }
+
+    if (account) {
+      dispatch(setAccount(account));
+    } else {
+      dispatch(setAccount(null));
     }
   }, [account])
 
@@ -106,7 +107,7 @@ export default function Nfts() {
                     </Grid>
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
-                  <Button
+                    <Button
                       variant='outlined'
                       onClick={() => handlePayable(item, item.nftPayable === false)}
                       className={nftClasses.nftHouseButton}
@@ -132,3 +133,12 @@ export default function Nfts() {
     </Grid>
   )
 }
+
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(Nfts);

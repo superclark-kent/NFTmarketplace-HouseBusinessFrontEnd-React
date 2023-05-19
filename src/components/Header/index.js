@@ -1,9 +1,11 @@
-import React, { Fragment, cloneElement, useEffect, useState } from "react";
-import { styled } from "@mui/material/styles";
+import { Fragment, cloneElement, useEffect, useState } from "react";
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { ethers } from "ethers";
+import { styled } from "@mui/material/styles";
 import { useWeb3React } from "@web3-react/core";
+import { ethers } from "ethers";
 
+import SaveIcon from '@mui/icons-material/Save';
 import MuiAppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Badge from "@mui/material/Badge";
@@ -24,14 +26,9 @@ import Paper from "@mui/material/Paper";
 import Toolbar from "@mui/material/Toolbar";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Zoom from "@mui/material/Zoom";
-import LoadingButton from '@mui/lab/LoadingButton';
-import SaveIcon from '@mui/icons-material/Save';
-
-import { Grid, Button, TextField } from '@mui/material';
-
-// Icons
+import useScrollTrigger from "@mui/material/useScrollTrigger";
+import { Button, Grid, TextField } from '@mui/material';
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
@@ -43,26 +40,23 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import PermContactCalendarIcon from "@mui/icons-material/PermContactCalendar";
 import Settings from "@mui/icons-material/Settings";
 import WidgetsIcon from "@mui/icons-material/Widgets";
+import Modal from "@mui/material/Modal";
 
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import {
-  useCleanContract, useHouseBusinessContract
-} from "hooks/useContractHelpers";
+import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
 import { houseInfo, houseWarning } from "hooks/useToast";
+import { setAccount } from "redux/actions/account";
 
-import defaultAvatar from "assets/images/avatar.png";
 import Coinbase from "assets/images/Coinbase.png";
 import Metamask from "assets/images/Metamask.png";
 import MainLogo from "assets/images/Offero.png";
 import WalletConnectAvatar from "assets/images/WalletConnect.png";
+import defaultAvatar from "assets/images/avatar.png";
 import { connectorsByName } from "mainConfig";
 import { useCookies } from "react-cookie";
 
-// ------------
-
-import Modal from "@mui/material/Modal";
 
 const style = {
   position: "absolute",
@@ -228,12 +222,14 @@ function ElevationScroll(props) {
   });
 }
 
-export default function Header(props) {
+function Header(props) {
+  const dispatch = useDispatch();
   const classes = useHeaderStyles();
   const navigate = useNavigate();
   const { account, activate, deactivate, library } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const cleanContract = useCleanContract();
+  const marketplaceContract = useMarketplaceContract();
+  const houseDocContract = useHouseDocContract();
 
   const [notifies, setNotifies] = useState([]);
   const [badgeLeng, setBadgeLeng] = useState("");
@@ -244,6 +240,9 @@ export default function Header(props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [isWalletInstalled, setIsWalletInstalled] = useState(false);
+
+  const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
+  const [airdropWalletID, setAirdropWalletID] = useState('');
 
   const isUserMenuOpen = Boolean(userMenuOpen);
   const isNotifyOpen = Boolean(notifyOpen);
@@ -271,20 +270,25 @@ export default function Header(props) {
 
   const handleProfileMenuOpen = (event) => { setUserMenuOpen(event.currentTarget); };
 
+  const accountPage = () => {
+    if (account) {
+      navigate(`../../account/${account}`);
+    }
+  }
+
   const handleDisconnectWallet = () => {
     deactivate();
     setCookie("connected", false, { path: "/" });
+    dispatch(setAccount(null));
   };
 
   const checkAdmin = async () => {
-    var isMember = await houseBusinessContract.methods
-      .member(account)
-      .call();
+    var isMember = await marketplaceContract.methods.member(account).call();
     setIsMember(isMember);
   };
 
   const loadNotifies = async () => {
-    var notifies = await cleanContract.methods.getAllNotifies(account).call();
+    var notifies = await houseDocContract.methods.getAllNotifies(account).call({ from: account });
     var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
       if (notifies[i].status === false) {
@@ -305,22 +309,6 @@ export default function Header(props) {
     setNotifies(arr);
     setBadgeLeng(nArr.length);
   };
-
-  useEffect(() => {
-    if (pathname != "/house/app" && !pathname.includes("account")) {
-      if (!account && cookies.connected != "true") {
-        houseInfo("Please connect your wallet");
-        navigate("../../house/app");
-      }
-    }
-    if (account) {
-      checkAdmin();
-      loadNotifies();
-    }
-  }, [account, pathname]);
-
-  const [airdropWalletOpen, setAirdropWalletOpen] = useState(false);
-  const [airdropWalletID, setAirdropWalletID] = useState('');
 
   const handleOpen = () => {
     if (typeof window.ethereum === 'undefined') {
@@ -344,6 +332,7 @@ export default function Header(props) {
     activate(con);
     setProvider(conName);
     setCookie("connected", true, { path: "/" });
+    dispatch(setAccount(account));
     handleClose();
   };
 
@@ -362,11 +351,25 @@ export default function Header(props) {
     if (!ethers.utils.isAddress(airdropWalletID)) {
       houseWarning('Please input valid Ethereum wallet address');
     } else {
-      navigate(`../../account/${airdropWalletID}`);
+      // set account state with the airdrop wallet id
+      dispatch(setAccount(airdropWalletID));
       handleClose();
     }
-
   }
+
+  useEffect(() => {
+    if (pathname != "/house/app" && !pathname.includes("account")) {
+      // if (!account && cookies.connected != "true") {
+      if (!account) {
+        houseInfo("Please connect your wallet");
+        navigate("../../house/app");
+      }
+    }
+    if (account) {
+      checkAdmin();
+      loadNotifies();
+    }
+  }, [account, pathname]);
 
   return (
     <div>
@@ -596,7 +599,7 @@ export default function Header(props) {
           </ListItemIcon>
           {account ? `${account.slice(0, 8)}...` : "Connect Wallet"}
         </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={accountPage}>
           <ListItemIcon>
             <PermContactCalendarIcon fontSize="small" />
           </ListItemIcon>
@@ -781,3 +784,11 @@ export default function Header(props) {
     </div>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(Header);

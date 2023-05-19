@@ -7,6 +7,7 @@ import {
   Checkbox,
   IconButton,
   InputAdornment,
+  CircularProgress
 } from "@mui/material";
 import { Box } from "@mui/system";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
@@ -19,23 +20,29 @@ export default function NFTdetail({
   account,
   classes,
   simpleNFT,
+  totalPrice,
+  loading,
+  setLoading,
   buyerFlag,
   setBuyerFlag,
   specialBuyer,
   setSpecialBuyer,
   handleBuyerEdit,
   handlePayable,
-  changeHousePrice}) {
+  changeHousePrice }) {
   const [isBuyerEdit, setIsBuyerEdit] = useState(false);
   const [housePrice, setHousePrice] = useState(0);
+  const [extraPrice, setExtraPrice] = useState(0);
   const web3 = useWeb3();
 
   useEffect(() => {
-    if (simpleNFT) {
+    if (simpleNFT && totalPrice) {
       setHousePrice(web3.utils.fromWei(simpleNFT.price))
+      setExtraPrice(web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
+      console.log('jjj', web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
     }
-  }, [simpleNFT]);
+  }, [simpleNFT, totalPrice]);
 
   return (
     <Grid item xl={6} md={12}>
@@ -54,7 +61,7 @@ export default function NFTdetail({
         <Grid className={classes.nftHousePrice}>
           <TextField
             type="number"
-            variant="filled"
+            variant="standard"
             label="Current Price"
             value={housePrice}
             onChange={(e) => setHousePrice(e.target.value)}
@@ -62,38 +69,55 @@ export default function NFTdetail({
               startAdornment: (
                 <InputAdornment position="start">MATIC</InputAdornment>
               ),
+              endAdornment: (
+                <InputAdornment position="end">+{extraPrice.toFixed(2)}</InputAdornment>
+              )
             }}
           />
           {
-            
+
           }
           <Button
-              variant="outlined"
-              onClick={() => changeHousePrice(simpleNFT.houseID, housePrice)}
-              className={classes.nftHouseButton}
-              startIcon={<BusinessCenterIcon />}
-            >
+            variant="outlined"
+            onClick={() => {
+              setLoading(true)
+              changeHousePrice(simpleNFT.houseID, housePrice)
+            }}
+            className={classes.changePriceBtn}
+            startIcon={<BusinessCenterIcon />}
+            disabled={loading}
+          >
+            {loading ?
+              <CircularProgress size={25} /> :
               <Box
                 component={"span"}
                 className={classes.nftHouseBuyButton}
                 textTransform={"capitalize"}
               >{`Change Price`}</Box>
-            </Button>
+            }
+          </Button>
         </Grid>
         {simpleNFT.contributor.currentOwner !== `${account}` &&
-        simpleNFT.nftPayable === true ? (
+          simpleNFT.nftPayable === true ? (
           <Grid className={classes.buyButtonGroup}>
             <Button
               variant="outlined"
-              onClick={() => handleBuyNFT(simpleNFT)}
+              onClick={() => {
+                setLoading(true)
+                handleBuyNFT(simpleNFT)
+              }}
               className={classes.nftHouseButton}
               startIcon={<BusinessCenterIcon />}
+              disabled={loading}
             >
-              <Box
-                component={"span"}
-                className={classes.nftHouseBuyButton}
-                textTransform={"capitalize"}
-              >{`Buy NFT`}</Box>
+              {loading ?
+                <CircularProgress size={25} /> :
+                <Box
+                  component={"span"}
+                  className={classes.nftHouseBuyButton}
+                  textTransform={"capitalize"}
+                >{`Buy NFT`}</Box>
+              }
             </Button>
           </Grid>
         ) : (
@@ -141,16 +165,19 @@ export default function NFTdetail({
                 onClick={() => handlePayable(!simpleNFT.nftPayable)}
                 className={classes.nftHouseButton}
                 startIcon={<BusinessCenterIcon />}
+                disabled={loading}
               >
-                <Box
-                  component={"span"}
-                  className={classes.nftHouseBuyButton}
-                  textTransform={"capitalize"}
-                >{`${
-                  simpleNFT.nftPayable === false
+                {loading ?
+                  <CircularProgress size={25} /> :
+                  <Box
+                    component={"span"}
+                    className={classes.nftHouseBuyButton}
+                    textTransform={"capitalize"}
+                  >{`${simpleNFT.nftPayable === false
                     ? "Set Payable for everyone"
                     : "Set Unpayable"
-                }`}</Box>
+                    }`}</Box>
+                }
               </Button>
             </Grid>
           ) : (
@@ -191,14 +218,13 @@ export default function NFTdetail({
                   component={"span"}
                   className={classes.nftHouseBuyButton}
                   textTransform={"capitalize"}
-                >{`${
-                  simpleNFT.nftPayable === false
-                    ? "Set Payable"
-                    : "Set Unpayable"
-                }`}</Box>
+                >{`${simpleNFT.nftPayable === false
+                  ? "Set Payable"
+                  : "Set Unpayable"
+                  }`}</Box>
               </Button>
             </Grid>
-          )    
+          )
         ) : (
           ""
         )}

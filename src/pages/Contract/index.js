@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -7,19 +6,20 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useCleanContract } from 'hooks/useContractHelpers';
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
+import { useEffect, useState } from 'react';
 import decryptfile from 'utils/decrypt';
 
 export default function Contract() {
   const { account } = useWeb3React();
   const web3 = useWeb3();
   const classes = useContractStyle();
-  const cleanContract = useCleanContract();
+  const houseDocContract = useHouseDocContract();
   const houseBusinessContract = useHouseBusinessContract();
+  const marketplaceContract = useMarketplaceContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -44,52 +44,46 @@ export default function Contract() {
 
   const loadContracts = async () => {
     setLoading(true);
-    var allmyContracts = await cleanContract.methods.getAllContractsByOwner(account).call();
-    var allCons = [];
-    for (let i = 0; i < allmyContracts.length; i++) {
-      var bytes = CryptoJS.AES.decrypt(allmyContracts[i].contractURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-      var bytesCompany = CryptoJS.AES.decrypt(allmyContracts[i].companyName, secretKey);
-      var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-      var bytesCurrency = CryptoJS.AES.decrypt(allmyContracts[i].currency, secretKey);
-      var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
-      var contractURI = await decryptFileFromUrl(decryptedData);
-      allCons.push({
-        ...allmyContracts[i],
-        contractURI: contractURI,
-        companyName: decryptedCompany,
-        currency: decryptedCurrency,
-      });
-    }
-    var allOtherContracts = await cleanContract.methods.getAllContractsBySigner(account).call();
 
-    var allOCons = [];
-    for (let i = 0; i < allOtherContracts.length; i++) {
-      if (allOtherContracts[i].companyName === '') continue;
-      var bytes = CryptoJS.AES.decrypt(allOtherContracts[i].contractURI, secretKey);
-      var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-      var bytesCompany = CryptoJS.AES.decrypt(allOtherContracts[i].companyName, secretKey);
-      var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-      var bytesCurrency = CryptoJS.AES.decrypt(allOtherContracts[i].currency, secretKey);
-      var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
-      var contractURI = await decryptFileFromUrl(decryptedData);
-      allOCons.push({
-        ...allOtherContracts[i],
-        contractURI: contractURI,
-        companyName: decryptedCompany,
-        currency: decryptedCurrency,
-      });
+    const allCleanContracts = await houseDocContract.methods.getAllCleanContracts().call();
+    var allCons = [], allOCons = [];
+    for (let i = 0; i < allCleanContracts.length; i++) {
+      if (allCleanContracts[i].owner == account) {
+        var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
+        var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
+        var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
+        var bytesCurrency = CryptoJS.AES.decrypt(allCleanContracts[i].currency, secretKey);
+        var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+        var contractURI = await decryptFileFromUrl(decryptedData);
+        allCons.push({
+          ...allCleanContracts[i],
+          contractURI: contractURI,
+          companyName: decryptedCompany,
+          currency: decryptedCurrency,
+        });
+      }
+      if (allCleanContracts[i].contractSigner == account) {
+        var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
+        var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
+        var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
+        var bytesCurrency = CryptoJS.AES.decrypt(allCleanContracts[i].currency, secretKey);
+        var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+        var contractURI = await decryptFileFromUrl(decryptedData);
+        allOCons.push({
+          ...allCleanContracts[i],
+          contractURI: contractURI,
+          companyName: decryptedCompany,
+          currency: decryptedCurrency,
+        });
+      }
     }
+   
     var arr = [];
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
     }
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      allHTypes.push(hTypes[i]);
-    }
-    setHistoryTypes(allHTypes);
     setCSArr(arr);
     setNotifyArr(arr);
     setAllContracts(allCons);
@@ -109,11 +103,11 @@ export default function Contract() {
         houseError('Add Contract Signer First.');
         setLoading(false);
       } else {
-        await cleanContract.methods.signContract(item.contractId).send({ from: account });
+        await houseDocContract.methods.signContract(item.contractId).send({ from: account });
         loadContracts();
       }
     } else {
-      await cleanContract.methods.signContract(item.contractId).send({ from: account });
+      await houseDocContract.methods.signContract(item.contractId).send({ from: account });
       loadContracts();
     }
   };
@@ -128,19 +122,19 @@ export default function Contract() {
   };
 
   const handleContractSigner = async (item) => {
-    var contractSigner = account === item.creator ? item.contractSigner : item.creator;
-    if (contractSigner != zeroAddress && contractSigner != '') {
-      houseError('You already added contract signer');
+    if (cSC === '') {
+      houseError('Contract Signer is empty');
     } else {
-      if (cSC === '') {
-        houseError('Contract Signer is empty');
-      } else {
-        setLoading(true);
-        await cleanContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+      setLoading(true);
+      try {
+        await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
         loadContracts();
         setTimeout(loadContracts, 3000);
+      } catch (err) {
+        console.log('err', err)
       }
     }
+    // }
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {
@@ -164,7 +158,7 @@ export default function Contract() {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
+    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
       if (item.contractId === sentNotifies[i].ccId) {
@@ -179,9 +173,9 @@ export default function Contract() {
       setLoading(false);
     } else {
       if (flag === false) {
-        // const estimateGas = await cleanContract.methods
-        //   .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
-        await cleanContract.methods
+        const estimateGas = await houseDocContract.methods
+          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
+        await houseDocContract.methods
           .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
           .send({ from: account });
         loadContracts();
@@ -200,8 +194,18 @@ export default function Contract() {
     return `${dy}-${mt}-${yr}`;
   };
 
+  const getAllHistoryTypes = async () => {
+    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      allHTypes.push(hTypes[i]);
+    }
+    setHistoryTypes(allHTypes);
+  }
+
   useEffect(() => {
     if (account) {
+      getAllHistoryTypes();
       loadContracts();
     }
   }, [account]);
@@ -213,10 +217,14 @@ export default function Contract() {
 
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
-    await cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
-    temp[k].contractSigner = CSigner;
-    setAllContracts(temp);
-    houseSuccess('Successed Changing Signer!');
+    try {
+      await houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
+      temp[k].contractSigner = CSigner;
+      setAllContracts(temp);
+      houseSuccess('Successed Changing Signer!');
+    } catch (err) {
+      console.log('err', err)
+    }
     setEditFlag(-1);
   };
 
@@ -239,7 +247,7 @@ export default function Contract() {
               sx={{ border: '0 !important' }}
             >
               <Grid className={classes.contractCard}>
-              <embed className={classes.contractPdf} src={item.contractURI}></embed>
+                <embed className={classes.contractPdf} src={item.contractURI}></embed>
                 <Grid className={classes.contractDesc} m={3}>
                   <Grid className={classes.agreedPrice} m={1}>
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
@@ -472,7 +480,7 @@ export default function Contract() {
                     ContractID: <Box component={'b'}>{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    Contract Type: <Box component={'b'}>{item.contractType}</Box>
+                    Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
                     Company: <Box component={'b'}>{item.companyName}</Box>

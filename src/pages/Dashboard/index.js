@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { Button, Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import useNftStyle from 'assets/styles/nftStyle';
-import CryptoJS from "crypto-js";
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress } from 'mainConfig';
+import { zeroAddress } from 'mainConfig';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MoreDetail from './MoreDetail';
 
 export default function Dashboard() {
@@ -23,19 +22,12 @@ export default function Dashboard() {
   const loadNFTs = async () => {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
-      .then(gNFTs => {
+      .then(async(gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
-          var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-          var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-          var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
-          var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-          var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
-          var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
-          nfts.push({
+          var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
+          nfts.push({ 
             ...gNFTs[i],
-            tokenURI: decryptedData,
-            tokenName: decryptedName,
-            tokenType: decryptedType
+            price: housePrice
           })
         }
         if (account) {
@@ -50,15 +42,22 @@ export default function Dashboard() {
         }
       })
       .catch(err => console.log(err));
-  }
 
+    var housePrice = await houseBusinessContract.methods.getHousePrice(1).call();
+    console.log('housePrice', housePrice)
+  }
+  
   const handleBuyNFT = async (item) => {
     if (!account) {
       houseInfo("Please connect your wallet!")
     } else {
-      await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
-      houseSuccess("You bought successfully!")
-      loadNFTs()
+      try {
+        await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
+        houseSuccess("You bought successfully!")
+        loadNFTs()
+      } catch (err) {
+        console.log('err', err)
+      }
     }
   }
 
@@ -98,11 +97,11 @@ export default function Dashboard() {
                       <Box component={'span'}>Owned By</Box>
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
-                    {web3.utils.fromWei(item.price) > 0 && 
-                    <Grid className={nftClasses.nftHousePrice}>
-                      <Box component={'span'}>Current Price</Box>
-                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                    </Grid>}
+                    {web3.utils.fromWei(item.price) > 0 &&
+                      <Grid className={nftClasses.nftHousePrice}>
+                        <Box component={'span'}>Current Price</Box>
+                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
+                      </Grid>}
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {

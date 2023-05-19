@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Button, Divider, Grid, IconButton, InputBase,
-  Paper, styled, TextField
+  Paper,
+  TextField,
+  styled
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useCleanContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
+  useHouseDocContract, useMarketplaceContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
 } from 'hooks/useContractHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -20,7 +22,8 @@ import useAdminStyle from 'assets/styles/adminStyle';
 import { BigNumber } from 'ethers';
 import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import NftHistory from './NftHistory';
+import HistoryType from './HistoryType';
+import TypePercent from './TypePercent';
 
 import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
@@ -95,7 +98,8 @@ export default function Admin() {
   const { account } = useWeb3React();
   const navigate = useNavigate();
   const houseBusinessContract = useHouseBusinessContract();
-  const CleanContract = useCleanContract();
+  const marketplaceContract = useMarketplaceContract();
+  const HouseDocContract = useHouseDocContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
 
@@ -116,7 +120,7 @@ export default function Admin() {
   const [countArray, setCountArray] = useState([]);
   const [uploadedCount, setUploadedCount] = useState(0);
 
-  const [validateFlag, setValidateFlag] = useState(false);
+  const [validateFlag, setValidateFlag] = useState(true);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
 
@@ -130,6 +134,7 @@ export default function Admin() {
   const [Pprice, setPprice] = useState('');
   const [Pperiod, setPperiod] = useState(0);
   const [DataLimit, setDataLimit] = useState('');
+  const [labelPercents, setLabelPercents] = useState([])
 
   const PeriodList = [
     {
@@ -147,14 +152,13 @@ export default function Admin() {
   ];
 
   const initialConfig1 = async () => {
-    var minPrice = await houseBusinessContract.methods.minPrice().call();
-    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    var minPrice = await marketplaceContract.methods.minPrice().call();
+    var maxPrice = await marketplaceContract.methods.maxPrice().call();
     var penalty = await stakingContract.methods.penalty().call();
-    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
-    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
+    var royaltyCreator = await marketplaceContract.methods.royaltyCreator().call();
+    var royaltyMarket = await marketplaceContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    var _uploadedCount = await CleanContract.methods.ccCounter().call()
-
+    var _uploadedCount = await HouseDocContract.methods.ccCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
@@ -166,7 +170,7 @@ export default function Admin() {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
-
+    getLabelPercent()
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -175,11 +179,14 @@ export default function Admin() {
 
     setVisibleProperty(tempList);
 
-    var hTypes = await houseBusinessContract.methods.getHistoryType().call();
+    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
-      allHTypes.push(hTypes[i]);
+      allHTypes.push({
+        ...hTypes[i],
+        value: web3.utils.fromWei(hTypes[i].value)
+      });
     }
 
     setHistoryTypes(allHTypes);
@@ -194,9 +201,14 @@ export default function Admin() {
       }
       const Category = await thirdPartyContract.methods.getAllCategories().call();
       setCategoryList(Category.filter((item) => item[1] != ''));
-      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call()
+      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call();
       setCountArray(totalInfo);
     }
+  }
+
+  const getLabelPercent = async () => {
+    var _labelPercents = await marketplaceContract.methods.labelPercent().call();
+    setLabelPercents(_labelPercents);
   }
 
   const AccessAdmin = () => {
@@ -235,7 +247,7 @@ export default function Admin() {
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
       houseSuccess('Creator Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -246,7 +258,7 @@ export default function Admin() {
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
       houseSuccess('Market Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -270,6 +282,7 @@ export default function Admin() {
     }
     setLoading(false);
   };
+
   const AddNewCategory = async () => {
     if (NCategory !== '') {
       if (CategoryList.findIndex((item) => item.cartegoryName.toUpperCase() === NCategory.toUpperCase()) === -1) {
@@ -357,7 +370,6 @@ export default function Admin() {
   };
 
   useEffect(async () => {
-    console.log('account', account)
     initialConfig2();
   }, [account]);
 
@@ -1044,7 +1056,11 @@ export default function Admin() {
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
-            <NftHistory classes={classes} historyTypes={historyTypes} />
+            <TypePercent classes={classes} labelPercents={labelPercents} getLabelPercent={getLabelPercent} />
+            <Grid item md={12}>
+              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
+            </Grid>
+            <HistoryType classes={classes} historyTypes={historyTypes} labelPercents={labelPercents} />
           </Grid>
         </Grid>
       ) : (
