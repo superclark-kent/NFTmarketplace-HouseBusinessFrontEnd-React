@@ -43,6 +43,13 @@ const useNftDetailStyle = makeStyles((theme) => ({
     borderRadius: "16px",
     padding: "12px",
   },
+  dataPoints: {
+    width: "100%",
+    // background: '#343444',
+    borderRadius: "16px",
+    padding: "12px",
+    textAlign: 'right'
+  },
   nftHouseOwner: {
     borderRadius: "16px",
     padding: "12px",

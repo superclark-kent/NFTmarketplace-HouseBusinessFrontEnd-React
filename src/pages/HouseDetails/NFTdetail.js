@@ -56,7 +56,7 @@ export default function NFTdetail({
               {simpleNFT.contributor.currentOwner}
             </Box>
           </Grid>
-          <Grid className={classes.metaInfo}>
+          <Grid className={classes.dataPoints}>
             <Box component={"span"}>Data Points Value</Box>
             <Box component={"h4"} className={classes.nftHouseOwner}>
               3.95 MATIC
