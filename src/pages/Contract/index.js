@@ -6,7 +6,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseDocContract, useMarketplaceContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
@@ -17,8 +17,8 @@ export default function Contract() {
   const { account } = useWeb3React();
   const web3 = useWeb3();
   const classes = useContractStyle();
+  const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
-  const marketplaceContract = useMarketplaceContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -199,7 +199,7 @@ export default function Contract() {
   };
 
   const getAllHistoryTypes = async () => {
-    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);

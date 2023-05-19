@@ -17,9 +17,7 @@ import { BigNumber } from "ethers";
 import Web3 from "web3";
 
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import {
-  useHouseDocContract, useHouseBusinessContract, useMarketplaceContract
-} from "hooks/useContractHelpers";
+import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey, zeroAddress } from "mainConfig";
 import FileUpload from "utils/ipfs";
@@ -32,8 +30,8 @@ const Input = styled("input")({
 export default function CreateContract() {
   const { account } = useWeb3React();
   const classes = useHouseMintStyle();
+  const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
-  const marketplaceContract = useMarketplaceContract();
   const navigate = useNavigate();
   // Contract
   const [cFile, setCFile] = useState(null);
@@ -175,7 +173,7 @@ export default function CreateContract() {
   }
 
   useEffect(async () => {
-    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
     hTypes.map((item, idx) => {
       arr.push({

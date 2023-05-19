@@ -15,7 +15,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import { useWeb3React } from "@web3-react/core";
-import { useMarketplaceContract } from "hooks/useContractHelpers";
+import { useHouseDocContract } from "hooks/useContractHelpers";
 import { houseSuccess } from "hooks/useToast";
 import { isEmpty } from "lodash";
 
@@ -34,7 +34,7 @@ const hHeaders = [
 ];
 
 export default function HistoryType({ classes, historyTypes, labelPercents }) {
-  const marketplaceContract = useMarketplaceContract();
+  const houseDocContract = useHouseDocContract();
   const { account } = useWeb3React();
 
   const [allTypes, setAllTypes] = useState([]);
@@ -68,7 +68,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
 
   const handleRemove = async (item, itemIndex) => {
     try {
-      const tx = await marketplaceContract.methods.removeHistoryType(itemIndex).send({ from: account });
+      const tx = await houseBusinessContract.methods.removeHistoryType(itemIndex).send({ from: account });
       let temp = [...Hdata];
       delete temp[itemIndex];
       temp = temp.filter((item) => !isEmpty(item));
@@ -109,7 +109,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     const typeValue = BigNumber.from(`${Number(historyItem.value) * 10 ** 18}`);
     setLoading(true);
     try {
-      await marketplaceContract.methods
+      await houseDocContract.methods
         .addHistoryType(
           typeID,
           historyItem.hLabel,

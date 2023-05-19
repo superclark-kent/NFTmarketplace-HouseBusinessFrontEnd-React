@@ -19,7 +19,7 @@ const useNftDetailStyle = makeStyles((theme) => ({
     maxHeight: "500px",
   },
   image: {
-    width: "500px",
+    width: "100%",
   },
   needField: {
     width: "100%",

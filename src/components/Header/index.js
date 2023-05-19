@@ -45,7 +45,7 @@ import Modal from "@mui/material/Modal";
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
+import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContractHelpers";
 
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
@@ -229,7 +229,6 @@ function Header(props) {
   const navigate = useNavigate();
   const { account, activate, deactivate, library } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const marketplaceContract = useMarketplaceContract();
   const houseDocContract = useHouseDocContract();
 
   const [notifies, setNotifies] = useState([]);
@@ -284,7 +283,7 @@ function Header(props) {
   };
 
   const checkAdmin = async () => {
-    var isMember = await marketplaceContract.methods.member(account).call();
+    var isMember = await houseBusinessContract.methods.member(account).call();
     setIsMember(isMember);
   };
 

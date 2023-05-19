@@ -10,7 +10,7 @@ import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
 import { BigNumber } from 'ethers';
-import { useHouseBusinessContract, useHouseDocContract, useMarketplaceContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { zeroAddress } from 'mainConfig';
@@ -40,9 +40,8 @@ export default function HouseDetails() {
   const web3 = useWeb3();
   const { houseNftID } = useParams();
 
-  const houseDocContract = useHouseDocContract();
   const houseBusinessContract = useHouseBusinessContract();
-  const marketplaceContract = useMarketplaceContract();
+  const houseDocContract = useHouseDocContract();
 
   const classes = useNftDetailStyle();
   const [simpleNFT, setSimpleNFT] = useState({});
@@ -76,9 +75,9 @@ export default function HouseDetails() {
   const handleClose = () => setOpen(false);
 
   const initialConfig = async () => {
-    var minPrice = await marketplaceContract.methods.minPrice().call();
-    var maxPrice = await marketplaceContract.methods.maxPrice().call();
-    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       allHTypes.push(hTypes[i]);

@@ -9,6 +9,7 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { zeroAddress } from 'mainConfig';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CachedIcon from '@mui/icons-material/Cached';
 import MoreDetail from './MoreDetail';
 
 export default function Dashboard() {
@@ -22,10 +23,10 @@ export default function Dashboard() {
   const loadNFTs = async () => {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
-      .then(async(gNFTs) => {
+      .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
-          nfts.push({ 
+          nfts.push({
             ...gNFTs[i],
             price: housePrice
           })
@@ -42,11 +43,8 @@ export default function Dashboard() {
         }
       })
       .catch(err => console.log(err));
-
-    var housePrice = await houseBusinessContract.methods.getHousePrice(1).call();
-    console.log('housePrice', housePrice)
   }
-  
+
   const handleBuyNFT = async (item) => {
     if (!account) {
       houseInfo("Please connect your wallet!")
@@ -58,6 +56,14 @@ export default function Dashboard() {
       } catch (err) {
         console.log('err', err)
       }
+    }
+  }
+
+  const addAllowMe = async (item) => {
+    try {
+      await houseBusinessContract.methods.addAllowList(item.houseID, account).send({from: account})
+    } catch (err) {
+      console.log('err', err)
     }
   }
 
@@ -115,7 +121,17 @@ export default function Dashboard() {
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
                         </Button> : <></>
                     }
-                    {account ? <MoreDetail account={account} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
+                    <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => addAllowMe(item)} >
+                      <CachedIcon />
+                      {`More Detail`}
+                    </Box>
+                    {/* <MoreDetail
+                      item={item}
+                      account={account}
+                      nftClasses={nftClasses}
+                      handleClickMoreDetail={handleClickMoreDetail}
+                      houseBusinessContract={houseBusinessContract}
+                    /> */}
                   </Grid>
                 </Grid>
               </Grid>

@@ -14,7 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 
-import { useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
+import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
 
 const hHeaders = [
   "History Label",
@@ -32,7 +32,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
 
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const marketplaceContract = useMarketplaceContract();
+  const houseDocContract = useHouseDocContract();
 
   const [editPercent, setEditPercent] = useState(false);
   const [contract, setContract] = useState(0);
@@ -49,7 +49,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
     setLoading(true);
     let _labelPercents = [contract, image, brand, desc, bType, year, checkMark];
     try {
-      await marketplaceContract.methods.setLabelPercents(_labelPercents).send({ from: account });
+      await houseBusinessContract.methods.setLabelPercents(_labelPercents).send({ from: account });
     } catch (err) {
       console.log('err', err)
     }

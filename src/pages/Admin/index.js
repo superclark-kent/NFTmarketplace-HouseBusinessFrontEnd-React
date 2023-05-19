@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useHouseDocContract, useMarketplaceContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
+  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
 } from 'hooks/useContractHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -98,8 +98,7 @@ export default function Admin() {
   const { account } = useWeb3React();
   const navigate = useNavigate();
   const houseBusinessContract = useHouseBusinessContract();
-  const marketplaceContract = useMarketplaceContract();
-  const HouseDocContract = useHouseDocContract();
+  const houseDocContract = useHouseDocContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
 
@@ -152,13 +151,13 @@ export default function Admin() {
   ];
 
   const initialConfig1 = async () => {
-    var minPrice = await marketplaceContract.methods.minPrice().call();
-    var maxPrice = await marketplaceContract.methods.maxPrice().call();
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     var penalty = await stakingContract.methods.penalty().call();
-    var royaltyCreator = await marketplaceContract.methods.royaltyCreator().call();
-    var royaltyMarket = await marketplaceContract.methods.royaltyMarket().call();
+    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
+    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    var _uploadedCount = await HouseDocContract.methods.ccCounter().call()
+    var _uploadedCount = await houseDocContract.methods.ccCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
@@ -179,7 +178,7 @@ export default function Admin() {
 
     setVisibleProperty(tempList);
 
-    var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
@@ -207,7 +206,7 @@ export default function Admin() {
   }
 
   const getLabelPercent = async () => {
-    var _labelPercents = await marketplaceContract.methods.labelPercent().call();
+    var _labelPercents = await houseBusinessContract.methods.labelPercent().call();
     setLabelPercents(_labelPercents);
   }
 
@@ -247,7 +246,7 @@ export default function Admin() {
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
     try {
-      await marketplaceContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
       houseSuccess('Creator Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -258,7 +257,7 @@ export default function Admin() {
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
     try {
-      await marketplaceContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
       houseSuccess('Market Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
