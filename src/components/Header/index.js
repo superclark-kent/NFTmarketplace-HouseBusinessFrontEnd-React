@@ -46,6 +46,7 @@ import Modal from "@mui/material/Modal";
 import useHeaderStyles from "assets/styles/headerStyle";
 
 import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
+
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
 

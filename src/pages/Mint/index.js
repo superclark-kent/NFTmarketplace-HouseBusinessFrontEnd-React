@@ -16,6 +16,8 @@ import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { setAccount } from "redux/actions/account";
 import FileUpload from "utils/ipfs";
+import { HouseBusinessAddress, apiURL } from 'mainConfig';
+import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
   display: "none",
@@ -101,7 +103,6 @@ function Mint(props) {
             var description = `This house was built by ${new Date(
               houseDescription
             ).getFullYear()}`;
-
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods

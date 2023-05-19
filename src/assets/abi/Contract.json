@@ -1,0 +1,495 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "companyName",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "contractType",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contractSigner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "contractURI",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "dateFrom",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "dateTo",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "agreedPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "currency",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      }
+    ],
+    "name": "CleanContractCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      }
+    ],
+    "name": "ContractSigned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contractSigner",
+        "type": "address"
+      }
+    ],
+    "name": "ContractSignerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "sentTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "NotifySent",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_ccID",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_contractSigner",
+        "type": "address"
+      }
+    ],
+    "name": "addContractSigner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ccCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_companyName",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_contractType",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_contractSigner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_contractURI",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dateFrom",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dateTo",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_agreedPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_currency",
+        "type": "string"
+      }
+    ],
+    "name": "ccCreation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllCleanContracts",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "contractId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "companyName",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "contractType",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "contractURI",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateFrom",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateTo",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "agreedPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "currency",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "contractSigner",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "creatorApproval",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "creatorSignDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "signerApproval",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "signerSignDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "status",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct MainCleanContract.CleanContract[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "getAllNotifies",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "nSender",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "nReceiver",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ccID",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "notifySentTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "notifyContent",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "status",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct MainCleanContract.Notify[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "contractId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getContractById",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "houseNFTAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_notifyReceiver",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_notifyContent",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      }
+    ],
+    "name": "sendNotify",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "ccID",
+        "type": "uint256"
+      }
+    ],
+    "name": "signContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "contractId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "transferContractOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

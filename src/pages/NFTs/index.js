@@ -61,7 +61,6 @@ function Nfts(props) {
     if (account) {
       loadNFTs()
     }
-
     if (account) {
       dispatch(setAccount(account));
     } else {
