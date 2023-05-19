@@ -94,7 +94,7 @@ function Nfts(props) {
                     <img className={nftClasses.nftImg} src={item.tokenURI} />
                   </Grid>
                   <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`${item.tokenName}`}</Box>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
                   </Grid>
                   <Grid className={nftClasses.nftHouseMetaInfo}>
                     <Grid className={nftClasses.nftHouseInfo}>

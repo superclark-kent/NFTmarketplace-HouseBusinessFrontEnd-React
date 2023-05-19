@@ -40,7 +40,6 @@ export default function NFTdetail({
       setHousePrice(web3.utils.fromWei(simpleNFT.price))
       setExtraPrice(web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
-      console.log('jjj', web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
     }
   }, [simpleNFT, totalPrice]);
 
@@ -48,7 +47,7 @@ export default function NFTdetail({
     <Grid item xl={6} md={12}>
       <Grid className={classes.contentRight}>
         <Grid className={classes.itemDetail}>
-          <Box component={"h2"}>{`"${simpleNFT.tokenName}"`}</Box>
+          <Box component={"h2"}>{simpleNFT.tokenName}</Box>
         </Grid>
         <Grid className={classes.clientInfo}>
           <Grid className={classes.metaInfo}>
@@ -57,11 +56,17 @@ export default function NFTdetail({
               {simpleNFT.contributor.currentOwner}
             </Box>
           </Grid>
+          <Grid className={classes.metaInfo}>
+            <Box component={"span"}>Data Points Value</Box>
+            <Box component={"h4"} className={classes.nftHouseOwner}>
+              3.95 MATIC
+            </Box>
+          </Grid>
         </Grid>
         <Grid className={classes.nftHousePrice}>
           <TextField
             type="number"
-            variant="standard"
+            variant="filled"
             label="Current Price"
             value={housePrice}
             onChange={(e) => setHousePrice(e.target.value)}
@@ -69,9 +74,9 @@ export default function NFTdetail({
               startAdornment: (
                 <InputAdornment position="start">MATIC</InputAdornment>
               ),
-              endAdornment: (
-                <InputAdornment position="end">+{extraPrice.toFixed(2)}</InputAdornment>
-              )
+              // endAdornment: (
+              //   <InputAdornment position="end">+{extraPrice.toFixed(2)}</InputAdornment>
+              // )
             }}
           />
           {

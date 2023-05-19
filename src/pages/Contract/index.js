@@ -6,7 +6,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from 'hooks/useContractHelpers';
+import { useHouseDocContract, useMarketplaceContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress } from 'mainConfig';
@@ -18,7 +18,6 @@ export default function Contract() {
   const web3 = useWeb3();
   const classes = useContractStyle();
   const houseDocContract = useHouseDocContract();
-  const houseBusinessContract = useHouseBusinessContract();
   const marketplaceContract = useMarketplaceContract();
 
   const [cSC, setCSC] = useState('');
@@ -79,7 +78,7 @@ export default function Contract() {
         });
       }
     }
-   
+
     var arr = [];
     for (let i = 0; i < allCons.length; i++) {
       arr.push(false);
@@ -173,11 +172,14 @@ export default function Contract() {
       setLoading(false);
     } else {
       if (flag === false) {
-        const estimateGas = await houseDocContract.methods
-          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId).estimateGas()
-        await houseDocContract.methods
-          .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
-          .send({ from: account });
+        try {
+          await houseDocContract.methods
+            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
+            .send({ from: account });
+        } catch (err) {
+          console.log('err', err)
+          setLoading(false);
+        }
         loadContracts();
       } else {
         houseError('You already sent notify to this signer');
@@ -540,13 +542,14 @@ export default function Contract() {
                       />
                     </Grid>
                     <Grid className={classes.sendNotify}>
-                      <Button
+                      <LoadingButton
+                        loading={loading}
                         variant="contained"
                         disabled={!rNotifyArr[index]}
                         onClick={() => handleSendNotify(item, 'signer')}
                       >
                         Send Notify
-                      </Button>
+                      </LoadingButton>
                     </Grid>
                   </>
                 ) : (
@@ -554,9 +557,13 @@ export default function Contract() {
                 )}
                 <Grid className={classes.sign}>
                   {item.signerApproval === false ? (
-                    <Button variant="contained" onClick={() => handleSign(item)}>
+                    <LoadingButton
+                      loading={loading}
+                      variant="contained"
+                      onClick={() => handleSign(item)}
+                    >
                       Sign Contract
-                    </Button>
+                    </LoadingButton>
                   ) : (
                     <Button variant="contained" disabled={true}>
                       You already signed
