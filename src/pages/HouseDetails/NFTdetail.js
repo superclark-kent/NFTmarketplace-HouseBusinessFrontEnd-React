@@ -29,7 +29,7 @@ export default function NFTdetail({
   setSpecialBuyer,
   handleBuyerEdit,
   handlePayable,
-  changeHousePrice 
+  changeHousePrice
 }) {
   const [isBuyerEdit, setIsBuyerEdit] = useState(false);
   const [housePrice, setHousePrice] = useState(0);
@@ -64,42 +64,39 @@ export default function NFTdetail({
             </Box>
           </Grid>
         </Grid>
-        {simpleNFT.contributor.currentOwner !== `${account}` && simpleNFT.nftPayable ? (
-          <Grid className={classes.nftHousePrice}>
-            <TextField
-              type="number"
-              variant="filled"
-              label="Current Price"
-              value={housePrice}
-              onChange={(e) => setHousePrice(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">MATIC</InputAdornment>
-                )
-              }}
-            />
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setLoading(true)
-                changeHousePrice(simpleNFT.houseID, housePrice)
-              }}
-              className={classes.changePriceBtn}
-              startIcon={<BusinessCenterIcon />}
-              disabled={loading}
-            >
-              {loading ?
-                <CircularProgress size={25} /> :
-                <Box
-                  component={"span"}
-                  className={classes.nftHouseBuyButton}
-                  textTransform={"capitalize"}
-                >{`Change Price`}</Box>
-              }
-            </Button>
-          </Grid>
-        ) : (""
-        )}
+        <Grid className={classes.nftHousePrice}>
+          <TextField
+            type="number"
+            variant="filled"
+            label="Current Price"
+            value={housePrice}
+            onChange={(e) => setHousePrice(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">MATIC</InputAdornment>
+              )
+            }}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setLoading(true)
+              changeHousePrice(simpleNFT.houseID, housePrice)
+            }}
+            className={classes.changePriceBtn}
+            startIcon={<BusinessCenterIcon />}
+            disabled={loading}
+          >
+            {loading ?
+              <CircularProgress size={25} /> :
+              <Box
+                component={"span"}
+                className={classes.nftHouseBuyButton}
+                textTransform={"capitalize"}
+              >{`Change Price`}</Box>
+            }
+          </Button>
+        </Grid>
         {simpleNFT.contributor.currentOwner !== `${account}` &&
           simpleNFT.nftPayable === true ? (
           <Grid className={classes.buyButtonGroup}>
