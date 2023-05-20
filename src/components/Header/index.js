@@ -279,8 +279,7 @@ function Header(props) {
 	const handleDisconnectWallet = () => {
 		deactivate();
 		setCookie("connected", false, { path: "/" });
-		dispatch(setAccount(undefined));
-		console.log('walletAccount when log out', walletAccount)
+		dispatch(setAccount(null));
 	};
 
 	const checkAdmin = async () => {
@@ -325,23 +324,18 @@ function Header(props) {
 				navigate("../../house/app");
 			}
 		}
-		if (walletAccount) {
-			checkAdmin();
-			loadNotifies();
-		}
-	}, [account, walletAccount, pathname]);
+	}, [walletAccount, pathname]);
 
 	useEffect(() => {
 		if (account) {
 			dispatch(setAccount(account));
 		} else {
-			dispatch(setAccount(undefined));
+			dispatch(setAccount(null));
 		}
 	}, [account]);
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {
-			// houseInfo("Please install Metamask");
 			setIsWalletInstalled(false);
 		} else {
 			setIsWalletInstalled(true);
@@ -360,8 +354,6 @@ function Header(props) {
 	const handleConnectWallet = (con, conName) => {
 		activate(con);
 		setProvider(conName);
-		setCookie("connected", true, { path: "/" });
-		dispatch(setAccount(account));
 		handleClose();
 	};
 
