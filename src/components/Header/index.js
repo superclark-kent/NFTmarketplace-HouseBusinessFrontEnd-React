@@ -233,7 +233,7 @@ function Header(props) {
 
 	const [notifies, setNotifies] = useState([]);
 	const [badgeLeng, setBadgeLeng] = useState("");
-	const [cookies, setCookie] = useCookies(["housebusiness"]);
+	const [cookies, setCookie] = useCookies(["connected", "notifies", "walletAccount"]);
 	const [isMember, setIsMember] = useState(false);
 	const [userMenuOpen, setUserMenuOpen] = useState(false);
 	const [notifyOpen, setNotifyOpen] = useState(false);
@@ -313,6 +313,9 @@ function Header(props) {
 	};
 
 	useEffect(() => {
+		if (cookies.connected) {
+			dispatch(setAccount(cookies.walletAccount));
+		}
 		if (pathname != "/house/app" && !pathname.includes("account")) {
 			if (!walletAccount && cookies.connected != "true") {
 				houseInfo("Please connect your wallet");
@@ -323,17 +326,19 @@ function Header(props) {
 			checkAdmin();
 			loadNotifies();
 		}
-	}, [account, walletAccount, pathname]);
+	}, [account, walletAccount, pathname, cookies]);
 
 	useEffect(() => {
 		if (account) {
 			dispatch(setAccount(account));
-		} else if (walletAccount) {
-			dispatch(setAccount(walletAccount));
 		} else {
 			dispatch(setAccount(null));
 		}
 	}, [account]);
+
+	useEffect(() => {
+
+	})
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {
@@ -378,6 +383,8 @@ function Header(props) {
 		} else {
 			// set account state with the airdrop wallet id
 			setCookie("connected", true, { path: "/" });
+			setCookie("walletAccount", airdropWalletID, { path: "/" });
+
 			dispatch(setAccount(airdropWalletID));
 			handleClose();
 		}
