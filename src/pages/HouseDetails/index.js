@@ -7,7 +7,6 @@ import CryptoJS from 'crypto-js';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
-import { setAccount } from "redux/actions/account";
 import { ContactPhoneSharp } from '@mui/icons-material';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
@@ -440,18 +439,10 @@ function HouseDetails(props) {
 	};
 
 	useEffect(() => {
-		if (account) {
-			dispatch(setAccount(account));
-		} else if (walletAccount) {
-			dispatch(setAccount(walletAccount));
-		} else {
-			dispatch(setAccount(null));
-		}
-
 		if (walletAccount) {
 			initialConfig();
 		}
-	}, [account]);
+	}, [walletAccount]);
 
 	useEffect(() => {
 		if (houseNftID) {

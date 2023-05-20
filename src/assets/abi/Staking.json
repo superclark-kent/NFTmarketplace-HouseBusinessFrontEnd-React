@@ -320,6 +320,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "operators",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "penalty",
     "outputs": [
@@ -346,6 +365,24 @@
       }
     ],
     "name": "setAPYConfig",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isOperator",
+        "type": "bool"
+      }
+    ],
+    "name": "setOperator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -476,11 +513,6 @@
         "internalType": "uint256",
         "name": "APY",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
       }
     ],
     "name": "updateAPYConfig",

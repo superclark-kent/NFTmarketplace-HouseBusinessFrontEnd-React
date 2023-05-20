@@ -12,7 +12,6 @@ import useNftStyle from 'assets/styles/nftStyle';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { setAccount } from 'redux/actions/account';
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 
@@ -92,14 +91,6 @@ function Nfts(props) {
   const handleClickMoreDetail = async (item) => {
     navigate(`../../item/${item.houseID}`)
   }
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account])
 
   useEffect(() => {
     if (account || walletAccount) {

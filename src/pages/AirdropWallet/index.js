@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { setAccount } from 'redux/actions/account';
 import dotenv from "dotenv";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
@@ -68,18 +67,6 @@ function AirdropWallet(props) {
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
-        dispatch(setAccount(walletID));
-    }, [walletID]);
-
-    useEffect(() => {
-        if (account) {
-            dispatch(setAccount(account));
-        } else {
-            dispatch(setAccount(walletID));
-        }
-    }, [account, walletID]);
-
-    useEffect(() => {
         if (walletAccount) {
             navigate(`../../account/${walletAccount}`);
             getCreditBalance();
@@ -98,10 +85,6 @@ function AirdropWallet(props) {
         })
             .then((res) => res.json())
             .then((data) => setClientSecret(data.clientSecret));
-
-        if (account) {
-            dispatch(setAccount(account));
-        }
     }, []);
 
     useEffect(async () => {

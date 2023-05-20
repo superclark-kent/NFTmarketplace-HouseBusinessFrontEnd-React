@@ -14,7 +14,6 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 import MoreDetail from './MoreDetail';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
-import { setAccount } from 'redux/actions/account';
 
 function Dashboard(props) {
   const nftClasses = useNftStyle()
@@ -95,14 +94,6 @@ function Dashboard(props) {
   const handleClickMoreDetail = async (item) => {
     navigate(`../../item/${item.houseID}`)
   }
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, []);
 
   useEffect(() => {
     console.log('useEffect triggered with walletAccount:', walletAccount);

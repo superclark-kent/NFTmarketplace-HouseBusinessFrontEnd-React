@@ -1,6 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
 import { connect, useDispatch } from 'react-redux';
-import { setAccount } from 'redux/actions/account';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -306,19 +305,11 @@ function Contract(props) {
   }
 
   useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    }
-  }, []);
-
-  useEffect(() => {
     if (walletAccount) {
       getAllHistoryTypes();
       loadContracts();
     }
   }, [walletAccount]);
-
-
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);

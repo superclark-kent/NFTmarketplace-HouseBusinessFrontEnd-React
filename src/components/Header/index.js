@@ -279,7 +279,8 @@ function Header(props) {
 	const handleDisconnectWallet = () => {
 		deactivate();
 		setCookie("connected", false, { path: "/" });
-		dispatch(setAccount(null));
+		dispatch(setAccount(undefined));
+		console.log('walletAccount when log out', walletAccount)
 	};
 
 	const checkAdmin = async () => {
@@ -313,11 +314,13 @@ function Header(props) {
 	};
 
 	useEffect(() => {
-		if (cookies.connected) {
+		if (cookies.connected === true) {
+			console.log('cookies', cookies);
 			dispatch(setAccount(cookies.walletAccount));
 		}
-		if (pathname != "/house/app" && !pathname.includes("account")) {
-			if (!walletAccount && cookies.connected != "true") {
+
+		if (pathname != "/house/app") {
+			if (!walletAccount && cookies.connected !== true) {
 				houseInfo("Please connect your wallet");
 				navigate("../../house/app");
 			}
@@ -326,19 +329,15 @@ function Header(props) {
 			checkAdmin();
 			loadNotifies();
 		}
-	}, [account, walletAccount, pathname, cookies]);
+	}, [account, walletAccount, pathname]);
 
 	useEffect(() => {
 		if (account) {
 			dispatch(setAccount(account));
 		} else {
-			dispatch(setAccount(null));
+			dispatch(setAccount(undefined));
 		}
 	}, [account]);
-
-	useEffect(() => {
-
-	})
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {

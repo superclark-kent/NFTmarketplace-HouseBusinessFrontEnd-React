@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { connect, useDispatch } from 'react-redux';
-import { setAccount } from 'redux/actions/account';
 import styled from "@emotion/styled";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -215,16 +214,6 @@ function CreateContract(props) {
     console.log(arr);
     setContracTypes(arr);
   }, [])
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else if (walletAccount) {
-      dispatch(setAccount(walletAccount));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account, walletAccount]);
 
   return (
     <Stack

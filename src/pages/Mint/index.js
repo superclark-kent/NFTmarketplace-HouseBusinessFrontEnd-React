@@ -17,7 +17,6 @@ import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey } from "mainConfig";
 import FileUpload from "utils/ipfs";
 import { apiURL } from 'mainConfig';
-import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
 	display: "none",
@@ -63,14 +62,6 @@ function Mint(props) {
 	const [houseType, setHouseType] = useState("terraced");
 	const [houseDescription, setHouseDescription] = useState(new Date("1970"));
 	const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    }else {
-      dispatch(setAccount(null));
-    }
-  }, [account]);
 
 	const handleImageChange = async (e) => {
 		var uploadedImage = e.target.files[0];
