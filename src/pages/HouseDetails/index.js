@@ -225,6 +225,10 @@ export default function HouseDetails() {
     }
   };
 
+  const handleConnectContract = async () => {
+    
+  }
+
   const handleDisconnectContract = async (hIndex, contractId) => {
     const houseID = simpleNFT.houseID;
     setLoading(true);
@@ -372,6 +376,7 @@ export default function HouseDetails() {
               historyTypes={historyTypes}
               houseID={simpleNFT.houseID}
               loadNFT={loadNFT}
+              connectContract={handleConnectContract}
               disconnectContract={handleDisconnectContract}
             />
             {simpleNFT.contributor.currentOwner === `${account}` ? (

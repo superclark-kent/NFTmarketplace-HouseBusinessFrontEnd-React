@@ -1,15 +1,17 @@
+import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useEffect, useState } from 'react';
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import SubtitlesOffIcon from '@mui/icons-material/SubtitlesOff';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
 import { useWeb3React } from '@web3-react/core';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
@@ -30,6 +32,7 @@ export default function Histories({
   setChangingHistoryType,
   historyTypes,
   loadNFT,
+  connectContract,
   disconnectContract,
 }) {
   const { account } = useWeb3React();
@@ -284,7 +287,6 @@ export default function Histories({
                 </Grid>
               </LocalizationProvider>
             ) : null}
-
             <TextField
               id="standard-multiline-static"
               label={'Other information'}
@@ -295,7 +297,7 @@ export default function Histories({
               disabled={disabledArr[index] || loading}
               onChange={(e) => setOtherInfo(e.target.value)}
             />
-            {item.contractId > 0 && (
+            {item.contractId > 0 ? (
               <>
                 <IconButton
                   onClick={() => {
@@ -307,10 +309,15 @@ export default function Histories({
                   <DocumentIcon />
                 </IconButton>
                 <IconButton onClick={() => disconnectContract(index, item.contractId)}>
-                  <SubtitlesOffIcon />
+                  <DoDisturbOffIcon />
                 </IconButton>
               </>
-            )}
+            ) : ""
+              // homeHistory.connectContract &&
+              // <IconButton onClick={() => connectContract(index, item.contractId)}>
+              //   <AddCircleIcon />
+              // </IconButton>
+            }
             {disabledArr[index] === true ? (
               <IconButton onClick={() => handleHistoryEdit(index)}>
                 <EditIcon />

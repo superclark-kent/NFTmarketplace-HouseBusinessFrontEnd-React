@@ -121,10 +121,10 @@ export default function Dashboard() {
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
                         </Button> : <></>
                     }
-                    <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => addAllowMe(item)} >
+                    {/* <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => addAllowMe(item)} >
                       <CachedIcon />
                       {`More Detail`}
-                    </Box>
+                    </Box> */}
                     {/* <MoreDetail
                       item={item}
                       account={account}
