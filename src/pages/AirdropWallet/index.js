@@ -100,7 +100,7 @@ function AirdropWallet(props) {
             .then((data) => setClientSecret(data.clientSecret));
 
         if (account) {
-            setWalletID(account);
+            dispatch(setAccount(account));
         }
     }, []);
 
