@@ -294,6 +294,79 @@
       {
         "indexed": true,
         "internalType": "uint256",
+        "name": "hID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "label",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "connectContract",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "imgNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "brand",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "description",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "brandType",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "yearNeed",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "otherInfo",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "HistoryTypeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
         "name": "hIndex",
         "type": "uint256"
       },
@@ -343,19 +416,19 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "brandNeed",
+        "name": "brand",
         "type": "bool"
       },
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "descNeed",
+        "name": "description",
         "type": "bool"
       },
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "brandTypeNeed",
+        "name": "brandType",
         "type": "bool"
       },
       {
@@ -367,7 +440,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "checkMark",
+        "name": "otherInfo",
         "type": "bool"
       },
       {
@@ -375,18 +448,6 @@
         "internalType": "uint256",
         "name": "value",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "hTypeCounter",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "flag",
-        "type": "bool"
       }
     ],
     "name": "HistoryTypeUpdated",
@@ -716,6 +777,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_newMember",
+        "type": "address"
+      }
+    ],
+    "name": "addMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_historyIndex",
         "type": "uint256"
@@ -732,32 +806,32 @@
       },
       {
         "internalType": "bool",
-        "name": "_imgNeed",
+        "name": "_image",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_brandNeed",
+        "name": "_brand",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_descNeed",
+        "name": "_description",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_brandTypeNeed",
+        "name": "_brandType",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_yearNeed",
+        "name": "_year",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_checkMark",
+        "name": "_otherInfo",
         "type": "bool"
       },
       {
@@ -771,20 +845,7 @@
         "type": "bool"
       }
     ],
-    "name": "addHistoryType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newMember",
-        "type": "address"
-      }
-    ],
-    "name": "addMember",
+    "name": "addOrEditHistoryType",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1149,7 +1210,7 @@
           },
           {
             "internalType": "bool",
-            "name": "checkMark",
+            "name": "otherInfo",
             "type": "bool"
           },
           {
@@ -1540,11 +1601,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "checkMark",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "otherInfo",
         "type": "uint256"
       }
@@ -1885,11 +1941,6 @@
           {
             "internalType": "uint256",
             "name": "year",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "checkMark",
             "type": "uint256"
           },
           {

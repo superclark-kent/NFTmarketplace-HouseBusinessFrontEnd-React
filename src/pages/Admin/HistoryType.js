@@ -28,7 +28,6 @@ const hHeaders = [
   "Brand Type",
   "Year",
   "Other Info",
-  "CheckMark",
   "Percentage",
   "Value(MATIC)",
   "Actions",
@@ -61,14 +60,48 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     obj["brandTypeNeed"] = false;
     obj["otherInfo"] = false;
     obj["yearNeed"] = false;
-    obj["checkMark"] = false;
     obj["percent"] = 0;
+    obj["value"] = 0;
     setNewItem(obj);
     setNewHistory("");
     setAddFlag(true);
   };
 
-  const handleRemove = async (item, itemIndex) => {
+  const handleSave = async (historyItem, typeID) => {
+    const typeValue = BigNumber.from(`${Number(historyItem.value) * 10 ** 18}`);
+    setLoading(true);
+    try {
+      await houseBusinessContract.methods
+        .addOrEditHistoryType(
+          typeID,
+          historyItem.hLabel,
+          historyItem.connectContract,
+          historyItem.imgNeed,
+          historyItem.brandNeed,
+          historyItem.descNeed,
+          historyItem.brandTypeNeed,
+          historyItem.yearNeed,
+          historyItem.otherInfo,
+          typeValue,
+          addFlag
+        )
+        .send({ from: account });
+
+      let temp = [...Hdata];
+      temp[typeID] = historyItem;
+      setHData(temp);
+      setAllTypes(temp);
+      const eArr = new Array(temp.length).fill(false);
+      setEditArr(eArr);
+      setAddFlag(false);
+      houseSuccess("Saved Success");
+    } catch (err) {
+      console.log('err', err)
+    }
+    setLoading(false);
+  };
+
+  const handleRemove = async (itemIndex) => {
     try {
       const tx = await houseBusinessContract.methods.removeHistoryType(itemIndex).send({ from: account });
       let temp = [...Hdata];
@@ -105,40 +138,6 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     } else {
       updateData();
     }
-  };
-
-  const handleSave = async (historyItem, typeID) => {
-    const typeValue = BigNumber.from(`${Number(historyItem.value) * 10 ** 18}`);
-    setLoading(true);
-    try {
-      await houseBusinessContract.methods
-        .addHistoryType(
-          typeID,
-          historyItem.hLabel,
-          historyItem.connectContract,
-          historyItem.imgNeed,
-          historyItem.brandNeed,
-          historyItem.descNeed,
-          historyItem.brandTypeNeed,
-          historyItem.yearNeed,
-          historyItem.checkMark,
-          typeValue,
-          addFlag
-        )
-        .send({ from: account });
-
-      let temp = [...Hdata];
-      temp[typeID] = historyItem;
-      setHData(temp);
-      setAllTypes(temp);
-      const eArr = new Array(temp.length).fill(false);
-      setEditArr(eArr);
-      setAddFlag(false);
-      houseSuccess("Saved Success");
-    } catch (err) {
-      console.log('err', err)
-    }
-    setLoading(false);
   };
 
   const updateData = () => {
@@ -338,21 +337,6 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                   }
                 />
               </Grid>
-              <Grid item className={classes.grid}>
-                <Checkbox
-                  {...label}
-                  checked={item.checkMark}
-                  disabled={loading}
-                  onChange={(e) =>
-                    handleItemChange(
-                      item,
-                      itemIndex,
-                      "checkMark",
-                      e.target.checked
-                    )
-                  }
-                />
-              </Grid>
               <Grid item className={classes.perLabel}>
                 <label>
                   {(() => {
@@ -364,7 +348,6 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                     if (item.brandTypeNeed) { percent += Number(percents[4]); }
                     if (item.yearNeed) { percent += Number(percents[5]); }
                     if (item.otherInfo) { percent += Number(percents[6]); }
-                    if (item.checkMark) { percent += Number(percents[7]); }
                     return `${percent}%`;
                   })()}
                 </label>
@@ -373,7 +356,6 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                 <TextField
                   value={item.value}
                   id="outlined-basic"
-                  // label="percent"
                   variant="outlined"
                   sx={{ m: '8px' }}
                   size="small"
@@ -413,7 +395,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                   <IconButton
                     aria-label="delete"
                     color="primary"
-                    onClick={() => handleRemove(item, itemIndex)}
+                    onClick={() => handleRemove(itemIndex)}
                   >
                     <DeleteIcon />
                   </IconButton>

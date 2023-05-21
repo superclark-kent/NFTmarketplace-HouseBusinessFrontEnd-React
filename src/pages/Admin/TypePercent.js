@@ -25,7 +25,6 @@ const hHeaders = [
   "Brand Type",
   "Year",
   "OtherInfo",
-  "CheckMark",
   "Actions",
 ];
 
@@ -41,15 +40,13 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
   const [desc, setDesc] = useState(0);
   const [bType, setBType] = useState(0);
   const [year, setYear] = useState(0);
-  const [checkMark, setCheckMark] = useState(0);
   const [otherInfo, setOtherInfo] = useState(0);
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const savePercent = async () => {
     setLoading(true);
-    let _labelPercents = [contract, image, brand, desc, bType, year, checkMark, otherInfo];
-    console.log('-->', _labelPercents)
+    let _labelPercents = [contract, image, brand, desc, bType, year, otherInfo];
     try {
       await houseBusinessContract.methods.setLabelPercents(_labelPercents).send({ from: account });
     } catch (err) {
@@ -68,7 +65,6 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
     setDesc(labelPercents[3])
     setBType(labelPercents[4])
     setYear(labelPercents[5])
-    setCheckMark(labelPercents[6])
     setOtherInfo(labelPercents[7])
   }, [labelPercents])
 
@@ -231,26 +227,6 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
                 onChange={(e) => {
                   if (e.target.value < 0) return;
                   setOtherInfo(e.target.value)
-                }}
-                disabled={disabled}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item className={classes.perLabel}>
-            <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
-              <OutlinedInput
-                id="outlined-adornment-weight"
-                endAdornment={<InputAdornment position="end">%</InputAdornment>}
-                aria-describedby="outlined-weight-helper-text"
-                inputProps={{
-                  'aria-label': 'weight',
-                }}
-                size="small"
-                type="number"
-                value={checkMark}
-                onChange={(e) => {
-                  if (e.target.value < 0) return;
-                  setCheckMark(e.target.value)
                 }}
                 disabled={disabled}
               />
