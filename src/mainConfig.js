@@ -51,7 +51,7 @@ const config = {
 };
 
 export const networkConfig = config['development'];
-export const apiURL = "http://localhost:5000";
+export const apiURL = "http://localhost:8080"; // Development server
 
 export const secretKey = 'defi-business@Sec!*@#';
 
