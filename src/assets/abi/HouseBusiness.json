@@ -1542,6 +1542,11 @@
         "internalType": "uint256",
         "name": "checkMark",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "otherInfo",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1885,6 +1890,11 @@
           {
             "internalType": "uint256",
             "name": "checkMark",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "otherInfo",
             "type": "uint256"
           }
         ],

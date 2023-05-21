@@ -27,6 +27,7 @@ const hHeaders = [
   "Description",
   "Brand Type",
   "Year",
+  "Other Info",
   "CheckMark",
   "Percentage",
   "Value(MATIC)",
@@ -58,6 +59,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     obj["brandNeed"] = false;
     obj["descNeed"] = false;
     obj["brandTypeNeed"] = false;
+    obj["otherInfo"] = false;
     obj["yearNeed"] = false;
     obj["checkMark"] = false;
     obj["percent"] = 0;
@@ -324,6 +326,21 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
               <Grid item className={classes.grid}>
                 <Checkbox
                   {...label}
+                  checked={item.otherInfo}
+                  disabled={loading}
+                  onChange={(e) =>
+                    handleItemChange(
+                      item,
+                      itemIndex,
+                      "otherInfo",
+                      e.target.checked
+                    )
+                  }
+                />
+              </Grid>
+              <Grid item className={classes.grid}>
+                <Checkbox
+                  {...label}
                   checked={item.checkMark}
                   disabled={loading}
                   onChange={(e) =>
@@ -346,7 +363,8 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                     if (item.descNeed) { percent += Number(percents[3]); }
                     if (item.brandTypeNeed) { percent += Number(percents[4]); }
                     if (item.yearNeed) { percent += Number(percents[5]); }
-                    if (item.checkMark) { percent += Number(percents[6]); }
+                    if (item.otherInfo) { percent += Number(percents[6]); }
+                    if (item.checkMark) { percent += Number(percents[7]); }
                     return `${percent}%`;
                   })()}
                 </label>

@@ -14,7 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
 
-import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
+import { useHouseBusinessContract } from "hooks/useContractHelpers";
 
 const hHeaders = [
   "History Label",
@@ -24,6 +24,7 @@ const hHeaders = [
   "Description",
   "Brand Type",
   "Year",
+  "OtherInfo",
   "CheckMark",
   "Actions",
 ];
@@ -32,7 +33,6 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
 
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const houseDocContract = useHouseDocContract();
 
   const [editPercent, setEditPercent] = useState(false);
   const [contract, setContract] = useState(0);
@@ -42,12 +42,14 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
   const [bType, setBType] = useState(0);
   const [year, setYear] = useState(0);
   const [checkMark, setCheckMark] = useState(0);
+  const [otherInfo, setOtherInfo] = useState(0);
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const savePercent = async () => {
     setLoading(true);
-    let _labelPercents = [contract, image, brand, desc, bType, year, checkMark];
+    let _labelPercents = [contract, image, brand, desc, bType, year, checkMark, otherInfo];
+    console.log('-->', _labelPercents)
     try {
       await houseBusinessContract.methods.setLabelPercents(_labelPercents).send({ from: account });
     } catch (err) {
@@ -67,6 +69,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
     setBType(labelPercents[4])
     setYear(labelPercents[5])
     setCheckMark(labelPercents[6])
+    setOtherInfo(labelPercents[7])
   }, [labelPercents])
 
   return (
@@ -208,6 +211,26 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
                 onChange={(e) => {
                   if (e.target.value < 0) return;
                   setYear(e.target.value)
+                }}
+                disabled={disabled}
+              />
+            </FormControl>
+          </Grid>
+          <Grid item className={classes.perLabel}>
+            <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+              <OutlinedInput
+                id="outlined-adornment-weight"
+                endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                aria-describedby="outlined-weight-helper-text"
+                inputProps={{
+                  'aria-label': 'weight',
+                }}
+                size="small"
+                type="number"
+                value={otherInfo}
+                onChange={(e) => {
+                  if (e.target.value < 0) return;
+                  setOtherInfo(e.target.value)
                 }}
                 disabled={disabled}
               />
