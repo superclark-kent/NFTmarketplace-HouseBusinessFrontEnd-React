@@ -61,7 +61,6 @@ function Mint(props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log('dd', solarDate.valueOf())
     if (account) {
       dispatch(setAccount(account));
     }else {
@@ -76,7 +75,6 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
-    console.log('kkk', solarDate.valueOf())
     const year = solarDate.valueOf();
     if (!account) {
       houseInfo("Please connect your wallet.");
