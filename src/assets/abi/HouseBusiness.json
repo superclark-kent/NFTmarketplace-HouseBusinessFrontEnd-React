@@ -482,9 +482,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "initialDesc",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "year",
+        "type": "uint256"
       }
     ],
     "name": "HouseMinted",
@@ -1671,9 +1671,9 @@
         "type": "string"
       },
       {
-        "internalType": "string",
-        "name": "_initialDesc",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "_year",
+        "type": "uint256"
       }
     ],
     "name": "mintHouse",

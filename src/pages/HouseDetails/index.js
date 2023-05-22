@@ -174,18 +174,6 @@ export default function HouseDetails() {
       else _yearField = 0;
     }
     try {
-      console.table({
-        "_houseId,": Number(_houseId),
-        "cContract,": Number(cContract),
-        "hID,": hID,
-        "HouseImage,": _houseImg,
-        "Brand,": _brand,
-        "History,": _history,
-        "Desc,": _desc,
-        "BrandType,": _brandType,
-        "_yearField": _yearField
-      })
-
       try {
         await houseBusinessContract.methods
           .addHistory(
@@ -314,7 +302,6 @@ export default function HouseDetails() {
   };
 
   const handleImageChange = async (e) => {
-    console.log('img', e.target.files[0])
     var uploadedImage = e.target.files[0];
     if (uploadedImage) {
       setImage(uploadedImage);

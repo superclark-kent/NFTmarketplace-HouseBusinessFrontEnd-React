@@ -49,7 +49,6 @@ function Mint(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const classes = useHouseMintStyle();
-  const web3 = useWeb3Content()
   const houseBusinessContract = useHouseBusinessContract();
 
   // House NFT
@@ -58,10 +57,11 @@ function Mint(props) {
 
   const [houseName, setHouseName] = useState("");
   const [houseType, setHouseType] = useState("terraced");
-  const [houseDescription, setHouseDescription] = useState(new Date("1970"));
+  const [solarDate, setSolarDate] = useState(new Date("10/10/1970"));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log('dd', solarDate.valueOf())
     if (account) {
       dispatch(setAccount(account));
     }else {
@@ -76,11 +76,13 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
+    console.log('kkk', solarDate.valueOf())
+    const year = solarDate.valueOf();
     if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
-        new Date(houseDescription).getFullYear() > new Date().getFullYear()
+        new Date(solarDate).getFullYear() > new Date().getFullYear()
       ) {
         houseError(
           "Year of construction should be higher than 1990 and lower or equal than this year"
@@ -98,13 +100,10 @@ function Mint(props) {
           // setLoading(false);
         } else {
           try {
-            var description = `This house was built by ${new Date(
-              houseDescription
-            ).getFullYear()}`;
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(houseName, ipfsUrl, houseType, description)
+                .mintHouse(houseName, ipfsUrl, houseType, year)
                 .encodeABI();
 
               const transactionObject = {
@@ -127,8 +126,9 @@ function Mint(props) {
                 });
             } else {
               try {
+                console.log('==>', houseName, ipfsUrl, houseType, year)
                 await houseBusinessContract.methods
-                .mintHouse(houseName, ipfsUrl, houseType, description)
+                .mintHouse(houseName, ipfsUrl, houseType, year)
                   .send({ from: account });
               } catch (err) {
                 console.log('err', err)
@@ -140,7 +140,7 @@ function Mint(props) {
             setImageName("");
             setHouseName("");
             setHouseType("terraced");
-            setHouseDescription(new Date("1970"));
+            setSolarDate(new Date("1970"));
             houseSuccess("House NFT minted successfuly.");
             navigate("../../house/myNfts");
           } catch (error) {
@@ -226,7 +226,9 @@ function Mint(props) {
             label="House Type"
             placeholder="Cottage..."
             value={houseType}
-            onChange={(e) => setHouseType(e.target.value)}
+            onChange={(e) => {
+              setHouseType(e.target.value)}
+            }
             SelectProps={{
               native: true,
             }}
@@ -246,17 +248,17 @@ function Mint(props) {
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Grid container justify="space-around">
               <DatePicker
-                views={["year"]}
+                views={["year", "month", "day"]}
                 label="Year of construction"
-                value={houseDescription}
+                value={solarDate}
                 onChange={(date) => {
                   if (new Date(date).getFullYear() > new Date().getFullYear()) {
                     houseError(
                       "Year of construction should be lower or equal than this year"
                     );
-                    setHouseDescription(new Date());
+                    setSolarDate(new Date());
                   } else {
-                    setHouseDescription(date);
+                    setSolarDate(date);
                   }
                 }}
                 renderInput={(params) => (

@@ -91,18 +91,6 @@ export default function Histories({
       changedFlag = true;
     }
 
-    console.table({
-      "houseID": houseID,
-      "historyIndex": historyIndex,
-      "historyTypeId": historyTypeId,
-      "_houseImg": _houseImg,
-      "_brand": _brand,
-      "_otherInfo": _otherInfo,
-      "_desc": _desc,
-      "_brandType": _brandType,
-      "_yearFiel": _yearField
-    })
-
     if (changedFlag) {
       try {
         await houseBusinessContract.methods
@@ -287,7 +275,7 @@ export default function Histories({
                 </Grid>
               </LocalizationProvider>
             ) : null}
-            <TextField
+            {homeHistory.otherInfo && <TextField
               id="standard-multiline-static"
               label={'Other information'}
               rows={4}
@@ -296,7 +284,7 @@ export default function Histories({
               value={disabledArr[index] === false ? otherInfo : item.otherInfo}
               disabled={disabledArr[index] || loading}
               onChange={(e) => setOtherInfo(e.target.value)}
-            />
+            />}
             {item.contractId > 0 ? (
               <>
                 <IconButton
