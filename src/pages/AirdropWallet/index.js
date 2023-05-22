@@ -17,7 +17,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-const stripePromise = loadStripe('pk_test_51N3Z16DOT8tnmBX5f8D6Aq1gqvvg3M7PZtAgnc2SyjJsfuvegcaswpvcf5aaIXZNaNLQNzl6lGgCN8rMfZisxixd00UAuDlQSW');
+const stripePromise = loadStripe('pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy');
 
 const style = {
     position: "absolute",
