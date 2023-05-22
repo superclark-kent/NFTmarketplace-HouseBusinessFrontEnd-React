@@ -15,7 +15,7 @@ import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
 import FileUpload from 'utils/ipfs';
-import { secretKey } from 'mainConfig';
+import { secretKey, apiURL } from 'mainConfig';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 
 const StyledInput = styled('input')({
@@ -32,10 +32,10 @@ export default function Histories({
   historyTypes,
   loadNFT,
   disconnectContract,
+  walletAccount
 }) {
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-
   const [cHistories, setCHistories] = useState([]);
   const [disabledArr, setDisabledArr] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -92,7 +92,8 @@ export default function Histories({
 
     if (changedFlag) {
       try {
-        await houseBusinessContract.methods
+        console.log('walletAccount', walletAccount)
+        const data = houseBusinessContract.methods
           .editHistory(
             houseID,
             historyIndex,
@@ -102,22 +103,48 @@ export default function Histories({
             _history,
             _desc,
             _brandType,
-            _yearField
+            _yearField,
+            walletAccount
           )
-          .send({ from: account });
+          .encodeABI();
 
-        initialConf();
-        loadNFT(houseID);
-        houseSuccess('You changed the history successfully!');
-        setLoading(false);
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address
+        };
+
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
+        })
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+
+            initialConf();
+            loadNFT(houseID);
+            houseSuccess('You changed the history successfully!');
+          })
+          .catch(err => {
+            houseError(err)
+          });
       } catch (error) {
         console.log(error);
-        setLoading(false);
       }
     } else {
       houseInfo('There is nothing to change');
-      setLoading(false);
     }
+
+    setLoading(false);
   };
 
   const handleHistoryEdit = async (historyIndex) => {
@@ -197,8 +224,8 @@ export default function Histories({
               value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
-              // disabled={disabledArr[index] || loading}
-              disabled={true}
+              disabled={disabledArr[index] || loading}
+              // disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>

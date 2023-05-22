@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
 import { Box, Button, Grid, TextField } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
@@ -16,17 +17,20 @@ import useStakingStyle from 'assets/styles/stakingStyle';
 
 import { houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, StakingAddress, zeroAddress } from 'mainConfig';
+import { setAllMyNFTs } from 'redux/actions/houseNft';
+import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 
 export default function Staking() {
   const { account } = useWeb3React();
   const nftClasses = useNftStyle();
   const web3 = useWeb3();
   const classes = useStakingStyle();
+  const dispatch = useDispatch();
+  const walletAccount = props.account.account;
+  const { allMyNFTs } = props.houseNft
 
   const houseBusinessContract = useHouseBusinessContract();
   const stakingContract = useStakingContract();
-  const [allMyNFTs, setAllMyNFTs] = useState([]);
   const [allStakingtypes, setAllStakeTypes] = useState([]);
   const [stakingAPYs, setStakingAPYs] = useState([]);
   const [stakingVals, setStakingVals] = useState([]);
@@ -69,7 +73,7 @@ export default function Staking() {
   };
 
   const loadNFTs = async () => {
-    var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
+    var nfts = await houseBusinessContract.methods.getAllHouses().call();
     var otherNFTs = [];
     for (var i = 0; i < nfts.length; i++) {
       if (nfts[i].contributor.currentOwner === zeroAddress) continue;
@@ -83,7 +87,7 @@ export default function Staking() {
       });
     }
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs().call({ from: account });
+    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs().call();
 
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
@@ -105,22 +109,72 @@ export default function Staking() {
       });
     }
 
-    setAllMyNFTs(otherNFTs);
+    dispatch(setAllMyNFTs(otherNFTs));
   };
 
   const getTotalRewards = async () => {
     setInterval(async () => {
-      var totalReward = await stakingContract.methods.totalRewards(account).call();
+      var totalReward = await stakingContract.methods.totalRewards(walletAccount).call();
       setTotalClaimAmount(totalReward);
     }, 3000);
   };
 
   const handleStaking = async (item, index) => {
     try {
-      await houseBusinessContract.methods.approve(StakingAddress, item.houseID).send({ from: account });
-      await stakingContract.methods.stake(item.houseID, stakingVals[index]).send({ from: account });
-      houseSuccess('You staked house NFT successfully.');
-      loadNFTs();
+      let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
+      let transactionObject = {
+        data,
+        to: houseBusinessContract.options.address
+      }
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+              setLoading(false);
+            });
+          }
+
+          data = stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).encodeABI();
+          let transactionObject = {
+            data,
+            to: houseBusinessContract.options.address
+          }
+
+          // Send trx data and sign
+          fetch(`${apiURL}/signTransaction`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionObject,
+              user: walletAccount
+            }),
+          }).then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            houseSuccess('You staked house NFT successfully.');
+            loadNFTs();
+          }).catch(err => {
+            houseError(err)
+          });
+        })
+        .catch(err => {
+          houseError(err)
+        });
+
     } catch (error) {
       console.log(error);
     }
@@ -128,9 +182,32 @@ export default function Staking() {
 
   const handleClaimRewards = async () => {
     try {
-      await stakingContract.methods.claimRewards(account).send({ from: account });
-      houseSuccess('You claimed rewards successfully.');
-      loadNFTs();
+      const data = stakingContract.methods.claimRewards(walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: stakingContract.options.address
+      };
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      }).then(res => {
+        if (res.status !== 200) {
+          return res.json().then(error => {
+            houseError(`Error: ${error.message}`);
+            setLoading(false);
+          });
+        }
+        houseSuccess('You claimed rewards successfully.');
+        loadNFTs();
+      }).catch(err => {
+        houseError(err)
+      });
     } catch (error) {
       console.log(error);
     }
@@ -143,7 +220,7 @@ export default function Staking() {
     console.log(cItem);
     try {
       setLoading(true);
-      await stakingContract.methods.unstake(item.houseID).send({ from: account });
+      const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
       houseSuccess('You unstaked house NFT successfully.');
       loadNFTs();
     } catch (error) {
@@ -173,11 +250,11 @@ export default function Staking() {
   };
 
   useEffect(() => {
-    if (account) {
+    if (account || walletAccount) {
       initialConfig();
       getTotalRewards();
     }
-  }, [account]);
+  }, [account, walletAccount]);
 
   useEffect(() => {
     if (allStakingtypes.length > 0) {
@@ -209,48 +286,77 @@ export default function Staking() {
       <Grid container spacing={3}>
         {allMyNFTs.length > 0
           ? allMyNFTs.map((item, index) => {
-              return (
-                <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
-                  <Grid className={nftClasses.nftHouseCard}>
-                    <Grid className={nftClasses.nftHouseStakingMedia}>
-                      <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+            return (
+              <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
+                <Grid className={nftClasses.nftHouseCard}>
+                  <Grid className={nftClasses.nftHouseStakingMedia}>
+                    <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+                  </Grid>
+                  <Grid>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`"${item.tokenName}"`}</Box>
+                  </Grid>
+                  <Grid className={nftClasses.nftHouseMetaInfo}>
+                    <Grid className={nftClasses.nftHouseInfo}>
+                      <Box component={'span'}>Owned By</Box>
+                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>
+                        {item.contributor.currentOwner}
+                      </Box>
                     </Grid>
-                    <Grid>
-                      <Box component={'h3'} className={nftClasses.nftHouseTitle}>{`"${item.tokenName}"`}</Box>
+                    <Grid className={nftClasses.nftHousePrice}>
+                      <Box component={'span'}>Current Price</Box>
+                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                     </Grid>
-                    <Grid className={nftClasses.nftHouseMetaInfo}>
-                      <Grid className={nftClasses.nftHouseInfo}>
-                        <Box component={'span'}>Owned By</Box>
-                        <Box component={'h4'} className={nftClasses.nftHouseOwner}>
-                          {item.contributor.currentOwner}
-                        </Box>
+                  </Grid>
+                  {item.staked === false ? (
+                    <Grid className={classes.stakingBottom}>
+                      <TextField
+                        id="outlined-select-stakingtype-native"
+                        select
+                        value={stakingVals[index]}
+                        onChange={(e) => handleStakingTypeChange(index, e.target.value)}
+                        SelectProps={{
+                          native: true,
+                        }}
+                      >
+                        {allStakingtypes.map((option) => (
+                          <option key={option.value} value={option.value} className={classes.stakingType}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </TextField>
+                      <Grid>{stakingAPYs[index]}</Grid>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleStaking(item, index)}
+                        className={classes.nftHouseButton}
+                        startIcon={<LockIcon />}
+                      >
+                        <Box
+                          component={'span'}
+                          className={classes.nftHouseBuyButton}
+                          textTransform={'capitalize'}
+                        >{`Stake`}</Box>
+                      </Button>
+                    </Grid>
+                  ) : (
+                    <>
+                      <Grid className={classes.stakingDates}>
+                        <Grid>From : {generateDate(item.startedDate)}</Grid>
+                        <Grid>To : {generateDate(item.endDate)}</Grid>
                       </Grid>
-                      <Grid className={nftClasses.nftHousePrice}>
-                        <Box component={'span'}>Current Price</Box>
-                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                      </Grid>
-                    </Grid>
-                    {item.staked === false ? (
                       <Grid className={classes.stakingBottom}>
-                        <TextField
-                          id="outlined-select-stakingtype-native"
-                          select
-                          value={stakingVals[index]}
-                          onChange={(e) => handleStakingTypeChange(index, e.target.value)}
-                          SelectProps={{
-                            native: true,
-                          }}
-                        >
-                          {allStakingtypes.map((option) => (
-                            <option key={option.value} value={option.value} className={classes.stakingType}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </TextField>
-                        <Grid>{stakingAPYs[index]}</Grid>
                         <Button
                           variant="outlined"
-                          onClick={() => handleStaking(item, index)}
+                          onClick={async () => {
+                            var flag = await stakingContract.methods.stakingFinished(item.houseID).call();
+                            if (flag === false) {
+                              setCItem(item);
+                              handleConfirmOpen();
+                            } else {
+                              setCItem(null);
+                              handleUnstaking(item);
+                            }
+                          }}
                           className={classes.nftHouseButton}
                           startIcon={<LockIcon />}
                         >
@@ -258,44 +364,15 @@ export default function Staking() {
                             component={'span'}
                             className={classes.nftHouseBuyButton}
                             textTransform={'capitalize'}
-                          >{`Stake`}</Box>
+                          >{`Unstake`}</Box>
                         </Button>
                       </Grid>
-                    ) : (
-                      <>
-                        <Grid className={classes.stakingDates}>
-                          <Grid>From : {generateDate(item.startedDate)}</Grid>
-                          <Grid>To : {generateDate(item.endDate)}</Grid>
-                        </Grid>
-                        <Grid className={classes.stakingBottom}>
-                          <Button
-                            variant="outlined"
-                            onClick={async () => {
-                              var flag = await stakingContract.methods.stakingFinished(item.houseID).call();
-                              if (flag === false) {
-                                setCItem(item);
-                                handleConfirmOpen();
-                              } else {
-                                setCItem(null);
-                                handleUnstaking(item);
-                              }
-                            }}
-                            className={classes.nftHouseButton}
-                            startIcon={<LockIcon />}
-                          >
-                            <Box
-                              component={'span'}
-                              className={classes.nftHouseBuyButton}
-                              textTransform={'capitalize'}
-                            >{`Unstake`}</Box>
-                          </Button>
-                        </Grid>
-                      </>
-                    )}
-                  </Grid>
+                    </>
+                  )}
                 </Grid>
-              );
-            })
+              </Grid>
+            );
+          })
           : ''}
       </Grid>
       <Dialog
