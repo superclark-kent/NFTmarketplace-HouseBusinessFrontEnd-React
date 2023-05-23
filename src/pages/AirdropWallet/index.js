@@ -17,7 +17,14 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-const stripePromise = loadStripe('pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy');
+import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
+import {
+    useOperatorContract,
+    useERC20Contract,
+    useWeb3Content
+} from "hooks/useContractHelpers";
+
+const stripePromise = loadStripe(stripePublishKey);
 
 const style = {
     position: "absolute",
@@ -31,13 +38,6 @@ const style = {
     p: 4,
     borderRadius: "10px",
 };
-
-import { OperatorAddress, apiURL } from 'mainConfig';
-import {
-    useOperatorContract,
-    useERC20Contract,
-    useWeb3Content
-} from "hooks/useContractHelpers";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',

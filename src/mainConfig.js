@@ -56,6 +56,9 @@ export const apiURL = "https://off-backend.azurewebsites.net"; // Production ser
 
 export const secretKey = 'defi-business@Sec!*@#';
 
+export const stripePublishKey =
+	process.env.REACT_APP_STRIPE_API_KEY || 'pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy';
+
 export const injected = new InjectedConnector({
 	supportedChainIds: [
 		1, // Ethereum Mainnet
