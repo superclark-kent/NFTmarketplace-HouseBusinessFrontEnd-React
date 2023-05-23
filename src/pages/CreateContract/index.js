@@ -114,7 +114,6 @@ function CreateContract(props) {
             const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-            console.log('contractType', contractType)
             if(!account) {
               await houseDocContract.methods
                 .ccCreation(
@@ -168,7 +167,7 @@ function CreateContract(props) {
                 });
             } else {
               try {
-                await cleanContract.methods
+                await houseDocContract.methods
                 .ccCreation(
                   encryptedCompanyName,
                   contractType,
@@ -177,8 +176,7 @@ function CreateContract(props) {
                   sDate,
                   eDate,
                   aPrice,
-                  encryptedCurrency,
-                  account
+                  encryptedCurrency
                 ).send({ from: account })
                 houseSuccess("Success");
                   setCFile(null);
@@ -235,7 +233,6 @@ function CreateContract(props) {
         flag: item.connectContract
       })
     })
-    console.log(arr);
     setContracTypes(arr);
   }, [])
 

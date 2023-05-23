@@ -19,7 +19,7 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { StakingAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 
-export default function Staking() {
+export default function Staking(props) {
   const { account } = useWeb3React();
   const nftClasses = useNftStyle();
   const web3 = useWeb3();

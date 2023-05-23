@@ -292,7 +292,8 @@ function Header(props) {
 	};
 
   const loadNotifies = async () => {
-    var notifies = await houseDocContract.methods.getAllNotifies(account).call({ from: account });
+		console.log('account',account)
+    var notifies = await houseDocContract.methods.getAllNotifies(account).call();
     var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
       if (notifies[i].status === false) {

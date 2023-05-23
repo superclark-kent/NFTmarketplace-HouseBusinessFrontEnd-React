@@ -146,7 +146,7 @@ export default function Histories({
               historyTypeId,
               _houseImg,
               _brand,
-              _history,
+              _otherInfo,
               _desc,
               _brandType,
               _yearField

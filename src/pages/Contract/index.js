@@ -278,8 +278,9 @@ function Contract(props) {
             });
         } else {
           try {
+            const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
             await houseDocContract.methods
-              .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, account)
+              .sendNotify(notifyReceiver, content, item.contractId)
               .send({ from: account });
             houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
             loadContracts();
@@ -395,7 +396,6 @@ function Contract(props) {
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    {console.log(historyTypes, item.contractType)}
                     Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>

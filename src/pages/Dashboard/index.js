@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
+import MoreDetail from './MoreDetail';
 
 function Dashboard(props) {
   const nftClasses = useNftStyle()
@@ -45,6 +46,15 @@ function Dashboard(props) {
             tokenName: decryptedName,
             tokenType: decryptedType
           })
+        }
+        if (account) {
+          var otherNFTs = [];
+          for (var i = 0; i < nfts.length; i++) {
+            if (nfts[i].contributor.currentOwner === `${account}`) continue;
+            otherNFTs.push(nfts[i]);
+          }
+          dispatch(setAllHouseNFTs(otherNFTs));
+        } else {
           dispatch(setAllHouseNFTs(nfts));
         }
       })
@@ -73,7 +83,7 @@ function Dashboard(props) {
             user: walletAccount
           }),
         })
-          .then(res => {
+          .then(async (res) => {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
@@ -123,7 +133,6 @@ function Dashboard(props) {
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
-        {console.log(allNFTs, walletAccount)}
         {
           (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
             return (

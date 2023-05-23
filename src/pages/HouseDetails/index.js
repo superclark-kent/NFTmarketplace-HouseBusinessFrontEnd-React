@@ -3,7 +3,8 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
@@ -15,7 +16,6 @@ import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContract
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
-import { useDispatch } from 'react-redux';
 import { decryptContract } from 'utils';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
@@ -381,11 +381,12 @@ function HouseDetails(props) {
 					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
 
 					houseSuccess("You have successfully set your House price!")
-					loadNFT(houseID);
 				} catch (error) {
 					console.log(error);
 					houseError('Something went wrong!');
 				}
+				loadNFT(houseID);
+				setLoading(false);
 			}
 		}
 	}
@@ -477,6 +478,9 @@ function HouseDetails(props) {
 						classes={classes}
 						account={walletAccount}
 						simpleNFT={simpleNFT}
+						totalPrice={totalPrice}
+            loading={loading}
+            setLoading={setLoading}
 						buyerFlag={buyerFlag}
 						setBuyerFlag={setBuyerFlag}
 						specialBuyer={specialBuyer}
@@ -521,6 +525,7 @@ function HouseDetails(props) {
 									setBrand={setBrand}
 									solorDate={solorDate}
 									setSolorDate={setSolorDate}
+									setChangeDate={setChangeDate}
 									pictureDesc={pictureDesc}
 									setPictureDesc={setPictureDesc}
 									handleImageChange={handleImageChange}
