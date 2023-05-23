@@ -9,7 +9,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
 import CryptoJS from 'crypto-js';
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
+import { useHouseBusinessContract } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { HouseBusinessAddress, apiURL, secretKey } from 'mainConfig';
 import { useEffect, useState } from "react";
@@ -58,7 +58,7 @@ function Mint(props) {
 
   const [houseName, setHouseName] = useState("");
   const [houseType, setHouseType] = useState("terraced");
-  const [solarDate, setSolarDate] = useState(new Date("01/01/1970"));
+  const [solarDate, setSolarDate] = useState(new Date("1970"));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -76,12 +76,7 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
-    console.log('solarDate', typeof solarDate, solarDate, solarDate.valueOf())
     const year = solarDate.valueOf();
-    if (year == -7200000) {
-      houseError("Please select correct date");
-      return;
-    }
     if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
@@ -255,18 +250,13 @@ function Mint(props) {
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Grid container justify="space-around">
               <DatePicker
-                views={["year", "month", "day"]}
+                views={["year"]}
                 label="Year of construction"
                 value={solarDate}
+                minDate={new Date("1970")}
+                maxDate={new Date("2023")}
                 onChange={(date) => {
-                  if (new Date(date).getFullYear() > new Date().getFullYear()) {
-                    houseError(
-                      "Year of construction should be lower or equal than this year"
-                    );
-                    setSolarDate(new Date());
-                  } else {
-                    setSolarDate(date);
-                  }
+                  setSolarDate(date);
                 }}
                 renderInput={(params) => (
                   <TextField
