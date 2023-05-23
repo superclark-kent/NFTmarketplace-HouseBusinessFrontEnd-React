@@ -15,7 +15,7 @@ import { useHouseBusinessContract, useStakingContract } from 'hooks/useContractH
 import useNftStyle from 'assets/styles/nftStyle';
 import useStakingStyle from 'assets/styles/stakingStyle';
 
-import { houseSuccess } from 'hooks/useToast';
+import { houseSuccess, houseError } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
@@ -389,7 +389,7 @@ function Staking(props) {
                         <Button
                           variant="outlined"
                           onClick={async () => {
-                            var flag = await stakingContract.methods.stakingFinished(item.houseID).call();
+                            var flag = await stakingContract.methods.stakingFinished(item.houseID, walletAccount).call();
                             if (flag === false) {
                               setCItem(item);
                               handleConfirmOpen();

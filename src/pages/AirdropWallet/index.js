@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import dotenv from "dotenv";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
 import { useWeb3React } from '@web3-react/core';
 dotenv.config();
+import { useCookies } from "react-cookie";
 
 import {
     Box, Button, Divider, Grid, IconButton, InputBase,
@@ -23,6 +24,7 @@ import {
     useERC20Contract,
     useWeb3Content
 } from "hooks/useContractHelpers";
+import { setAccount } from 'redux/actions/account';
 
 const stripePromise = loadStripe(stripePublishKey);
 
@@ -49,15 +51,15 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function AirdropWallet(props) {
     const { account } = useWeb3React();
-    const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
     const ERC20TokenContract = useERC20Contract();
+	const [cookies, setCookie] = useCookies(["connected", "notifies", "walletAccount"]);
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { walletID } = useParams();
     const dispatch = useDispatch();
     const walletAccount = props.account.account;
+    const { walletID } = useParams();
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
     const [amountToDeposit, setAmountToDeposit] = useState('');
@@ -126,7 +128,7 @@ function AirdropWallet(props) {
     const getCreditBalance = async () => {
         try {
             // Get the ERC20 token balance.
-            const creditBalance = await OperatorContract.methods.balanceOf(walletAccount).call();
+            const creditBalance = await OperatorContract.methods.balanceOf(cookies.walletAccount).call();
             setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
         } catch (err) {
             console.log(err);
@@ -135,9 +137,9 @@ function AirdropWallet(props) {
 
     const airdropERC20Token = async () => {
         const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
-
+        
         if (!account) {
-            const data = OperatorContract.methods.mintAndStore(walletAccount, amount).encodeABI();
+            const data = OperatorContract.methods.mintAndStore(cookies.walletAccount, amount).encodeABI();
 
             const transactionObject = {
                 to: OperatorAddress,
@@ -162,7 +164,7 @@ function AirdropWallet(props) {
                 });
         } else {
             try {
-                await OperatorContract.methods.mintAndStore(walletAccount, amount).send({ from: account });
+                await OperatorContract.methods.mintAndStore(account, amount).send({ from: account });
                 houseSuccess(`Congratulations, you received ${paymentAmount / 100} $HBT token airdrop.`);
                 getCreditBalance();
             } catch (err) {

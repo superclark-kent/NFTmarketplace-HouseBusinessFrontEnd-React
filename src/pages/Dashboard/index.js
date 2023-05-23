@@ -113,7 +113,6 @@ function Dashboard(props) {
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
-        {console.log(allNFTs, walletAccount)}
         {
           (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
             return (

@@ -187,11 +187,6 @@
         "internalType": "address",
         "name": "_contractSigner",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
       }
     ],
     "name": "addContractSigner",
@@ -423,7 +418,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_contractOwner",
         "type": "address"
       }
     ],
@@ -444,19 +439,13 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "operatorAddress",
+    "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "name": "operators",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -496,14 +485,9 @@
         "internalType": "address",
         "name": "_address",
         "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_isOperator",
-        "type": "bool"
       }
     ],
-    "name": "setOperator",
+    "name": "setOperatorAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

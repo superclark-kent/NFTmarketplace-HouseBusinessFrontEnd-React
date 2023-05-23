@@ -1,5 +1,5 @@
 import { Fragment, cloneElement, useEffect, useState } from "react";
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { useWeb3React } from "@web3-react/core";
@@ -224,7 +224,7 @@ function ElevationScroll(props) {
 
 function Header(props) {
 	const dispatch = useDispatch();
-	const walletAccount = props.account.account;
+	const walletAccount = useSelector(state => state.account.account);
 	const classes = useHeaderStyles();
 	const navigate = useNavigate();
 	const { account, activate, deactivate, library } = useWeb3React();
@@ -313,29 +313,30 @@ function Header(props) {
 	};
 
 	useEffect(() => {
-		if (cookies.connected === true) {
-			console.log('cookies', cookies);
-			dispatch(setAccount(cookies.walletAccount));
+		if (cookies.connected === "true") {
+			setTimeout(() => {
+				dispatch(setAccount(cookies.walletAccount));
+			}, 0);
 		}
 
-		if (pathname != "/house/app") {
-			if (!walletAccount && cookies.connected !== true) {
+		if (pathname !== "/house/app") {
+			if (!walletAccount && cookies.connected !== "true") {
 				houseInfo("Please connect your wallet");
 				navigate("../../house/app");
 			}
 		}
-	}, [pathname]);
 
-	useEffect(() => {
 		if (walletAccount) {
 			checkAdmin();
 			loadNotifies();
 		}
-	}, [walletAccount])
+	}, [walletAccount, pathname]);
 
 	useEffect(() => {
 		if (account) {
 			dispatch(setAccount(account));
+			setCookie("connected", true, { path: "/" });
+			setCookie("walletAccount", account, { path: "/" });
 		} else {
 			dispatch(setAccount(null));
 		}
