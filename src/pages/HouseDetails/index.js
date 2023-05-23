@@ -69,6 +69,7 @@ export default function HouseDetails() {
   const [cContract, setCContract] = useState('');
   const [contracts, setContracts] = useState([]);
   const [historyTypes, setHistoryTypes] = useState([]);
+  const [oldHistoryTypeIds, setOldHistoryTypeIds] = useState([]);
   const [changinghistoryType, setChangingHistoryType] = useState('0');
 
 
@@ -107,6 +108,11 @@ export default function HouseDetails() {
     var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
     var nft = nfts.filter((item) => item.houseID === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
+    var arr = [];
+    for (var i = 0; i < chistories.length; i++) {
+      arr.push(chistories[i].historyTypeId)
+    }
+    setOldHistoryTypeIds(arr);
     setHistories(chistories);
 
     if (nft) {
@@ -192,17 +198,6 @@ export default function HouseDetails() {
         var encryptedOtherInfo = _otherInfo == "" ? "" : CryptoJS.AES.encrypt(_otherInfo, secretKey).toString();
         var encryptedDesc = _desc == "" ? "" : CryptoJS.AES.encrypt(_desc, secretKey).toString();
         var encryptedBrandType = _brandType == "" ? "" : CryptoJS.AES.encrypt(_brandType, secretKey).toString();
-        console.table({
-          "_houseId": Number(_houseId),
-          "cContract": Number(cContract),
-          "hID": hID,
-          "encryptedHouseImage": encryptedHouseImage,
-          "encryptedBrand": encryptedBrand,
-          "encryptedOtherInfo": encryptedOtherInfo,
-          "encryptedDesc": encryptedDesc,
-          "encryptedBrandType": encryptedBrandType,
-          "yearFiel": _yearField
-        })
         await houseBusinessContract.methods
           .addHistory(
             Number(_houseId),
@@ -407,6 +402,7 @@ export default function HouseDetails() {
                   hID={hID}
                   setHID={setHID}
                   historyTypes={historyTypes}
+                  oldHistoryTypeIds={oldHistoryTypeIds}
                   image={image}
                   brandType={brandType}
                   setBrandType={setBrandType}

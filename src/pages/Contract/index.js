@@ -175,8 +175,9 @@ export default function Contract() {
     } else {
       if (flag === false) {
         try {
+          const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
           await houseDocContract.methods
-            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
+            .sendNotify(notifyReceiver, content, item.contractId)
             .send({ from: account });
         } catch (err) {
           console.log('err', err)

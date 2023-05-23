@@ -23,6 +23,7 @@ export default function NewHistory({
   otherInfo,
   setOtherInfo,
   historyTypes,
+  oldHistoryTypeIds,
   hID,
   setHID,
   image,
@@ -45,6 +46,7 @@ export default function NewHistory({
     setHomeHistory(historyTypes[hID]);
   }, [hID]);
 
+
   return (
     <Grid className={classes.addHistory}>
       <Box component={'h3'}>New History or Event</Box>
@@ -55,17 +57,22 @@ export default function NewHistory({
         label="History Type"
         value={hID}
         onChange={(e) => {
+          console.log('id', e.target.value)
           setHID(e.target.value);
           setCContract(0);
         }}
         helperText="Please select your history type"
         variant="filled"
       >
-        {historyTypes.map((historyItem, hIndex) => (
-          <MenuItem key={hIndex} value={hIndex}>
-            {historyItem.hLabel}
-          </MenuItem>
-        ))}
+        {historyTypes.map((historyItem, hIndex) => {
+          return (
+            !oldHistoryTypeIds.includes(`${hIndex}`) &&
+            <MenuItem key={hIndex} value={hIndex}>
+              {historyItem.hLabel}
+            </MenuItem>
+          )
+        }
+        )}
       </TextField>
       {homeHistory ? (
         <>
@@ -107,7 +114,6 @@ export default function NewHistory({
               <Grid container justify="space-around">
                 <DatePicker
                   views={['year', 'month', 'day']}
-                  //views={["day", "month", "year"]}
                   label="Date"
                   value={solorDate}
                   disabled={loading}

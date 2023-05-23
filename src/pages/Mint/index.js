@@ -58,7 +58,7 @@ function Mint(props) {
 
   const [houseName, setHouseName] = useState("");
   const [houseType, setHouseType] = useState("terraced");
-  const [solarDate, setSolarDate] = useState(new Date("10/10/1970"));
+  const [solarDate, setSolarDate] = useState(new Date("01/01/1970"));
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

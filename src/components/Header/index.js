@@ -49,13 +49,14 @@ import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContract
 
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
+import CryptoJS from 'crypto-js';
 
 import Coinbase from "assets/images/Coinbase.png";
 import Metamask from "assets/images/Metamask.png";
 import MainLogo from "assets/images/Offero.png";
 import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import defaultAvatar from "assets/images/avatar.png";
-import { connectorsByName } from "mainConfig";
+import { connectorsByName, secretKey } from "mainConfig";
 import { useCookies } from "react-cookie";
 
 
@@ -292,7 +293,12 @@ function Header(props) {
     var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
       if (notifies[i].status === false) {
-        arr.push(notifies[i]);
+				var bytesNotify = CryptoJS.AES.decrypt(notifies[i].notifyContent, secretKey);
+				var decryptedNotify = bytesNotify.toString(CryptoJS.enc.Utf8);
+        arr.push({
+					...notifies[i],
+					notifyContent: decryptedNotify
+				});
       }
       if (!cookies.notifies) {
         nArr.push(notifies[i]);
