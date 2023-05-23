@@ -1,5 +1,4 @@
 import CloseIcon from '@mui/icons-material/Close';
-import { connect, useDispatch } from 'react-redux';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -7,21 +6,19 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress, apiURL } from 'mainConfig';
+import { secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from 'react';
 import decryptfile from 'utils/decrypt';
 
-function Contract(props) {
+export default function Contract() {
   const { account } = useWeb3React();
   const web3 = useWeb3();
-  const dispatch = useDispatch();
-  const walletAccount = props.account.account;
   const classes = useContractStyle();
-  const cleanContract = useCleanContract();
   const houseBusinessContract = useHouseBusinessContract();
+  const houseDocContract = useHouseDocContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -47,11 +44,11 @@ function Contract(props) {
   const loadContracts = async () => {
     setLoading(true);
 
-    const allCleanContracts = await cleanContract.methods.getAllCleanContracts().call();
-    console.log(allCleanContracts)
+    const allCleanContracts = await houseDocContract.methods.getAllCleanContracts().call();
+
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
-      if (allCleanContracts[i].owner == walletAccount) {
+      if (allCleanContracts[i].owner == account) {
         var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
@@ -66,7 +63,7 @@ function Contract(props) {
           currency: decryptedCurrency,
         });
       }
-      if (allCleanContracts[i].contractSigner == walletAccount) {
+      if (allCleanContracts[i].contractSigner == account) {
         var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
@@ -101,67 +98,17 @@ function Contract(props) {
 
   const handleSign = async (item) => {
     setLoading(true);
-    if (item.creator === walletAccount) {
+    if (item.creator === account) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
       } else {
-        const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
-        const transactionObject = {
-          data,
-          to: cleanContract.options.address
-        }
-
-        // Send trx data and sign
-        fetch(`${apiURL}/signTransaction`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactionObject,
-            user: walletAccount
-          }),
-        })
-          .then(res => {
-            if (res.status !== 200) {
-              return res.json().then(error => {
-                houseError(`Error: ${error.message}`);
-                setLoading(false);
-              });
-            }
-            loadContracts();
-          })
-          .catch(err => {
-            houseError(err)
-          });
+        await houseDocContract.methods.signContract(item.contractId).send({ from: account });
+        loadContracts();
       }
     } else {
-      const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
-      const transactionObject = {
-        data,
-        to: cleanContract.options.address
-      }
-
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          loadContracts();
-        })
-        .catch(err => {
-          houseError(err)
-        });
+      await houseDocContract.methods.signContract(item.contractId).send({ from: account });
+      loadContracts();
     }
   };
 
@@ -179,34 +126,14 @@ function Contract(props) {
       houseError('Contract Signer is empty');
     } else {
       setLoading(true);
-      const data = cleanContract.methods.addContractSigner(item.contractId, cSC, walletAccount).encodeABI();
-      const transactionObject = {
-        data,
-        to: cleanContract.options.address
-      };
+      try {
+        await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-            });
-          }
-          houseSuccess("Contract signer successfully added.");
-          loadContracts();
-          setTimeout(loadContracts, 3000);
-        })
-        .catch(err => {
-          houseError(err)
-        });
+        loadContracts();
+        setTimeout(loadContracts, 3000);
+      } catch (err) {
+        console.log('err', err)
+      }
     }
     // }
   };
@@ -232,7 +159,7 @@ function Contract(props) {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call();
+    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
       if (item.contractId === sentNotifies[i].ccId) {
@@ -248,38 +175,14 @@ function Contract(props) {
     } else {
       if (flag === false) {
         try {
-          const data = cleanContract.methods
-            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
-            .encodeABI();
-          const transactionObject = {
-            data,
-            to: cleanContract.options.address
-          };
-          // Send trx data and sign
-          fetch(`${apiURL}/signTransaction`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              transactionObject,
-              user: walletAccount
-            }),
-          })
-            .then(res => {
-              if (res.status !== 200) {
-                return res.json().then(error => {
-                  houseError(`Error: ${error.message}`);
-                });
-              }
-              houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
-              loadContracts();
-            })
-            .catch(err => {
-              houseError(err)
-            });
+          await houseDocContract.methods
+            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
+            .send({ from: account });
         } catch (err) {
-          console.log(err);
-          houseError('Something went wrong');
+          console.log('err', err)
+          setLoading(false);
         }
+        loadContracts();
       } else {
         houseError('You already sent notify to this signer');
         setLoading(false);
@@ -305,11 +208,11 @@ function Contract(props) {
   }
 
   useEffect(() => {
-    if (walletAccount) {
+    if (account) {
       getAllHistoryTypes();
       loadContracts();
     }
-  }, [walletAccount]);
+  }, [account]);
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);
@@ -319,34 +222,10 @@ function Contract(props) {
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
     try {
-      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner, walletAccount).encodeABI();
-      const transactionObject = {
-        data,
-        to: cleanContract.options.address
-      };
-
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-            });
-          }
-          temp[k].contractSigner = CSigner;
-          setAllContracts(temp);
-          houseSuccess('Successed Changing Signer!');
-        })
-        .catch(err => {
-          houseError(err)
-        });
+      await houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
+      temp[k].contractSigner = CSigner;
+      setAllContracts(temp);
+      houseSuccess('Successed Changing Signer!');
     } catch (err) {
       console.log('err', err)
     }
@@ -378,7 +257,6 @@ function Contract(props) {
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    {console.log(historyTypes, item.contractType)}
                     Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
@@ -666,13 +544,14 @@ function Contract(props) {
                       />
                     </Grid>
                     <Grid className={classes.sendNotify}>
-                      <Button
+                      <LoadingButton
+                        loading={loading}
                         variant="contained"
                         disabled={!rNotifyArr[index]}
                         onClick={() => handleSendNotify(item, 'signer')}
                       >
                         Send Notify
-                      </Button>
+                      </LoadingButton>
                     </Grid>
                   </>
                 ) : (
@@ -680,9 +559,13 @@ function Contract(props) {
                 )}
                 <Grid className={classes.sign}>
                   {item.signerApproval === false ? (
-                    <Button variant="contained" onClick={() => handleSign(item)}>
+                    <LoadingButton
+                      loading={loading}
+                      variant="contained"
+                      onClick={() => handleSign(item)}
+                    >
                       Sign Contract
-                    </Button>
+                    </LoadingButton>
                   ) : (
                     <Button variant="contained" disabled={true}>
                       You already signed
@@ -697,11 +580,3 @@ function Contract(props) {
     </Grid>
   );
 }
-
-function mapStateToProps(state) {
-  return {
-    account: state.account,
-  };
-}
-
-export default connect(mapStateToProps)(Contract);

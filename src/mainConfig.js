@@ -8,14 +8,12 @@ dotenv.config();
 
 export const POLLING_INTERVAL = 12000;
 
-// p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
-// m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
-export const ERC20Address = '0xa8C19667794191A730B3983eB3a8087CfF2b788e';
-export const HouseBusinessAddress = '0xe8AfB272517A7C5edbd65a437BCdA531d66bEE53';
-export const ContractAddress = '0xe48beA2b55209Dba79A1FdA6d46b09084921ed51';
-export const StakingAddress = '0x1dB8FF9fa6B5d4062d0F80eDD6DC5a7728e8F54a';
-export const ThirdPartyAddress = '0xBe6Cc9b097722d49a933276bf5A7E06f42e9D2c4';
-export const OperatorAddress = '0x97fF165023Ed66c1281Dc6ad2A264aed55D47F2B';
+export const ERC20Address = '0x7E687b50cBB1D58be37Cae9a8D2aa920973d97d7';
+export const HouseBusinessAddress = '0xE85f7905d4a90c5C0Aa2Bbace2598dFB7a65FB45';
+export const HouseDocAddress = '0x5F223df92c6aca551854FDb6D9ea844046Bb23Af';
+export const StakingAddress = '0x3a767303a74F29ce42Df34B8adce27c8d869b3e3';
+export const ThirdPartyAddress = '0x1356C570D1447A21dAf42A9E8d37a2B9ff1d6Cb8';
+export const OperatorAddress = '0x230a2c6216aDCF093a8963cAB02b9986D7a73077';
 
 const config = {
 	// development: {
@@ -51,8 +49,7 @@ const config = {
 };
 
 export const networkConfig = config['development'];
-// export const apiURL = "http://localhost:8080"; // Development server
-export const apiURL = "https://off-backend.azurewebsites.net"; // Production server
+export const apiURL = "http://localhost:5000";
 
 export const secretKey = 'defi-business@Sec!*@#';
 

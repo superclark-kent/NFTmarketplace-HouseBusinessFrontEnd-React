@@ -20,8 +20,8 @@ export default function NewHistory({
   cContract,
   setCContract,
   handleConnectContract,
-  history,
-  setHistory,
+  otherInfo,
+  setOtherInfo,
   historyTypes,
   hID,
   setHID,
@@ -32,6 +32,7 @@ export default function NewHistory({
   setBrandType,
   solorDate,
   setSolorDate,
+  setChangeDate,
   pictureDesc,
   setPictureDesc,
   handleImageChange,
@@ -111,10 +112,11 @@ export default function NewHistory({
                   value={solorDate}
                   disabled={loading}
                   onChange={(date) => {
+                    setChangeDate(true);
                     setSolorDate(date);
                   }}
                   renderInput={(params) => (
-                    <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
+                    <TextField className={classes.addHistoryField} variant="filled" {...params} helperText={null} />
                   )}
                 />
               </Grid>
@@ -151,18 +153,18 @@ export default function NewHistory({
               onChange={(e) => setPictureDesc(e.target.value)}
             />
           ) : null}
+          {homeHistory.otherInfo && <TextField
+            id="standard-multiline-static"
+            label={'Other Information'}
+            multiline
+            rows={4}
+            value={otherInfo}
+            variant="standard"
+            className={classes.addHistoryField}
+            onChange={(e) => setOtherInfo(e.target.value)}
+          />}
         </>
       ) : null}
-      <TextField
-        id="standard-multiline-static"
-        label={'Other Information'}
-        multiline
-        rows={4}
-        value={history}
-        variant="standard"
-        className={classes.addHistoryField}
-        onChange={(e) => setHistory(e.target.value)}
-      />
       <LoadingButton
         className={classes.nftHouseButton}
         onClick={() => handleAddHistory()}

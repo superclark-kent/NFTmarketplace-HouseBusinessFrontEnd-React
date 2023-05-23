@@ -31,7 +31,7 @@ import { houseInfo, houseError, houseSuccess } from "hooks/useToast";
 import { secretKey, zeroAddress } from "mainConfig";
 import {
   useHouseBusinessContract,
-  useCleanContract,
+  useHouseDocContract,
 } from "hooks/useContractHelpers";
 
 const Input = styled("input")({
@@ -41,7 +41,7 @@ const Input = styled("input")({
 export default function CreateContract() {
   const { account } = useWeb3React();
   const classes = useHouseMintStyle();
-  const cleanContract = useCleanContract();
+  const houseDocContract = useHouseDocContract();
   const houseBusinessContract = useHouseBusinessContract();
   const navigate = useNavigate();
   // Contract
@@ -116,7 +116,7 @@ export default function CreateContract() {
             try {
               var aPrice = BigNumber.from(`${agreedPrice * 10 ** 18}`);
               var ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
-              await cleanContract.methods
+              await houseDocContract.methods
                 .ccCreation(
                   companyName,
                   contractType,

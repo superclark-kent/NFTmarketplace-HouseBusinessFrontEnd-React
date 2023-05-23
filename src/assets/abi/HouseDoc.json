@@ -342,7 +342,7 @@
             "type": "string"
           }
         ],
-        "internalType": "struct MainCleanContract.CleanContract[]",
+        "internalType": "struct HouseDoc.CleanContract[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -393,7 +393,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct MainCleanContract.Notify[]",
+        "internalType": "struct HouseDoc.Notify[]",
         "name": "",
         "type": "tuple[]"
       }

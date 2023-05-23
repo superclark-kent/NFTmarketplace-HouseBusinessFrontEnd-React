@@ -19,7 +19,7 @@ const useNftDetailStyle = makeStyles((theme) => ({
     maxHeight: "500px",
   },
   image: {
-    width: "500px",
+    width: "100%",
   },
   needField: {
     width: "100%",
@@ -42,6 +42,13 @@ const useNftDetailStyle = makeStyles((theme) => ({
     // background: '#343444',
     borderRadius: "16px",
     padding: "12px",
+  },
+  dataPoints: {
+    width: "100%",
+    // background: '#343444',
+    borderRadius: "16px",
+    padding: "12px",
+    textAlign: 'right'
   },
   nftHouseOwner: {
     borderRadius: "16px",
@@ -67,6 +74,18 @@ const useNftDetailStyle = makeStyles((theme) => ({
     borderRadius: "30px !important",
     transition: "all 0.3s ease !important",
     width: "100%",
+  },
+  changePriceBtn: {
+    width: '60%',
+    color: "#1976d2 !important",
+    backgroundColor: "transparent !important",
+    border: "2px solid #5142FC !important",
+    fontWeight: "bold",
+    boxSizing: "border-box !important",
+    padding: "11px 35px !important",
+    borderRadius: "30px !important",
+    transition: "all 0.3s ease !important",
+    marginLeft: '30px !important'
   },
   connectContract: {
     marginTop: "16px",

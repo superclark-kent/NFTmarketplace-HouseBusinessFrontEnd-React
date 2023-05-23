@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, ListItem, TextField, MenuItem, IconButton, Avatar, CircularProgress } from '@mui/material';
+import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
+import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
-import EditIcon from '@mui/icons-material/Edit';
-import SaveAsIcon from '@mui/icons-material/SaveAs';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
-import SubtitlesOffIcon from '@mui/icons-material/SubtitlesOff';
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseInfo, houseSuccess } from 'hooks/useToast';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
-import FileUpload from 'utils/ipfs';
-import { secretKey, apiURL } from 'mainConfig';
 import ContractDetailDialog from 'components/ContractDetailDialog';
+import { useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { houseInfo, houseSuccess } from 'hooks/useToast';
+import { secretKey } from 'mainConfig';
+import FileUpload from 'utils/ipfs';
 
 const StyledInput = styled('input')({
   display: 'none',
@@ -31,11 +33,12 @@ export default function Histories({
   setChangingHistoryType,
   historyTypes,
   loadNFT,
+  connectContract,
   disconnectContract,
-  walletAccount
 }) {
   const { account } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
+
   const [cHistories, setCHistories] = useState([]);
   const [disabledArr, setDisabledArr] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,7 +47,7 @@ export default function Histories({
   const [cBrand, setCBrand] = useState('');
   const [cBrandType, setCBrandType] = useState('');
   const [cYearField, setCYearField] = useState('');
-  const [cHistory, setCHistory] = useState('');
+  const [otherInfo, setOtherInfo] = useState('');
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
 
@@ -52,7 +55,7 @@ export default function Histories({
     setLoading(true);
     var historyItem = { ...histories[historyIndex] };
     var _houseImg = historyItem.houseImg;
-    var _history = historyItem.history;
+    var _otherInfo = historyItem.otherInfo;
     var _desc = historyItem.desc;
     var _brand = historyItem.houseBrand;
     var _brandType = historyItem.brandType;
@@ -61,7 +64,7 @@ export default function Histories({
     var changedFlag = false;
     if (homeHistory.imgNeed) {
       if (typeof cImage == 'string') {
-        _houseImg = CryptoJS.AES.encrypt(cImage, secretKey).toString()
+        _houseImg = cImage == "" ? "" : CryptoJS.AES.encrypt(cImage, secretKey).toString()
         changedFlag = true;
       } else {
         _houseImg = await FileUpload(cImage);
@@ -69,82 +72,55 @@ export default function Histories({
         changedFlag = true;
       }
     }
-    if (_desc != CryptoJS.AES.encrypt(cPicDesc, secretKey).toString() && homeHistory.descNeed) {
-      _desc = CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
+    if (homeHistory.descNeed) {
+      _desc = cPicDesc == "" ? "" : CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
       changedFlag = true;
     }
-    if (_brand != CryptoJS.AES.encrypt(cBrand, secretKey).toString() && homeHistory.brandNeed) {
-      _brand = CryptoJS.AES.encrypt(cBrand, secretKey).toString();
+    if (homeHistory.brandNeed) {
+      _brand = cBrand == "" ? "" : CryptoJS.AES.encrypt(cBrand, secretKey).toString();
       changedFlag = true;
     }
-    if (_brandType != CryptoJS.AES.encrypt(cBrandType, secretKey).toString() && homeHistory.brandTypeNeed) {
-      _brandType = CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
+    if (homeHistory.brandTypeNeed) {
+      _brandType = cBrandType == "" ? "" : CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
       changedFlag = true;
     }
     if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
       changedFlag = true;
     }
-    if (_history != CryptoJS.AES.encrypt(cHistory, secretKey).toString()) {
-      _history = CryptoJS.AES.encrypt(cHistory, secretKey).toString();
+    if (homeHistory.otherInfo) {
+      _otherInfo = otherInfo == "" ? "" : CryptoJS.AES.encrypt(otherInfo, secretKey).toString();
       changedFlag = true;
     }
 
     if (changedFlag) {
       try {
-        console.log('walletAccount', walletAccount)
-        const data = houseBusinessContract.methods
+        await houseBusinessContract.methods
           .editHistory(
             houseID,
             historyIndex,
             historyTypeId,
             _houseImg,
             _brand,
-            _history,
+            _otherInfo,
             _desc,
             _brandType,
-            _yearField,
-            walletAccount
+            _yearField
           )
-          .encodeABI();
+          .send({ from: account });
 
-        const transactionObject = {
-          data,
-          to: houseBusinessContract.options.address
-        };
-
-        // Send trx data and sign
-        fetch(`${apiURL}/signTransaction`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactionObject,
-            user: walletAccount
-          }),
-        })
-          .then(res => {
-            if (res.status !== 200) {
-              return res.json().then(error => {
-                houseError(`Error: ${error.message}`);
-                setLoading(false);
-              });
-            }
-
-            initialConf();
-            loadNFT(houseID);
-            houseSuccess('You changed the history successfully!');
-          })
-          .catch(err => {
-            houseError(err)
-          });
+        initialConf();
+        loadNFT(houseID);
+        houseSuccess('You changed the history successfully!');
+        setLoading(false);
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
     } else {
       houseInfo('There is nothing to change');
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const handleHistoryEdit = async (historyIndex) => {
@@ -158,14 +134,14 @@ export default function Histories({
     var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
     var bytesYearField = CryptoJS.AES.decrypt(histories[historyIndex].yearField, secretKey);
     var decryptedYearField = bytesYearField.toString(CryptoJS.enc.Utf8);
-    var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].history, secretKey);
-    var decryptedCHistory = bytesCHistory.toString(CryptoJS.enc.Utf8);
+    var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].otherInfo, secretKey);
+    var decryptedOtherInfo = bytesCHistory.toString(CryptoJS.enc.Utf8);
     setCImage(decrypteCImage);
     setCPicDesc(decryptePicDesc);
     setCBrand(decrypteBrand);
     setCBrandType(decryptedBrandType);
     setCYearField(new Date(Number(decryptedYearField)));
-    setCHistory(decryptedCHistory);
+    setOtherInfo(decryptedOtherInfo);
 
     var dArr = [];
     for (let i = 0; i < histories.length; i++) {
@@ -182,8 +158,8 @@ export default function Histories({
     var dArr = [];
     var tempHistory = [];
     for (let i = 0; i < histories.length; i++) {
-      var bytesHistory = CryptoJS.AES.decrypt(histories[i].history, secretKey);
-      var decryptedHistory = bytesHistory.toString(CryptoJS.enc.Utf8);
+      var bytesOtherInfo = CryptoJS.AES.decrypt(histories[i].otherInfo, secretKey);
+      var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
       var bytesBrandType = CryptoJS.AES.decrypt(histories[i].brandType, secretKey);
       var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
       var bytesHouseBrand = CryptoJS.AES.decrypt(histories[i].houseBrand, secretKey);
@@ -194,7 +170,7 @@ export default function Histories({
       var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
       tempHistory.push({
         ...histories[i],
-        history: decryptedHistory,
+        otherInfo: decryptedHistory,
         brandType: decryptedBrandType,
         houseBrand: decryptedHouseBrand,
         desc: decryptedDesc,
@@ -224,8 +200,8 @@ export default function Histories({
               value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
-              disabled={disabledArr[index] || loading}
-              // disabled={true}
+              // disabled={disabledArr[index] || loading}
+              disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>
@@ -323,18 +299,17 @@ export default function Histories({
                 </Grid>
               </LocalizationProvider>
             ) : null}
-
-            <TextField
+            {homeHistory.otherInfo && <TextField
               id="standard-multiline-static"
               label={'Other information'}
               rows={4}
               variant="filled"
               className={classes.listHistoryField}
-              value={disabledArr[index] === false ? cHistory : item.history}
+              value={disabledArr[index] === false ? otherInfo : item.otherInfo}
               disabled={disabledArr[index] || loading}
-              onChange={(e) => setCHistory(e.target.value)}
-            />
-            {item.contractId > 0 && (
+              onChange={(e) => setOtherInfo(e.target.value)}
+            />}
+            {item.contractId > 0 ? (
               <>
                 <IconButton
                   onClick={() => {
@@ -346,10 +321,15 @@ export default function Histories({
                   <DocumentIcon />
                 </IconButton>
                 <IconButton onClick={() => disconnectContract(index, item.contractId)}>
-                  <SubtitlesOffIcon />
+                  <DoDisturbOffIcon />
                 </IconButton>
               </>
-            )}
+            ) : ""
+              // homeHistory.connectContract &&
+              // <IconButton onClick={() => connectContract(index, item.contractId)}>
+              //   <AddCircleIcon />
+              // </IconButton>
+            }
             {disabledArr[index] === true ? (
               <IconButton onClick={() => handleHistoryEdit(index)}>
                 <EditIcon />
