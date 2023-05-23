@@ -23,10 +23,6 @@ export default function MoreDetail({
         }
     }, [account])
 
-    useEffect(() => {
-        console.log('--->', item)
-    }, [])
-
     if (item.contributor.currentOwner === account || confirm === true) {
         return (
             <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => handleClickMoreDetail(item)} >

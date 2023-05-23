@@ -7,10 +7,11 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
+import CryptoJS from 'crypto-js';
 import useHouseMintStyle from "assets/styles/houseMintStyle";
 import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { HouseBusinessAddress, apiURL } from 'mainConfig';
+import { HouseBusinessAddress, apiURL, secretKey } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
@@ -98,10 +99,13 @@ function Mint(props) {
           // setLoading(false);
         } else {
           try {
+						const encryptedipfsUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
+						const encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
+						const encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(houseName, ipfsUrl, houseType, year)
+                .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
                 .encodeABI();
 
               const transactionObject = {
@@ -124,9 +128,8 @@ function Mint(props) {
                 });
             } else {
               try {
-                console.log('==>', houseName, ipfsUrl, houseType, year)
                 await houseBusinessContract.methods
-                .mintHouse(houseName, ipfsUrl, houseType, year)
+                .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
                   .send({ from: account });
               } catch (err) {
                 console.log('err', err)

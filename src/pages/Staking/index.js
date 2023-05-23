@@ -73,9 +73,13 @@ export default function Staking() {
     for (var i = 0; i < nfts.length; i++) {
       if (nfts[i].contributor.currentOwner === zeroAddress) continue;
 
+      var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
+      var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+
       otherNFTs.push({
         ...nfts[i],
-        staked: false
+        staked: false,
+        tokenURI: decryptedURI,
       });
     }
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
@@ -88,10 +92,17 @@ export default function Staking() {
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
 
+      var bytes = CryptoJS.AES.decrypt(stakedNFT.tokenURI, secretKey);
+      var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+      var bytesName = CryptoJS.AES.decrypt(stakedNFT.tokenName, secretKey);
+      var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
+
       otherNFTs.push({
         ...stakedNFT,
         startedDate: startedDate,
         endDate: endDate,
+        tokenURI: decryptedURI,
+        tokenName: decryptedName,
       });
     }
 

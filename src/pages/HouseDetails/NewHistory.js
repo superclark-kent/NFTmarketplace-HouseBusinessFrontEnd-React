@@ -20,8 +20,8 @@ export default function NewHistory({
   cContract,
   setCContract,
   handleConnectContract,
-  history,
-  setHistory,
+  otherInfo,
+  setOtherInfo,
   historyTypes,
   hID,
   setHID,
@@ -158,10 +158,10 @@ export default function NewHistory({
             label={'Other Information'}
             multiline
             rows={4}
-            value={history}
+            value={otherInfo}
             variant="standard"
             className={classes.addHistoryField}
-            onChange={(e) => setHistory(e.target.value)}
+            onChange={(e) => setOtherInfo(e.target.value)}
           />}
         </>
       ) : null}

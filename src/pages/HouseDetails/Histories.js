@@ -13,6 +13,7 @@ import LinkOffIcon from '@mui/icons-material/LinkOff';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
 import { useWeb3React } from '@web3-react/core';
+import CryptoJS from 'crypto-js';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
@@ -63,31 +64,32 @@ export default function Histories({
     var changedFlag = false;
     if (homeHistory.imgNeed) {
       if (typeof cImage == 'string') {
-        _houseImg = cImage
+        _houseImg = cImage == "" ? "" : CryptoJS.AES.encrypt(cImage, secretKey).toString()
         changedFlag = true;
       } else {
         _houseImg = await FileUpload(cImage);
+        _houseImg = CryptoJS.AES.encrypt(_houseImg, secretKey).toString()
         changedFlag = true;
       }
     }
-    if (_desc != cPicDesc && homeHistory.descNeed) {
-      _desc = cPicDesc, secretKey;
+    if (homeHistory.descNeed) {
+      _desc = cPicDesc == "" ? "" : CryptoJS.AES.encrypt(cPicDesc, secretKey).toString();
       changedFlag = true;
     }
-    if (_brand != cBrand && homeHistory.brandNeed) {
-      _brand = cBrand;
+    if (homeHistory.brandNeed) {
+      _brand = cBrand == "" ? "" : CryptoJS.AES.encrypt(cBrand, secretKey).toString();
       changedFlag = true;
     }
-    if (_brandType != cBrandType && homeHistory.brandTypeNeed) {
-      _brandType = cBrandType;
+    if (homeHistory.brandTypeNeed) {
+      _brandType = cBrandType == "" ? "" : CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
       changedFlag = true;
     }
     if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
       changedFlag = true;
     }
-    if (_otherInfo != otherInfo) {
-      _otherInfo = otherInfo;
+    if (homeHistory.otherInfo) {
+      _otherInfo = otherInfo == "" ? "" : CryptoJS.AES.encrypt(otherInfo, secretKey).toString();
       changedFlag = true;
     }
 
@@ -122,12 +124,24 @@ export default function Histories({
   };
 
   const handleHistoryEdit = async (historyIndex) => {
-    setCImage(histories[historyIndex].houseImg);
-    setCPicDesc(histories[historyIndex].desc);
-    setCBrand(histories[historyIndex].houseBrand);
-    setCBrandType(histories[historyIndex].brandType);
-    setCYearField(new Date(Number(histories[historyIndex].yearField)));
-    setOtherInfo(histories[historyIndex].otherInfo);
+    var bytesCImage = CryptoJS.AES.decrypt(histories[historyIndex].houseImg, secretKey);
+    var decrypteCImage = bytesCImage.toString(CryptoJS.enc.Utf8);
+    var bytesDesc = CryptoJS.AES.decrypt(histories[historyIndex].desc, secretKey);
+    var decryptePicDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+    var bytesBrand = CryptoJS.AES.decrypt(histories[historyIndex].houseBrand, secretKey);
+    var decrypteBrand = bytesBrand.toString(CryptoJS.enc.Utf8);
+    var bytesBrandType = CryptoJS.AES.decrypt(histories[historyIndex].brandType, secretKey);
+    var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
+    var bytesYearField = CryptoJS.AES.decrypt(histories[historyIndex].yearField, secretKey);
+    var decryptedYearField = bytesYearField.toString(CryptoJS.enc.Utf8);
+    var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].otherInfo, secretKey);
+    var decryptedOtherInfo = bytesCHistory.toString(CryptoJS.enc.Utf8);
+    setCImage(decrypteCImage);
+    setCPicDesc(decryptePicDesc);
+    setCBrand(decrypteBrand);
+    setCBrandType(decryptedBrandType);
+    setCYearField(new Date(Number(decryptedYearField)));
+    setOtherInfo(decryptedOtherInfo);
 
     var dArr = [];
     for (let i = 0; i < histories.length; i++) {
@@ -144,13 +158,23 @@ export default function Histories({
     var dArr = [];
     var tempHistory = [];
     for (let i = 0; i < histories.length; i++) {
+      var bytesOtherInfo = CryptoJS.AES.decrypt(histories[i].otherInfo, secretKey);
+      var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
+      var bytesBrandType = CryptoJS.AES.decrypt(histories[i].brandType, secretKey);
+      var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
+      var bytesHouseBrand = CryptoJS.AES.decrypt(histories[i].houseBrand, secretKey);
+      var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
+      var bytesDesc = CryptoJS.AES.decrypt(histories[i].desc, secretKey);
+      var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+      var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
+      var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
       tempHistory.push({
         ...histories[i],
-        otherInfo: histories[i].otherInfo,
-        brandType: histories[i].brandType,
-        houseBrand: histories[i].houseBrand,
-        desc: histories[i].desc,
-        houseImg: histories[i].houseImg
+        otherInfo: decryptedHistory,
+        brandType: decryptedBrandType,
+        houseBrand: decryptedHouseBrand,
+        desc: decryptedDesc,
+        houseImg: decryptedImg
       });
       dArr[i] = true;
     }

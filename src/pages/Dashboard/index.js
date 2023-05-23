@@ -2,11 +2,12 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import { Button, Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
+import CryptoJS from 'crypto-js';
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { zeroAddress } from 'mainConfig';
+import { zeroAddress, secretKey } from 'mainConfig';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CachedIcon from '@mui/icons-material/Cached';
@@ -25,10 +26,19 @@ export default function Dashboard() {
     houseBusinessContract.methods.getAllHouses().call()
       .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
+          var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
+          var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+          var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
+          var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
+          var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
+          var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
           nfts.push({
             ...gNFTs[i],
-            price: housePrice
+            price: housePrice,
+            tokenURI: decryptedURI,
+            tokenName: decryptedName,
+            tokenType: decryptedType
           })
         }
         if (account) {

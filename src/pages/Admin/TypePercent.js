@@ -65,7 +65,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
     setDesc(labelPercents[3])
     setBType(labelPercents[4])
     setYear(labelPercents[5])
-    setOtherInfo(labelPercents[7])
+    setOtherInfo(labelPercents[6])
   }, [labelPercents])
 
   return (

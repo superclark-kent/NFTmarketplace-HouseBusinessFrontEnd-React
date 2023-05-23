@@ -5,13 +5,14 @@ import { useWeb3React } from '@web3-react/core';
 import { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { HouseBusinessAddress, zeroAddress } from 'mainConfig';
+import { HouseBusinessAddress, zeroAddress, secretKey } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
 
 function Nfts(props) {
@@ -30,9 +31,15 @@ function Nfts(props) {
       for (var i = 0; i < nfts.length; i++) {
         if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
         var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
+        var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
+        var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+        var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
+        var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
         otherNFTs.push({
           ...nfts[i],
-          price: housePrice
+          price: housePrice,
+          tokenName: decryptedName,
+          tokenURI: decryptedURI
         });
       }
       setAllMyNFTs(otherNFTs);
