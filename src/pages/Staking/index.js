@@ -20,7 +20,7 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 
-export default function Staking() {
+function Staking(props) {
   const { account } = useWeb3React();
   const nftClasses = useNftStyle();
   const web3 = useWeb3();
@@ -87,7 +87,7 @@ export default function Staking() {
       });
     }
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs().call();
+    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
 
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
@@ -120,7 +120,7 @@ export default function Staking() {
   };
 
   const handleStaking = async (item, index) => {
-    try {
+    if (!account) {
       let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
       let transactionObject = {
         data,
@@ -174,14 +174,20 @@ export default function Staking() {
         .catch(err => {
           houseError(err)
         });
-
-    } catch (error) {
-      console.log(error);
+    } else {
+      try {
+        await houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).send({ from: account });
+        await stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).send({ from: account });
+        houseSuccess('You staked house NFT successfully.');
+        loadNFTs();
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
   const handleClaimRewards = async () => {
-    try {
+    if (!account) {
       const data = stakingContract.methods.claimRewards(walletAccount).encodeABI();
       const transactionObject = {
         data,
@@ -208,8 +214,12 @@ export default function Staking() {
       }).catch(err => {
         houseError(err)
       });
-    } catch (error) {
-      console.log(error);
+    } else {
+      try {
+        await stakingContract.methods.claimRewards(walletAccount).send({ from: account });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -217,14 +227,42 @@ export default function Staking() {
     if (!item) {
       item = cItem;
     }
-    console.log(cItem);
-    try {
-      setLoading(true);
+
+    setLoading(true);
+
+    if (!account) {
       const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
-      houseSuccess('You unstaked house NFT successfully.');
-      loadNFTs();
-    } catch (error) {
-      console.log(error);
+      const transactionObject = {
+        data,
+        to: stakingContract.options.address
+      };
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      }).then(res => {
+        if (res.status !== 200) {
+          return res.json().then(error => {
+            houseError(`Error: ${error.message}`);
+            setLoading(false);
+          });
+        }
+        houseSuccess('You unstaked house NFT successfully.');
+        loadNFTs();
+      }).catch(err => {
+        houseError(err)
+      });
+    } else {
+      try {
+        await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account })
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -399,3 +437,12 @@ export default function Staking() {
     </Grid>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+    houseNft: state.houseNft
+  };
+}
+
+export default connect(mapStateToProps)(Staking);

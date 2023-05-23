@@ -53,7 +53,8 @@ function Nfts(props) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
-    try {
+
+    if (!account) {
       const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
       const transactionObject = {
         data,
@@ -82,9 +83,14 @@ function Nfts(props) {
         .catch(err => {
           houseError(err)
         });
-
-    } catch (error) {
-      console.log(error)
+    } else {
+      try {
+        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account });
+        houseSuccess("Your House NFT can be sold from now.")
+        loadNFTs()
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
