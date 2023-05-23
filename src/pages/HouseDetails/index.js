@@ -208,8 +208,7 @@ function HouseDetails(props) {
 					encryptedHistory,
 					encryptedDesc,
 					encryptedBrandType,
-					_yearField,
-					walletAccount
+					_yearField
 				).encodeABI();
 			const transactionObject = {
 				data,
@@ -257,7 +256,7 @@ function HouseDetails(props) {
 		const houseID = simpleNFT.houseID;
 		setLoading(true);
 		try {
-			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId, walletAccount).encodeABI();
+			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
 				data
@@ -306,7 +305,7 @@ function HouseDetails(props) {
 			return;
 		}
 
-		const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true, walletAccount).encodeABI();
+		const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).encodeABI();
 
 		const transactionObject = {
 			to: houseBusinessContract.options.address,
@@ -352,7 +351,7 @@ function HouseDetails(props) {
 			}
 			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
 			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
-			const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice, walletAccount).encodeABI();
+			const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).encodeABI();
 
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
@@ -393,9 +392,9 @@ function HouseDetails(props) {
 		}
 		let data;
 		if (buyerFlag === true) {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag, walletAccount).encodeABI();
+			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag).encodeABI();
 		} else {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag, walletAccount).encodeABI();
+			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag).encodeABI();
 		}
 
 		const transactionObject = {

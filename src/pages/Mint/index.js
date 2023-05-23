@@ -142,7 +142,7 @@ function Mint(props) {
 							console.log('metamask: ', account);
 
 							await houseBusinessContract.methods
-								.mintHouse(encryptedName, ipUrl, encryptedType, encryptedDes, account)
+								.mintHouse(account, encryptedName, ipUrl, encryptedType, encryptedDes)
 								.send({ from: account });
 
 							setImage("");

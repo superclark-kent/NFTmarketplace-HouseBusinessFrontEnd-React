@@ -103,8 +103,7 @@ export default function Histories({
             _history,
             _desc,
             _brandType,
-            _yearField,
-            walletAccount
+            _yearField
           )
           .encodeABI();
 
