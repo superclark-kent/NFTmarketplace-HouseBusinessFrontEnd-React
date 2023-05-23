@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import dotenv from "dotenv";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import Web3 from "web3";
@@ -16,7 +17,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_API_KEY);
+const stripePromise = loadStripe('pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy');
 
 const style = {
     position: "absolute",
@@ -46,7 +47,7 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-export default function AirdropWallet() {
+function AirdropWallet(props) {
     const { account } = useWeb3React();
     const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
@@ -54,8 +55,9 @@ export default function AirdropWallet() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { walletID: urlWalletID } = useParams();
-    const [walletID, setWalletID] = useState(urlWalletID);
+    const { walletID } = useParams();
+    const dispatch = useDispatch();
+    const walletAccount = props.account.account;
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
     const [amountToDeposit, setAmountToDeposit] = useState('');
@@ -65,20 +67,11 @@ export default function AirdropWallet() {
     const [clientSecret, setClientSecret] = useState("");
 
     useEffect(() => {
-        setWalletID(urlWalletID);
-    }, [urlWalletID]);
-
-    useEffect(() => {
-        if (account) {
-            setWalletID(account);
-        } else {
-            setWalletID(urlWalletID);
+        if (walletAccount) {
+            navigate(`../../account/${walletAccount}`);
+            getCreditBalance();
         }
-    }, [account]);
-
-    useEffect(() => {
-        getCreditBalance();
-    }, [walletID]);
+    }, [walletAccount]);
 
     useEffect(() => {
         // Create PaymentIntent as soon as the page loads
@@ -92,10 +85,6 @@ export default function AirdropWallet() {
         })
             .then((res) => res.json())
             .then((data) => setClientSecret(data.clientSecret));
-
-        if (account) {
-            setWalletID(account);
-        }
     }, []);
 
     useEffect(async () => {
@@ -146,7 +135,7 @@ export default function AirdropWallet() {
 
     const airdropERC20Token = () => {
         try {
-            const amount = Web3.utils.toWei(`${paymentAmount}`, 'ether');
+            const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
             const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
 
             const transactionObject = {
@@ -164,7 +153,7 @@ export default function AirdropWallet() {
             })
                 .then(res => res.json())
                 .then(data => {
-                    houseSuccess(`Congratulations, you received ${paymentAmount} $HBT token airdrop.`);
+                    houseSuccess(`Congratulations, you received ${paymentAmount / 100} $HBT token airdrop.`);
                     getCreditBalance();
                 })
                 .catch(err => {
@@ -197,9 +186,11 @@ export default function AirdropWallet() {
         OperatorContract.methods
             .deposit(amountInWei)
             .send({ from: account })
-            .then(receipt => {
-                houseSuccess('Successfully Deposited');
-                getCreditBalance();
+            .then(res => {
+                if (res.status === 200) {
+                    houseSuccess('Successfully Deposited');
+                    getCreditBalance();
+                }
             })
             .catch(error => {
                 console.error(error);
@@ -228,7 +219,7 @@ export default function AirdropWallet() {
                 <Grid item xs={12}>
                     <Item>
                         <div style={{ flex: '1' }}>
-                            {creditBalance}
+                            {creditBalance} $HBT
                         </div>
                     </Item>
                 </Grid>
@@ -317,3 +308,11 @@ export default function AirdropWallet() {
         </>
     );
 }
+
+function mapStateToProps(state) {
+    return {
+        account: state.account
+    };
+}
+
+export default connect(mapStateToProps)(AirdropWallet);

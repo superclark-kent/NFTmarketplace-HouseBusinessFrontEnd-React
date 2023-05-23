@@ -90,7 +90,7 @@
     ],
     "name": "callContract",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {

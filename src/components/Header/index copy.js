@@ -47,7 +47,7 @@ import useHeaderStyles from "assets/styles/headerStyle";
 
 import {
   useHouseBusinessContract,
-  useHouseDocContract,
+  useCleanContract,
 } from "hooks/useContractHelpers";
 import { houseInfo } from "hooks/useToast";
 
@@ -232,7 +232,7 @@ export default function Header(props) {
   const navigate = useNavigate();
   const { account, activate, deactivate } = useWeb3React();
   const houseBusinessContract = useHouseBusinessContract();
-  const houseDocContract = useHouseDocContract();
+  const cleanContract = useCleanContract();
 
   const [notifies, setNotifies] = useState([]);
   const [badgeLeng, setBadgeLeng] = useState("");
@@ -286,7 +286,7 @@ export default function Header(props) {
   };
 
   const loadNotifies = async () => {
-    var notifies = await houseDocContract.methods
+    var notifies = await cleanContract.methods
       .getAllNotifies()
       .call({ from: account });
     var arr = [],

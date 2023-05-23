@@ -1,4 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
+import { connect, useDispatch } from 'react-redux';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -6,19 +7,21 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
+import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress } from 'mainConfig';
+import { secretKey, zeroAddress, apiURL } from 'mainConfig';
 import { useEffect, useState } from 'react';
 import decryptfile from 'utils/decrypt';
 
-export default function Contract() {
+function Contract(props) {
   const { account } = useWeb3React();
   const web3 = useWeb3();
+  const dispatch = useDispatch();
+  const walletAccount = props.account.account;
   const classes = useContractStyle();
+  const cleanContract = useCleanContract();
   const houseBusinessContract = useHouseBusinessContract();
-  const houseDocContract = useHouseDocContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -44,11 +47,11 @@ export default function Contract() {
   const loadContracts = async () => {
     setLoading(true);
 
-    const allCleanContracts = await houseDocContract.methods.getAllCleanContracts().call();
-
+    const allCleanContracts = await cleanContract.methods.getAllCleanContracts().call();
+    console.log(allCleanContracts)
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
-      if (allCleanContracts[i].owner == account) {
+      if (allCleanContracts[i].owner == walletAccount) {
         var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
@@ -63,7 +66,7 @@ export default function Contract() {
           currency: decryptedCurrency,
         });
       }
-      if (allCleanContracts[i].contractSigner == account) {
+      if (allCleanContracts[i].contractSigner == walletAccount) {
         var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
         var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
         var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
@@ -98,17 +101,67 @@ export default function Contract() {
 
   const handleSign = async (item) => {
     setLoading(true);
-    if (item.creator === account) {
+    if (item.creator === walletAccount) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
       } else {
-        await houseDocContract.methods.signContract(item.contractId).send({ from: account });
-        loadContracts();
+        const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
+        const transactionObject = {
+          data,
+          to: cleanContract.options.address
+        }
+
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
+        })
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            loadContracts();
+          })
+          .catch(err => {
+            houseError(err)
+          });
       }
     } else {
-      await houseDocContract.methods.signContract(item.contractId).send({ from: account });
-      loadContracts();
+      const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: cleanContract.options.address
+      }
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+              setLoading(false);
+            });
+          }
+          loadContracts();
+        })
+        .catch(err => {
+          houseError(err)
+        });
     }
   };
 
@@ -126,14 +179,34 @@ export default function Contract() {
       houseError('Contract Signer is empty');
     } else {
       setLoading(true);
-      try {
-        await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+      const data = cleanContract.methods.addContractSigner(item.contractId, cSC, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: cleanContract.options.address
+      };
 
-        loadContracts();
-        setTimeout(loadContracts, 3000);
-      } catch (err) {
-        console.log('err', err)
-      }
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+            });
+          }
+          houseSuccess("Contract signer successfully added.");
+          loadContracts();
+          setTimeout(loadContracts, 3000);
+        })
+        .catch(err => {
+          houseError(err)
+        });
     }
     // }
   };
@@ -159,7 +232,7 @@ export default function Contract() {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
+    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
       if (item.contractId === sentNotifies[i].ccId) {
@@ -175,14 +248,38 @@ export default function Contract() {
     } else {
       if (flag === false) {
         try {
-          await houseDocContract.methods
-            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId)
-            .send({ from: account });
+          const data = cleanContract.methods
+            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
+            .encodeABI();
+          const transactionObject = {
+            data,
+            to: cleanContract.options.address
+          };
+          // Send trx data and sign
+          fetch(`${apiURL}/signTransaction`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionObject,
+              user: walletAccount
+            }),
+          })
+            .then(res => {
+              if (res.status !== 200) {
+                return res.json().then(error => {
+                  houseError(`Error: ${error.message}`);
+                });
+              }
+              houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
+              loadContracts();
+            })
+            .catch(err => {
+              houseError(err)
+            });
         } catch (err) {
-          console.log('err', err)
-          setLoading(false);
+          console.log(err);
+          houseError('Something went wrong');
         }
-        loadContracts();
       } else {
         houseError('You already sent notify to this signer');
         setLoading(false);
@@ -208,11 +305,11 @@ export default function Contract() {
   }
 
   useEffect(() => {
-    if (account) {
+    if (walletAccount) {
       getAllHistoryTypes();
       loadContracts();
     }
-  }, [account]);
+  }, [walletAccount]);
 
   function ChangeSigner(index) {
     setCSigner(allContracts[index].contractSigner);
@@ -222,10 +319,34 @@ export default function Contract() {
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
     try {
-      await houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
-      temp[k].contractSigner = CSigner;
-      setAllContracts(temp);
-      houseSuccess('Successed Changing Signer!');
+      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: cleanContract.options.address
+      };
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+            });
+          }
+          temp[k].contractSigner = CSigner;
+          setAllContracts(temp);
+          houseSuccess('Successed Changing Signer!');
+        })
+        .catch(err => {
+          houseError(err)
+        });
     } catch (err) {
       console.log('err', err)
     }
@@ -257,6 +378,7 @@ export default function Contract() {
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
+                    {console.log(historyTypes, item.contractType)}
                     Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
@@ -544,14 +666,13 @@ export default function Contract() {
                       />
                     </Grid>
                     <Grid className={classes.sendNotify}>
-                      <LoadingButton
-                        loading={loading}
+                      <Button
                         variant="contained"
                         disabled={!rNotifyArr[index]}
                         onClick={() => handleSendNotify(item, 'signer')}
                       >
                         Send Notify
-                      </LoadingButton>
+                      </Button>
                     </Grid>
                   </>
                 ) : (
@@ -559,13 +680,9 @@ export default function Contract() {
                 )}
                 <Grid className={classes.sign}>
                   {item.signerApproval === false ? (
-                    <LoadingButton
-                      loading={loading}
-                      variant="contained"
-                      onClick={() => handleSign(item)}
-                    >
+                    <Button variant="contained" onClick={() => handleSign(item)}>
                       Sign Contract
-                    </LoadingButton>
+                    </Button>
                   ) : (
                     <Button variant="contained" disabled={true}>
                       You already signed
@@ -580,3 +697,11 @@ export default function Contract() {
     </Grid>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(Contract);

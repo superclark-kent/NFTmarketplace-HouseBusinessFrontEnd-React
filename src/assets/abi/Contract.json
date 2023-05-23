@@ -187,6 +187,11 @@
         "internalType": "address",
         "name": "_contractSigner",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
       }
     ],
     "name": "addContractSigner",
@@ -248,6 +253,11 @@
         "internalType": "string",
         "name": "_currency",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
       }
     ],
     "name": "ccCreation",
@@ -437,6 +447,25 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "operators",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_notifyReceiver",
         "type": "address"
       },
@@ -449,6 +478,11 @@
         "internalType": "uint256",
         "name": "ccID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_notifier",
+        "type": "address"
       }
     ],
     "name": "sendNotify",
@@ -459,9 +493,32 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isOperator",
+        "type": "bool"
+      }
+    ],
+    "name": "setOperator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "ccID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newSigner",
+        "type": "address"
       }
     ],
     "name": "signContract",

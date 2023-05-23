@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { connect, useDispatch } from 'react-redux';
 import styled from "@emotion/styled";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -17,9 +18,11 @@ import { BigNumber } from "ethers";
 import Web3 from "web3";
 
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
+import {
+  useCleanContract, useHouseBusinessContract
+} from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { secretKey, zeroAddress } from "mainConfig";
+import { secretKey, zeroAddress, apiURL } from "mainConfig";
 import FileUpload from "utils/ipfs";
 import encryptfile from "utils/encrypt";
 
@@ -27,11 +30,13 @@ const Input = styled("input")({
   display: "none",
 });
 
-export default function CreateContract() {
+function CreateContract(props) {
   const { account } = useWeb3React();
+  const dispatch = useDispatch();
+  const walletAccount = props.account.account;
   const classes = useHouseMintStyle();
+  const cleanContract = useCleanContract();
   const houseBusinessContract = useHouseBusinessContract();
-  const houseDocContract = useHouseDocContract();
   const navigate = useNavigate();
   // Contract
   const [cFile, setCFile] = useState(null);
@@ -75,7 +80,7 @@ export default function CreateContract() {
   };
 
   const handleCreateContract = async () => {
-    if (!account) {
+    if (!walletAccount) {
       houseInfo("Please connect your wallet.");
     } else if (
       !companyName ||
@@ -87,14 +92,14 @@ export default function CreateContract() {
       houseError("Please input all fields correctly.");
     } else if (cFile) {
       setLoading(true);
-      var aSigner;
+      let aSigner;
       if (isContractSinger === true) {
         aSigner = contractSigner;
       } else {
         aSigner = zeroAddress;
       }
       let isValid = Web3.utils.isAddress(aSigner);
-      var ipfsUrl = await FileUpload(cFile);
+      let ipfsUrl = await FileUpload(cFile);
       if (ipfsUrl === false) {
         houseError("Something went wrong with IPFS");
         setLoading(false);
@@ -107,53 +112,76 @@ export default function CreateContract() {
             setLoading(false);
           } else {
             try {
-              var aPrice = BigNumber.from(`${agreedPrice * 10 ** 18}`);
-              var ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
+              // const aPrice = BigNumber.from(`${agreedPrice * 10 ** 18}`);
+              const aPrice = Web3.utils.toWei(`${agreedPrice}`, 'ether');
+              const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
+              const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
+              const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
+              console.log('contractType', contractType)
 
-              await houseDocContract.methods
+              const data = cleanContract.methods
                 .ccCreation(
-                  CryptoJS.AES.encrypt(companyName, secretKey).toString(),
+                  encryptedCompanyName,
                   contractType,
                   aSigner,
                   ipUrl,
                   sDate,
                   eDate,
                   aPrice,
-                  CryptoJS.AES.encrypt(currency, secretKey).toString(),
-                )
-                .send({ from: account });
+                  encryptedCurrency,
+                  walletAccount
+                ).encodeABI();
 
-              houseSuccess("Success");
+              const transactionObject = {
+                data,
+                to: cleanContract.options.address
+              }
 
-              setCFile(null);
-              setCFileName("");
-              setCompanyName("");
-              setcontractSigner("");
-              setContractType(contractType);
-              setDateFrom("");
-              setDateTo("");
-              setAgreedPrice("");
-              setCurrency("MATIC");
-
-              setIsContractSinger(false);
-
-              setLoading(false);
-
-              navigate("../../contract/main");
+              // Send trx data and sign
+              fetch(`${apiURL}/signTransaction`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  transactionObject,
+                  user: walletAccount
+                }),
+              })
+                .then(res => {
+                  if (res.status !== 200) {
+                    return res.json().then(error => {
+                      houseError(`Error: ${error.message}`);
+                      setLoading(false);
+                    });
+                  }
+                  houseSuccess("Success");
+                  setCFile(null);
+                  setCFileName("");
+                  setCompanyName("");
+                  setcontractSigner("");
+                  setContractType(contractType);
+                  setDateFrom("");
+                  setDateTo("");
+                  setAgreedPrice("");
+                  setCurrency("MATIC");
+                  setIsContractSinger(false);
+                  navigate("../../contract/main");
+                })
+                .catch(err => {
+                  houseError(err)
+                });
             } catch (error) {
               console.log(error);
               houseError("Something went wrong");
-              setLoading(false);
             }
           }
         } else {
           houseError("Contract Signer address is invalid");
-          setLoading(false);
         }
       }
     } else {
       houseError("Please upload contract file.");
     }
+    setLoading(false);
   };
 
   const ValueUp = () => {
@@ -183,6 +211,7 @@ export default function CreateContract() {
         flag: item.connectContract
       })
     })
+    console.log(arr);
     setContracTypes(arr);
   }, [])
 
@@ -272,7 +301,7 @@ export default function CreateContract() {
             multiline
             disabled={!isContractSinger}
             onChange={(e) => {
-              if (e.target.value === `${account}`) {
+              if (e.target.value === `${walletAccount}`) {
                 houseError(
                   "Contract Signer this can not be himself / contract maker"
                 );
@@ -392,7 +421,7 @@ export default function CreateContract() {
             className={classes.needField}
             variant="filled"
             label="Contract maker (you)"
-            value={account ? account : "Please connect your wallet"}
+            value={walletAccount ? walletAccount : "Please connect your wallet"}
             disabled={true}
             InputLabelProps={{
               shrink: true,
@@ -414,3 +443,11 @@ export default function CreateContract() {
     </Stack>
   );
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+  };
+}
+
+export default connect(mapStateToProps)(CreateContract);

@@ -2,13 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Button, Divider, Grid, IconButton, InputBase,
-  Paper,
-  TextField,
-  styled
+  Paper, styled, TextField
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
+  useCleanContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
 } from 'hooks/useContractHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -22,8 +20,7 @@ import useAdminStyle from 'assets/styles/adminStyle';
 import { BigNumber } from 'ethers';
 import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import HistoryType from './HistoryType';
-import TypePercent from './TypePercent';
+import NftHistory from './NftHistory';
 
 import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
@@ -98,7 +95,7 @@ export default function Admin() {
   const { account } = useWeb3React();
   const navigate = useNavigate();
   const houseBusinessContract = useHouseBusinessContract();
-  const houseDocContract = useHouseDocContract();
+  const CleanContract = useCleanContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
 
@@ -119,7 +116,7 @@ export default function Admin() {
   const [countArray, setCountArray] = useState([]);
   const [uploadedCount, setUploadedCount] = useState(0);
 
-  const [validateFlag, setValidateFlag] = useState(true);
+  const [validateFlag, setValidateFlag] = useState(false);
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPass, setAdminPass] = useState('');
 
@@ -133,7 +130,6 @@ export default function Admin() {
   const [Pprice, setPprice] = useState('');
   const [Pperiod, setPperiod] = useState(0);
   const [DataLimit, setDataLimit] = useState('');
-  const [labelPercents, setLabelPercents] = useState([])
 
   const PeriodList = [
     {
@@ -157,7 +153,7 @@ export default function Admin() {
     var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    var _uploadedCount = await houseDocContract.methods.ccCounter().call()
+    var _uploadedCount = await CleanContract.methods.ccCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
@@ -169,7 +165,6 @@ export default function Admin() {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
-    getLabelPercent()
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -182,10 +177,7 @@ export default function Admin() {
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
-      allHTypes.push({
-        ...hTypes[i],
-        value: web3.utils.fromWei(hTypes[i].value)
-      });
+      allHTypes.push(hTypes[i]);
     }
 
     setHistoryTypes(allHTypes);
@@ -200,14 +192,9 @@ export default function Admin() {
       }
       const Category = await thirdPartyContract.methods.getAllCategories().call();
       setCategoryList(Category.filter((item) => item[1] != ''));
-      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call();
+      var totalInfo = await houseBusinessContract.methods.getTotalInfo().call()
       setCountArray(totalInfo);
     }
-  }
-
-  const getLabelPercent = async () => {
-    var _labelPercents = await houseBusinessContract.methods.labelPercent().call();
-    setLabelPercents(_labelPercents);
   }
 
   const AccessAdmin = () => {
@@ -1055,11 +1042,7 @@ export default function Admin() {
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
-            <TypePercent classes={classes} labelPercents={labelPercents} getLabelPercent={getLabelPercent} />
-            <Grid item md={12}>
-              <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
-            </Grid>
-            <HistoryType classes={classes} historyTypes={historyTypes} labelPercents={labelPercents} />
+            <NftHistory classes={classes} historyTypes={historyTypes} />
           </Grid>
         </Grid>
       ) : (

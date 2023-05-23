@@ -31,18 +31,11 @@ const useAdminStyle = makeStyles((theme) => ({
         width: '12%',
         textAlign: 'left'
     },
-    percentGrid: {
-        width: '9%',
-        textAlign: 'center'
-    },
     perLabel: {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         width: '8%'
-    },
-    fullWidth: {
-        width: '65%'
     }
 }));
 
