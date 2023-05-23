@@ -126,7 +126,7 @@ function AirdropWallet(props) {
     const getCreditBalance = async () => {
         try {
             // Get the ERC20 token balance.
-            const creditBalance = await OperatorContract.methods.balanceOf(walletID).call();
+            const creditBalance = await OperatorContract.methods.balanceOf(walletAccount).call();
             setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
         } catch (err) {
             console.log(err);
@@ -136,7 +136,7 @@ function AirdropWallet(props) {
     const airdropERC20Token = () => {
         try {
             const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
-            const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
+            const data = OperatorContract.methods.mintAndStore(walletAccount, amount).encodeABI();
 
             const transactionObject = {
                 to: OperatorAddress,
@@ -209,7 +209,7 @@ function AirdropWallet(props) {
                 <Grid item xs={12}>
                     <Item>
                         <div style={{ flex: '1' }}>
-                            {walletID}
+                            {walletAccount}
                         </div>
                     </Item>
                 </Grid>
