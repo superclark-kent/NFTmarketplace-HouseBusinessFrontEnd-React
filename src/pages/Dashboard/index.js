@@ -54,7 +54,7 @@ function Dashboard(props) {
       houseInfo("Please connect your wallet!")
     } else {
       setLoading(true);
-      try {
+      if (!account) {
         const data = houseBusinessContract.methods.buyHouseNft(item.houseID, walletAccount).encodeABI();
         const transactionObject = {
           data,
@@ -84,9 +84,16 @@ function Dashboard(props) {
           .catch(err => {
             houseError(err)
           });
-      } catch (err) {
-        console.log('err', err)
+      } else {
+        try {
+          await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account });
+          houseSuccess("You bought successfully!")
+          loadNFTs()
+        } catch (err) {
+          console.log('err', err)
+        }
       }
+
       setLoading(false);
     }
   }
