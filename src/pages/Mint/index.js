@@ -11,7 +11,7 @@ import CryptoJS from 'crypto-js';
 import useHouseMintStyle from "assets/styles/houseMintStyle";
 import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { HouseBusinessAddress, apiURL, secretKey } from 'mainConfig';
+import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
@@ -107,7 +107,7 @@ function Mint(props) {
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
+                .mintHouse(walletAccount, encryptedName, encryptedipfsUrl, encryptedType, year)
                 .encodeABI();
 							console.log('walletAccount: ', walletAccount);
 
@@ -148,7 +148,7 @@ function Mint(props) {
 							console.log('metamask: ', account);
               try {
                 await houseBusinessContract.methods
-                  .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
+                  .mintHouse(zeroAddress, encryptedName, encryptedipfsUrl, encryptedType, year)
                   .send({ from: account });
               } catch (err) {
                 console.log('err', err)

@@ -292,7 +292,6 @@ function Header(props) {
 	};
 
   const loadNotifies = async () => {
-		console.log('account',account)
     var notifies = await houseDocContract.methods.getAllNotifies(account).call();
     var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
@@ -315,7 +314,6 @@ function Header(props) {
         nArr.push(notifies[i]);
       }
     }
-
 		setNotifies(arr);
 		setBadgeLeng(nArr.length);
 	};

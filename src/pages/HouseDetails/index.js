@@ -95,7 +95,7 @@ function HouseDetails(props) {
   };
 
   const loadNFT = async (_id) => {
-    var allContracts = await houseDocContract.methods.getAllCleanContracts().call();
+    var allContracts = await houseDocContract.methods.getAllDocContracts().call();
     var _housePrice = await houseBusinessContract.methods.getHousePrice(_id).call();
     var cArr = [];
     for (let i = 0; i < allContracts.length; i++) {

@@ -116,7 +116,7 @@ function CreateContract(props) {
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
             if(!account) {
               await houseDocContract.methods
-                .ccCreation(
+                .hdCreation(
                   encryptedCompanyName,
                   contractType,
                   aSigner,
@@ -168,7 +168,7 @@ function CreateContract(props) {
             } else {
               try {
                 await houseDocContract.methods
-                .ccCreation(
+                .hdCreation(
                   encryptedCompanyName,
                   contractType,
                   aSigner,
@@ -176,7 +176,8 @@ function CreateContract(props) {
                   sDate,
                   eDate,
                   aPrice,
-                  encryptedCurrency
+                  encryptedCurrency,
+                  account
                 ).send({ from: account })
                 houseSuccess("Success");
                   setCFile(null);

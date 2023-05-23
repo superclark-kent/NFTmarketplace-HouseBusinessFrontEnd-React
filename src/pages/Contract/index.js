@@ -47,7 +47,7 @@ function Contract(props) {
   const loadContracts = async () => {
     setLoading(true);
 
-    const allCleanContracts = await houseDocContract.methods.getAllCleanContracts().call();
+    const allCleanContracts = await houseDocContract.methods.getAllDocContracts().call();
 
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
@@ -140,16 +140,18 @@ function Contract(props) {
           })
           .catch(err => {
             houseError(err);
+            setLoading(false);
           });
       } else {
         try {
-          houseDocContract.methods.signContract(item.contractId, account).send({ from: account })
+          await houseDocContract.methods.signContract(item.contractId, account).send({ from: account })
         } catch (err) {
           console.log(err);
           houseError('Something went wrong');
         }
+        loadContracts();
+        setLoading(false);
       }
-
     }
   };
 
@@ -248,8 +250,9 @@ function Contract(props) {
     } else {
       if (flag === false) {
         if (!account) {
+          const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
           const data = houseDocContract.methods
-            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
+            .sendNotify(notifyReceiver, content, item.contractId, walletAccount)
             .encodeABI();
           const transactionObject = {
             data,
@@ -280,7 +283,7 @@ function Contract(props) {
           try {
             const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
             await houseDocContract.methods
-              .sendNotify(notifyReceiver, content, item.contractId)
+              .sendNotify(notifyReceiver, content, item.contractId, account)
               .send({ from: account });
             houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
             loadContracts();

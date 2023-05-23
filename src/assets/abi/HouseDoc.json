@@ -15,8 +15,58 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "ccID",
+        "name": "hdID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      }
+    ],
+    "name": "ContractSigned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "hdID",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contractSigner",
+        "type": "address"
+      }
+    ],
+    "name": "ContractSignerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "hdID",
         "type": "uint256"
       },
       {
@@ -86,57 +136,7 @@
         "type": "string"
       }
     ],
-    "name": "CleanContractCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "signer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "ccID",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "status",
-        "type": "string"
-      }
-    ],
-    "name": "ContractSigned",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "ccID",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "contractSigner",
-        "type": "address"
-      }
-    ],
-    "name": "ContractSignerAdded",
+    "name": "DocContractCreated",
     "type": "event"
   },
   {
@@ -157,7 +157,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "ccID",
+        "name": "hdID",
         "type": "uint256"
       },
       {
@@ -180,7 +180,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_ccID",
+        "name": "_hdID",
         "type": "uint256"
       },
       {
@@ -196,68 +196,7 @@
   },
   {
     "inputs": [],
-    "name": "ccCounter",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_companyName",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_contractType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_contractSigner",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_contractURI",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_dateFrom",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_dateTo",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_agreedPrice",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_currency",
-        "type": "string"
-      }
-    ],
-    "name": "ccCreation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAllCleanContracts",
+    "name": "getAllDocContracts",
     "outputs": [
       {
         "components": [
@@ -342,7 +281,7 @@
             "type": "string"
           }
         ],
-        "internalType": "struct HouseDoc.CleanContract[]",
+        "internalType": "struct HouseDoc.DocContract[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -374,7 +313,7 @@
           },
           {
             "internalType": "uint256",
-            "name": "ccID",
+            "name": "hdID",
             "type": "uint256"
           },
           {
@@ -413,7 +352,7 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "_owner",
+        "name": "_contractOwner",
         "type": "address"
       }
     ],
@@ -422,7 +361,86 @@
   },
   {
     "inputs": [],
+    "name": "hdCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_companyName",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_contractType",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_contractSigner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_contractURI",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dateFrom",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dateTo",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_agreedPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_currency",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "hdCreation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "houseNFTAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "operatorAddress",
     "outputs": [
       {
         "internalType": "address",
@@ -447,8 +465,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "ccID",
+        "name": "hdID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_notifier",
+        "type": "address"
       }
     ],
     "name": "sendNotify",
@@ -459,9 +482,27 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_address",
+        "type": "address"
+      }
+    ],
+    "name": "setOperatorAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
-        "name": "ccID",
+        "name": "hdID",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newSigner",
+        "type": "address"
       }
     ],
     "name": "signContract",
