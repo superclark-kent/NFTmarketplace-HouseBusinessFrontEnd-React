@@ -179,7 +179,7 @@ function Contract(props) {
       houseError('Contract Signer is empty');
     } else {
       setLoading(true);
-      const data = cleanContract.methods.addContractSigner(item.contractId, cSC, walletAccount).encodeABI();
+      const data = cleanContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
       const transactionObject = {
         data,
         to: cleanContract.options.address
@@ -319,7 +319,7 @@ function Contract(props) {
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
     try {
-      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner, walletAccount).encodeABI();
+      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).encodeABI();
       const transactionObject = {
         data,
         to: cleanContract.options.address
