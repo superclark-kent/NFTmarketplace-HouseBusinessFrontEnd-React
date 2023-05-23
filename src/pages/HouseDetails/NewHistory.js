@@ -57,7 +57,6 @@ export default function NewHistory({
         label="History Type"
         value={hID}
         onChange={(e) => {
-          console.log('id', e.target.value)
           setHID(e.target.value);
           setCContract(0);
         }}

@@ -64,7 +64,7 @@ function Mint(props) {
   useEffect(() => {
     if (account) {
       dispatch(setAccount(account));
-    }else {
+    } else {
       dispatch(setAccount(null));
     }
   }, [account]);
@@ -76,7 +76,12 @@ function Mint(props) {
   };
 
   const handleHouseMint = async () => {
+    console.log('solarDate', typeof solarDate, solarDate, solarDate.valueOf())
     const year = solarDate.valueOf();
+    if (year == -7200000) {
+      houseError("Please select correct date");
+      return;
+    }
     if (!account) {
       houseInfo("Please connect your wallet.");
     } else {
@@ -99,9 +104,9 @@ function Mint(props) {
           // setLoading(false);
         } else {
           try {
-						const encryptedipfsUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
-						const encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
-						const encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
+            const encryptedipfsUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
+            const encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
+            const encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods
@@ -129,7 +134,7 @@ function Mint(props) {
             } else {
               try {
                 await houseBusinessContract.methods
-                .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
+                  .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
                   .send({ from: account });
               } catch (err) {
                 console.log('err', err)
@@ -228,7 +233,8 @@ function Mint(props) {
             placeholder="Cottage..."
             value={houseType}
             onChange={(e) => {
-              setHouseType(e.target.value)}
+              setHouseType(e.target.value)
+            }
             }
             SelectProps={{
               native: true,
