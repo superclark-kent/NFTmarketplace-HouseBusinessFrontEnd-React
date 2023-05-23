@@ -98,45 +98,62 @@ function Mint(props) {
 						const encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
 						const encryptedDes = CryptoJS.AES.encrypt(description, secretKey).toString();
 
-						console.log('walletAccount: ', walletAccount);
-						// Create transaction data
-						const data = houseBusinessContract.methods
-							.mintHouse(walletAccount, encryptedName, ipUrl, encryptedType, encryptedDes)
-							.encodeABI();
+						if (!account) {
+							console.log('walletAccount: ', walletAccount);
+							// Create transaction data
+							const data = houseBusinessContract.methods
+								.mintHouse(walletAccount, encryptedName, ipUrl, encryptedType, encryptedDes)
+								.encodeABI();
 
-						const transactionObject = {
-							to: houseBusinessContract.options.address,
-							data
-						};
+							const transactionObject = {
+								to: houseBusinessContract.options.address,
+								data
+							};
 
-						// Send trx data and sign
-						fetch(`${apiURL}/signTransaction`, {
-							method: "POST",
-							headers: { "Content-Type": "application/json" },
-							body: JSON.stringify({
-								transactionObject,
-								user: walletAccount
-							}),
-						})
-							.then(res => {
-								if (res.status !== 200) {
-									return res.json().then(error => {
-										houseError(`Error: ${error.message}`);
-										setLoading(false);
-									});
-								}
-								setImage("");
-								setImageName("");
-								setHouseName("");
-								setHouseType("terraced");
-								setHouseDescription(new Date("1970"));
-								houseSuccess("House NFT minted successfuly.");
-								navigate("../../house/myNfts");
-								setLoading(false);
+							// Send trx data and sign
+							fetch(`${apiURL}/signTransaction`, {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									transactionObject,
+									user: walletAccount
+								}),
 							})
-							.catch(err => {
-								houseError(err)
-							});
+								.then(res => {
+									if (res.status !== 200) {
+										return res.json().then(error => {
+											houseError(`Error: ${error.message}`);
+											setLoading(false);
+										});
+									}
+									setImage("");
+									setImageName("");
+									setHouseName("");
+									setHouseType("terraced");
+									setHouseDescription(new Date("1970"));
+									houseSuccess("House NFT minted successfuly.");
+									navigate("../../house/myNfts");
+									setLoading(false);
+								})
+								.catch(err => {
+									houseError(err)
+								});
+						} else {
+							console.log('metamask: ', account);
+
+							await houseBusinessContract.methods
+								.mintHouse(account, encryptedName, ipUrl, encryptedType, encryptedDes)
+								.send({ from: account });
+
+							setImage("");
+							setImageName("");
+							setHouseName("");
+							setHouseType("terraced");
+							setHouseDescription(new Date("1970"));
+							houseSuccess("House NFT minted successfuly.");
+							navigate("../../house/myNfts");
+							setLoading(false);
+						}
 					} catch (error) {
 						houseError(`Error: ${error.message}`);
 						setLoading(false);

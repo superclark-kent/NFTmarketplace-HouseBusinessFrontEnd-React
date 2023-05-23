@@ -91,7 +91,7 @@ export default function Histories({
     }
 
     if (changedFlag) {
-      try {
+      if (!account) {
         console.log('walletAccount', walletAccount)
         const data = houseBusinessContract.methods
           .editHistory(
@@ -103,8 +103,7 @@ export default function Histories({
             _history,
             _desc,
             _brandType,
-            _yearField,
-            walletAccount
+            _yearField
           )
           .encodeABI();
 
@@ -137,8 +136,27 @@ export default function Histories({
           .catch(err => {
             houseError(err)
           });
-      } catch (error) {
-        console.log(error);
+      } else {
+        try {
+          await houseBusinessContract.methods
+            .editHistory(
+              houseID,
+              historyIndex,
+              historyTypeId,
+              _houseImg,
+              _brand,
+              _history,
+              _desc,
+              _brandType,
+              _yearField
+            ).send({ from: account });
+
+          initialConf();
+          loadNFT(houseID);
+          houseSuccess('You changed the history successfully!');
+        } catch (error) {
+          console.log(error);
+        }
       }
     } else {
       houseInfo('There is nothing to change');
@@ -225,7 +243,7 @@ export default function Histories({
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
               disabled={disabledArr[index] || loading}
-              // disabled={true}
+            // disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>

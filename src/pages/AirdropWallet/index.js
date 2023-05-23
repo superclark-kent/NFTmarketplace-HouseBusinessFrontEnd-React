@@ -17,7 +17,14 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-const stripePromise = loadStripe('pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy');
+import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
+import {
+    useOperatorContract,
+    useERC20Contract,
+    useWeb3Content
+} from "hooks/useContractHelpers";
+
+const stripePromise = loadStripe(stripePublishKey);
 
 const style = {
     position: "absolute",
@@ -31,13 +38,6 @@ const style = {
     p: 4,
     borderRadius: "10px",
 };
-
-import { OperatorAddress, apiURL } from 'mainConfig';
-import {
-    useOperatorContract,
-    useERC20Contract,
-    useWeb3Content
-} from "hooks/useContractHelpers";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -126,7 +126,7 @@ function AirdropWallet(props) {
     const getCreditBalance = async () => {
         try {
             // Get the ERC20 token balance.
-            const creditBalance = await OperatorContract.methods.balanceOf(walletID).call();
+            const creditBalance = await OperatorContract.methods.balanceOf(walletAccount).call();
             setCreditBalance(Web3.utils.fromWei(`${creditBalance}`));
         } catch (err) {
             console.log(err);
@@ -136,7 +136,7 @@ function AirdropWallet(props) {
     const airdropERC20Token = () => {
         try {
             const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
-            const data = OperatorContract.methods.mintAndStore(walletID, amount).encodeABI();
+            const data = OperatorContract.methods.mintAndStore(walletAccount, amount).encodeABI();
 
             const transactionObject = {
                 to: OperatorAddress,
@@ -163,7 +163,7 @@ function AirdropWallet(props) {
         } catch (err) {
             houseError(err);
         }
-        navigate(`${window.location.pathname}`);
+        // navigate(`${window.location.pathname}`);
     };
 
     const handleDeposit = async (e) => {
@@ -209,7 +209,7 @@ function AirdropWallet(props) {
                 <Grid item xs={12}>
                     <Item>
                         <div style={{ flex: '1' }}>
-                            {walletID}
+                            {walletAccount}
                         </div>
                     </Item>
                 </Grid>

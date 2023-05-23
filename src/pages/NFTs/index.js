@@ -54,7 +54,7 @@ function Nfts(props) {
       return;
     }
     try {
-      const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable, walletAccount).encodeABI();
+      const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
       const transactionObject = {
         data,
         to: houseBusinessContract.options.address

@@ -191,13 +191,13 @@ function HouseDetails(props) {
 		if (homeHistory.yearNeed === true) {
 			_yearField = solorDate.valueOf();
 		}
-		try {
-			var encryptedHouseImage = CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
-			var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
-			var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
-			var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
-			var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
+		var encryptedHouseImage = CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
+		var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
+		var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
+		var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
+		var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
 
+		if (!account) {
 			const data = houseBusinessContract.methods
 				.addHistory(
 					Number(_houseID),
@@ -208,8 +208,7 @@ function HouseDetails(props) {
 					encryptedHistory,
 					encryptedDesc,
 					encryptedBrandType,
-					_yearField,
-					walletAccount
+					_yearField
 				).encodeABI();
 			const transactionObject = {
 				data,
@@ -246,18 +245,44 @@ function HouseDetails(props) {
 			setBrand('');
 			setBrandType('');
 			setSolorDate(0);
-		} catch (err) {
-			houseError('Something Went wrong!');
-			console.log('err', err)
+		} else {
+			try {
+				await houseBusinessContract.methods
+					.addHistory(
+						Number(_houseID),
+						Number(cContract),
+						hID,
+						encryptedHouseImage,
+						encryptedBrand,
+						encryptedHistory,
+						encryptedDesc,
+						encryptedBrandType,
+						_yearField
+					).send({ from: account });
+				houseSuccess('You added the history successfully!');
+
+				loadNFT(_houseID);
+				setHID('0');
+				setHistory('');
+				setImage('');
+				setPictureDesc('');
+				setBrand('');
+				setBrandType('');
+				setSolorDate(0);
+			} catch (err) {
+				houseError('Something Went wrong!');
+				console.log('err', err)
+			}
 		}
+
 		setLoading(false);
 	};
 
 	const handleDisconnectContract = async (hIndex, contractId) => {
 		const houseID = simpleNFT.houseID;
 		setLoading(true);
-		try {
-			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId, walletAccount).encodeABI();
+		if (!account) {
+			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
 				data
@@ -283,10 +308,17 @@ function HouseDetails(props) {
 				.catch(err => {
 					houseError(err)
 				});
-		} catch (error) {
-			houseError('Something went wrong!');
-			console.error(error);
+		} else {
+			try {
+				await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
+				houseSuccess('You disconnected contract sucessfully!');
+				loadNFT(houseID);
+			} catch (error) {
+				houseError('Something went wrong!');
+				console.error(error);
+			}
 		}
+
 		setLoading(false);
 	};
 
@@ -306,53 +338,8 @@ function HouseDetails(props) {
 			return;
 		}
 
-		const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true, walletAccount).encodeABI();
-
-		const transactionObject = {
-			to: houseBusinessContract.options.address,
-			data
-		};
-
-		// Send trx data and sign
-		fetch(`${apiURL}/signTransaction`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				transactionObject,
-				user: walletAccount
-			}),
-		})
-			.then(res => {
-				if (res.status !== 200) {
-					return res.json().then(error => {
-						houseError(`Error: ${error.message}`);
-					});
-				}
-			})
-			.catch(err => {
-				houseError(err)
-			});
-		houseSuccess('Success!');
-		setSpecialBuyer('');
-		setBuyerFlag(false);
-		loadNFT(simpleNFT.houseID);
-	};
-
-	const changeHousePrice = async (houseID, housePrice) => {
-		if (!walletAccount) {
-			houseInfo("Please connect your wallet!")
-		} else {
-			if (Number(housePrice) < Number(MPrice)) {
-				houseWarning(`Please set the NFT price above the min price`);
-				return;
-			}
-			if (Number(housePrice) > Number(Hprice)) {
-				houseWarning(`Please Set the NFT price below the max price`);
-				return;
-			}
-			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
-			const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice, walletAccount).encodeABI();
+		if (!account) {
+			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).encodeABI();
 
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
@@ -372,17 +359,89 @@ function HouseDetails(props) {
 					if (res.status !== 200) {
 						return res.json().then(error => {
 							houseError(`Error: ${error.message}`);
-							setLoading(false);
 						});
 					}
+					houseSuccess('Success!');
+					setSpecialBuyer('');
+					setBuyerFlag(false);
+					loadNFT(simpleNFT.houseID);
 				})
 				.catch(err => {
 					houseError(err)
-					return;
 				});
+		} else {
+			try {
+				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
+				houseSuccess('Success!');
+				setSpecialBuyer('');
+				setBuyerFlag(false);
+				loadNFT(simpleNFT.houseID);
+			} catch (err) {
+				console.log(err);
+				houseError("Something went wrong!")
+			}
+		}
+	};
 
-			houseSuccess("You have successfully set your House price!")
-			loadNFT(houseID);
+	const changeHousePrice = async (houseID, housePrice) => {
+		if (!walletAccount) {
+			houseInfo("Please connect your wallet!")
+		} else {
+			if (Number(housePrice) < Number(MPrice)) {
+				houseWarning(`Please set the NFT price above the min price`);
+				return;
+			}
+			if (Number(housePrice) > Number(Hprice)) {
+				houseWarning(`Please Set the NFT price below the max price`);
+				return;
+			}
+			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
+			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
+
+			if (!account) {
+				const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).encodeABI();
+
+				const transactionObject = {
+					to: houseBusinessContract.options.address,
+					data
+				};
+
+				// Send trx data and sign
+				fetch(`${apiURL}/signTransaction`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						transactionObject,
+						user: walletAccount
+					}),
+				})
+					.then(res => {
+						if (res.status !== 200) {
+							return res.json().then(error => {
+								houseError(`Error: ${error.message}`);
+								setLoading(false);
+							});
+						}
+
+						houseSuccess("You have successfully set your House price!")
+						loadNFT(houseID);
+					})
+					.catch(err => {
+						houseError(err)
+						return;
+					});
+
+			} else {
+				try {
+					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
+
+					houseSuccess("You have successfully set your House price!")
+					loadNFT(houseID);
+				} catch (error) {
+					console.log(error);
+					houseError('Something went wrong!');
+				}
+			}
 		}
 	}
 
@@ -391,44 +450,54 @@ function HouseDetails(props) {
 			houseWarning("Please set NFT price to set payable");
 			return;
 		}
-		let data;
-		if (buyerFlag === true) {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag, walletAccount).encodeABI();
-		} else {
-			data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag, walletAccount).encodeABI();
-		}
 
-		const transactionObject = {
-			to: houseBusinessContract.options.address,
-			data
-		}
+		const buyer = (buyerFlag === true) ? specialBuyer : zeroAddress;
 
-		// Send trx data and sign
-		fetch(`${apiURL}/signTransaction`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				transactionObject,
-				user: walletAccount
-			}),
-		})
-			.then(res => {
-				if (res.status !== 200) {
-					return res.json().then(error => {
-						houseError(`Error: ${error.message}`);
-						setLoading(false);
-					});
-				}
+		if (!account) {
+			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).encodeABI();
+			const transactionObject = {
+				to: houseBusinessContract.options.address,
+				data
+			}
+
+			// Send trx data and sign
+			fetch(`${apiURL}/signTransaction`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					transactionObject,
+					user: walletAccount
+				}),
 			})
-			.catch(err => {
-				houseError(err)
-				return;
-			});
+				.then(res => {
+					if (res.status !== 200) {
+						return res.json().then(error => {
+							houseError(`Error: ${error.message}`);
+						});
+					}
 
-		houseSuccess('Success!');
-		setSpecialBuyer('');
-		setBuyerFlag(false);
-		loadNFT(simpleNFT.houseID);
+					houseSuccess('Success!');
+					setSpecialBuyer('');
+					setBuyerFlag(false);
+					loadNFT(simpleNFT.houseID);
+				})
+				.catch(err => {
+					houseError(err)
+					return;
+				});
+		} else {
+			try {
+				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).send({ from: account });
+				houseSuccess('Success!');
+				setSpecialBuyer('');
+				setBuyerFlag(false);
+				loadNFT(simpleNFT.houseID);
+			} catch (err) {
+				console.log(err);
+				houseError("Something went wrong");
+			}
+		}
+		setLoading(false);
 	};
 
 	const handleImageChange = async (e) => {
