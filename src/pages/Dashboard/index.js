@@ -1,25 +1,30 @@
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import { Button, Grid } from '@mui/material';
+import CachedIcon from '@mui/icons-material/Cached';
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
-import CryptoJS from 'crypto-js';
 import useNftStyle from 'assets/styles/nftStyle';
+import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseInfo, houseSuccess } from 'hooks/useToast';
+import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { zeroAddress, secretKey } from 'mainConfig';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import CachedIcon from '@mui/icons-material/Cached';
-import MoreDetail from './MoreDetail';
+import { setAllHouseNFTs } from 'redux/actions/houseNft';
 
-export default function Dashboard() {
+function Dashboard(props) {
   const nftClasses = useNftStyle()
   const { account } = useWeb3React()
   const web3 = useWeb3()
+  const dispatch = useDispatch();
+  const { allNFTs } = props.houseNft;
+  const walletAccount = props.account.account;
   const houseBusinessContract = useHouseBusinessContract()
   const navigate = useNavigate()
-  const [allMyNFTs, setAllMyNFTs] = useState([])
+  const [loading, setLoading] = useState(false);
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -40,32 +45,58 @@ export default function Dashboard() {
             tokenName: decryptedName,
             tokenType: decryptedType
           })
-        }
-        if (account) {
-          var otherNFTs = [];
-          for (var i = 0; i < nfts.length; i++) {
-            if (nfts[i].contributor.currentOwner === `${account}`) continue;
-            otherNFTs.push(nfts[i]);
-          }
-          setAllMyNFTs(otherNFTs);
-        } else {
-          setAllMyNFTs(nfts);
+          dispatch(setAllHouseNFTs(nfts));
         }
       })
       .catch(err => console.log(err));
   }
 
   const handleBuyNFT = async (item) => {
-    if (!account) {
+    if (!walletAccount) {
       houseInfo("Please connect your wallet!")
     } else {
-      try {
-        await houseBusinessContract.methods.buyHouseNft(item.houseID).send({ from: account, value: item.price });
-        houseSuccess("You bought successfully!")
-        loadNFTs()
-      } catch (err) {
-        console.log('err', err)
+      setLoading(true);
+      if (!account) {
+        const data = houseBusinessContract.methods.buyHouseNft(item.houseID, walletAccount).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address,
+          value: item.price
+        }
+
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
+        })
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            houseSuccess("You bought successfully!")
+            loadNFTs()
+          })
+          .catch(err => {
+            houseError(err)
+          });
+      } else {
+        try {
+          await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account });
+          houseSuccess("You bought successfully!")
+          loadNFTs()
+        } catch (err) {
+          console.log('err', err)
+        }
       }
+
+      setLoading(false);
     }
   }
 
@@ -82,15 +113,19 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    loadNFTs()
-  }, [account])
+    console.log('useEffect triggered with walletAccount:', walletAccount);
+    if (walletAccount) {
+      loadNFTs();
+    }
+  }, [walletAccount]);
 
   return (
     <Grid>
       <Box component={'h2'}>Dashboard</Box>
       <Grid container spacing={3}>
+        {console.log(allNFTs, walletAccount)}
         {
-          allMyNFTs.length > 0 ? allMyNFTs.map((item) => {
+          (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
             return (
               <Grid
                 item
@@ -121,27 +156,19 @@ export default function Dashboard() {
                   </Grid>
                   <Grid className={nftClasses.nftHouseBottom}>
                     {
-                      (item.contributor.buyer === zeroAddress || item.contributor.buyer === account) && item.nftPayable === true ?
-                        <Button
-                          variant='outlined'
+                      item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                        <LoadingButton
+                          variant='contained'
                           onClick={() => handleBuyNFT(item)}
+                          loadingPosition="end"
+                          disabled={loading}
                           className={nftClasses.nftHouseButton}
-                          startIcon={<BusinessCenterIcon />}
+                          endIcon={<BusinessCenterIcon />}
                         >
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
-                        </Button> : <></>
+                        </LoadingButton> : <></>
                     }
-                    <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => addAllowMe(item)} >
-                      <CachedIcon />
-                      {`More Detail`}
-                    </Box>
-                    {/* <MoreDetail
-                      item={item}
-                      account={account}
-                      nftClasses={nftClasses}
-                      handleClickMoreDetail={handleClickMoreDetail}
-                      houseBusinessContract={houseBusinessContract}
-                    /> */}
+                    {walletAccount ? <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
                   </Grid>
                 </Grid>
               </Grid>
@@ -152,3 +179,12 @@ export default function Dashboard() {
     </Grid>
   )
 }
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+    houseNft: state.houseNft
+  };
+}
+
+export default connect(mapStateToProps)(Dashboard);

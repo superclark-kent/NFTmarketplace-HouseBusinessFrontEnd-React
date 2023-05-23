@@ -2,30 +2,32 @@ import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Box, Button, Grid } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import { useEffect, useState } from 'react';
+import CryptoJS from 'crypto-js';
+import { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import CryptoJS from 'crypto-js';
 
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { HouseBusinessAddress, zeroAddress, secretKey } from 'mainConfig';
+import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
+import { setAllMyNFTs } from 'redux/actions/houseNft';
 
 function Nfts(props) {
   const navigate = useNavigate()
   const nftClasses = useNftStyle()
   const dispatch = useDispatch();
+  const walletAccount = props.account.account;
+  const { allMyNFTs } = props.houseNft
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const houseBusinessContract = useHouseBusinessContract()
-  const [allMyNFTs, setAllMyNFTs] = useState([])
 
   const loadNFTs = async () => {
-    if (account) {
+    if (walletAccount) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
@@ -42,7 +44,7 @@ function Nfts(props) {
           tokenURI: decryptedURI
         });
       }
-      setAllMyNFTs(otherNFTs);
+      dispatch(setAllMyNFTs(otherNFTs));
     }
   }
 
@@ -52,9 +54,35 @@ function Nfts(props) {
       return;
     }
     try {
-      await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
-      houseSuccess("Your House NFT can be sold from now.")
-      loadNFTs()
+      const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
+      const transactionObject = {
+        data,
+        to: houseBusinessContract.options.address
+      }
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+              setLoading(false);
+            });
+          }
+          houseSuccess("Your House NFT can be sold from now.")
+          loadNFTs()
+        })
+        .catch(err => {
+          houseError(err)
+        });
+
     } catch (error) {
       console.log(error)
     }
@@ -65,7 +93,7 @@ function Nfts(props) {
   }
 
   useEffect(() => {
-    if (account) {
+    if (account || walletAccount) {
       loadNFTs()
     }
     if (account) {
@@ -144,6 +172,7 @@ function Nfts(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
+    houseNft: state.houseNft
   };
 }
 

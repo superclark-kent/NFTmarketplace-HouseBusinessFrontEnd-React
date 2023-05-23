@@ -19,30 +19,30 @@ import FileUpload from "utils/ipfs";
 import { setAccount } from "redux/actions/account";
 
 const Input = styled("input")({
-  display: "none",
+	display: "none",
 });
 
 const houseTypes = [
-  {
-    value: "terraced",
-    label: "Terraced House",
-  },
-  {
-    value: "detached",
-    label: "Detached House",
-  },
-  {
-    value: "semidetached",
-    label: "Semi-detached House",
-  },
-  {
-    value: "corner",
-    label: "Corner House",
-  },
-  {
-    value: "apartment",
-    label: "Apartment",
-  },
+	{
+		value: "terraced",
+		label: "Terraced House",
+	},
+	{
+		value: "detached",
+		label: "Detached House",
+	},
+	{
+		value: "semidetached",
+		label: "Semi-detached House",
+	},
+	{
+		value: "corner",
+		label: "Corner House",
+	},
+	{
+		value: "apartment",
+		label: "Apartment",
+	},
 ];
 
 function Mint(props) {
@@ -51,10 +51,12 @@ function Mint(props) {
   const navigate = useNavigate();
   const classes = useHouseMintStyle();
   const houseBusinessContract = useHouseBusinessContract();
+	const walletAccount = props.account.account;
+	const web3 = useWeb3Content()
 
-  // House NFT
-  const [image, setImage] = useState(null);
-  const [imageName, setImageName] = useState("");
+	// House NFT
+	const [image, setImage] = useState(null);
+	const [imageName, setImageName] = useState("");
 
   const [houseName, setHouseName] = useState("");
   const [houseType, setHouseType] = useState("terraced");
@@ -69,15 +71,15 @@ function Mint(props) {
     }
   }, [account]);
 
-  const handleImageChange = async (e) => {
-    var uploadedImage = e.target.files[0];
-    setImage(uploadedImage);
-    setImageName(uploadedImage.name);
-  };
+	const handleImageChange = async (e) => {
+		var uploadedImage = e.target.files[0];
+		setImage(uploadedImage);
+		setImageName(uploadedImage.name);
+	};
 
   const handleHouseMint = async () => {
     const year = solarDate.valueOf();
-    if (!account) {
+    if (!account && !walletAccount) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
@@ -107,26 +109,43 @@ function Mint(props) {
               const data = houseBusinessContract.methods
                 .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
                 .encodeABI();
+							console.log('walletAccount: ', walletAccount);
 
-              const transactionObject = {
-                to: HouseBusinessAddress,
-                data
-              };
+							const transactionObject = {
+								to: houseBusinessContract.options.address,
+								data
+							};
 
-              // Send trx data and sign
-              fetch(`${apiURL}/signTransaction`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  transactionObject
-                }),
-              })
-                .then(res => res.json())
-                .then(data => console.log(data))
-                .catch(err => {
-                  throw new Error(err);
-                });
-            } else {
+							// Send trx data and sign
+							fetch(`${apiURL}/signTransaction`, {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									transactionObject,
+									user: walletAccount
+								}),
+							})
+								.then(async (res) => {
+									if (res.status !== 200) {
+										return res.json().then(error => {
+											houseError(`Error: ${error.message}`);
+											setLoading(false);
+										});
+									}
+									setImage("");
+									setImageName("");
+									setHouseName("");
+									setHouseType("terraced");
+									setHouseDescription(new Date("1970"));
+									houseSuccess("House NFT minted successfuly.");
+									navigate("../../house/myNfts");
+									setLoading(false);
+								})
+								.catch(err => {
+									houseError(err)
+								});
+						} else {
+							console.log('metamask: ', account);
               try {
                 await houseBusinessContract.methods
                   .mintHouse(encryptedName, encryptedipfsUrl, encryptedType, year)
@@ -154,14 +173,14 @@ function Mint(props) {
     }
   };
 
-  return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={2}
-      className={classes.mintContent}
-    >
-      <Grid component="fieldset" variant="filled">
+	return (
+		<Stack
+			direction="row"
+			alignItems="center"
+			spacing={2}
+			className={classes.mintContent}
+		>
+			<Grid component="fieldset" variant="filled">
 
         <FormLabel component="legend" htmlFor="residence-type-radio">
           Mint NFT
@@ -288,9 +307,9 @@ function Mint(props) {
 
 
 function mapStateToProps(state) {
-  return {
-    account: state.account,
-  };
+	return {
+		account: state.account,
+	};
 }
 
 export default connect(mapStateToProps)(Mint);

@@ -3,18 +3,19 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
 import HouseLoading from 'components/HouseLoading';
-import { BigNumber } from 'ethers';
 import CryptoJS from 'crypto-js';
+import { BigNumber, ethers } from 'ethers';
 import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { zeroAddress, secretKey } from 'mainConfig';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
+import { useDispatch } from 'react-redux';
 import { decryptContract } from 'utils';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
@@ -22,24 +23,26 @@ import NFTdetail from './NFTdetail';
 import NewHistory from './NewHistory';
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  height: '100%',
-  bgcolor: 'transparent',
-  boxShadow: 24,
-  p: 4,
-  '& img': {
-    height: '100%',
-  },
+	position: 'absolute',
+	top: '50%',
+	left: '50%',
+	transform: 'translate(-50%, -50%)',
+	height: '100%',
+	bgcolor: 'transparent',
+	boxShadow: 24,
+	p: 4,
+	'& img': {
+		height: '100%',
+	},
 };
 
-export default function HouseDetails() {
-  const navigate = useNavigate();
-  const { account } = useWeb3React();
-  const web3 = useWeb3();
-  const { houseNftID } = useParams();
+function HouseDetails(props) {
+	const navigate = useNavigate();
+	const { account } = useWeb3React();
+	const web3 = useWeb3();
+	const dispatch = useDispatch();
+	const walletAccount = props.account.account;
+	const { houseNftID } = useParams();
 
   const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
@@ -51,8 +54,10 @@ export default function HouseDetails() {
   const [disabledArr, setDisabledArr] = useState([]);
   const [histories, setHistories] = useState([]);
 
-  const [buyerFlag, setBuyerFlag] = useState(false);
-  const [specialBuyer, setSpecialBuyer] = useState('');
+	const [history, setHistory] = useState('');
+
+	const [buyerFlag, setBuyerFlag] = useState(false);
+	const [specialBuyer, setSpecialBuyer] = useState('');
 
   // Image
   const [image, setImage] = useState(null);
@@ -171,7 +176,7 @@ export default function HouseDetails() {
       _brandType = '',
       _yearField = 0;
 
-    var homeHistory = historyTypes[hID];
+		var homeHistory = historyTypes[hID];
 
     if (homeHistory.imgNeed === true) {
       if (image) {
@@ -255,75 +260,6 @@ export default function HouseDetails() {
     }
   };
 
-  const handleBuyerEdit = async () => {
-    setLoading(true);
-    if (web3.utils.fromWei(simpleNFT.price) == 0) {
-      houseWarning("Please set NFT price to set payable");
-      return;
-    }
-    try {
-      await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
-    } catch (err) {
-      console.log('err', err)
-    }
-    houseSuccess('Success!');
-    setSpecialBuyer('');
-    setBuyerFlag(false);
-    loadNFT(simpleNFT.houseID);
-    setLoading(false);
-  };
-
-  const changeHousePrice = async (houseID, housePrice) => {
-    setLoading(true);
-    if (!account) {
-      houseInfo("Please connect your wallet!")
-    } else {
-      if (Number(housePrice) < Number(MPrice)) {
-        houseWarning(`Please set the NFT price above the min price`);
-        return;
-      }
-      if (Number(housePrice) > Number(Hprice)) {
-        houseWarning(`Please Set the NFT price below the max price`);
-        return;
-      }
-      const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-      try {
-        await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
-      } catch (err) {
-        console.log('err', err)
-      }
-      houseSuccess("You have successfully set your House price!")
-      loadNFT(houseID)
-      setLoading(false);
-    }
-  }
-
-  const handlePayable = async (flag) => {
-    setLoading(true);
-    if (web3.utils.fromWei(simpleNFT.price) == 0) {
-      houseWarning("Please set NFT price to set payable");
-      return;
-    }
-    if (buyerFlag === true) {
-      try {
-        await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, flag).send({ from: account });
-      } catch (err) {
-        console.log('err', err)
-      }
-    } else {
-      try {
-        await houseBusinessContract.methods.setPayable(simpleNFT.houseID, zeroAddress, flag).send({ from: account });
-      } catch (err) {
-        console.log('err', err)
-      }
-    }
-    houseSuccess('Success!');
-    setSpecialBuyer('');
-    setBuyerFlag(false);
-    setLoading(false);
-    loadNFT(simpleNFT.houseID);
-  };
-
   const handleImageChange = async (e) => {
     var uploadedImage = e.target.files[0];
     if (uploadedImage) {
@@ -331,111 +267,293 @@ export default function HouseDetails() {
     }
   };
 
-  useEffect(() => {
-    if (account) {
-      initialConfig();
-    }
-  }, [account]);
+	const handleBuyerEdit = async () => {
+		if (web3.utils.fromWei(simpleNFT.price) == 0) {
+			houseWarning("Please set NFT price to set payable");
+			return;
+		}
+		// check if the buyer is valid
+		if (!ethers.utils.isAddress(specialBuyer)) {
+			houseWarning('Please input valid Ethereum wallet address');
+			return;
+		}
 
-  useEffect(() => {
-    if (houseNftID) {
-      if (historyTypes.length > 0) {
-        loadNFT(houseNftID);
-      }
-    } else {
-      houseError('Invalid Url or NFT ID');
-      navigate('../../house/app');
-    }
-  }, [houseNftID, historyTypes]);
+		if (specialBuyer === walletAccount) {
+			houseWarning('You are already owner of this NFT');
+			return;
+		}
 
-  return (
-    <>
-      {simpleNFT.tokenName ? (
-        <Grid container spacing={5}>
-          <Grid item xl={6} md={12}>
-            <Grid className={classes.nftMedia}>
-              <Button onClick={() => handleOpen()} className={classes.nftImg}>
-                <img alt={simpleNFT.tokenURI} src={simpleNFT.tokenURI} />
-              </Button>
-            </Grid>
-          </Grid>
-          <NFTdetail
-            classes={classes}
-            account={account}
-            simpleNFT={simpleNFT}
-            totalPrice={totalPrice}
-            loading={loading}
-            setLoading={setLoading}
-            buyerFlag={buyerFlag}
-            setBuyerFlag={setBuyerFlag}
-            specialBuyer={specialBuyer}
-            setSpecialBuyer={setSpecialBuyer}
-            handleBuyerEdit={handleBuyerEdit}
-            handlePayable={handlePayable}
-            changeHousePrice={changeHousePrice}
-          />
-          <Grid item xl={12} md={12}>
-            <Box component={'h3'}>House History</Box>
-            <Histories
-              classes={classes}
-              disabledArr={disabledArr}
-              histories={histories}
-              contracts={contracts}
-              changinghistoryType={changinghistoryType}
-              setChangingHistoryType={setChangingHistoryType}
-              historyTypes={historyTypes}
-              houseID={simpleNFT.houseID}
-              loadNFT={loadNFT}
-              connectContract={handleConnectContract}
-              disconnectContract={handleDisconnectContract}
-            />
-            {simpleNFT.contributor.currentOwner === `${account}` ? (
-              <Grid className={classes.addHistorySection}>
-                <NewHistory
-                  classes={classes}
-                  contracts={contracts}
-                  cContract={cContract}
-                  setCContract={setCContract}
-                  loading={loading}
-                  otherInfo={otherInfo}
-                  setOtherInfo={setOtherInfo}
-                  hID={hID}
-                  setHID={setHID}
-                  historyTypes={historyTypes}
-                  oldHistoryTypeIds={oldHistoryTypeIds}
-                  image={image}
-                  brandType={brandType}
-                  setBrandType={setBrandType}
-                  brand={brand}
-                  setBrand={setBrand}
-                  solorDate={solorDate}
-                  setSolorDate={setSolorDate}
-                  setChangeDate={setChangeDate}
-                  pictureDesc={pictureDesc}
-                  setPictureDesc={setPictureDesc}
-                  handleImageChange={handleImageChange}
-                  handleAddHistory={handleAddHistory}
-                />
-              </Grid>
-            ) : (
-              <></>
-            )}
-          </Grid>
+		if (!account) {
+			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).encodeABI();
 
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-          >
-            <Button sx={style} onClick={() => handleClose()}>
-              <img alt={simpleNFT.tokenURI} src={simpleNFT.tokenURI} />
-            </Button>
-          </Modal>
-        </Grid>
-      ) : (
-        <HouseLoading />
-      )}
-    </>
-  );
+			const transactionObject = {
+				to: houseBusinessContract.options.address,
+				data
+			};
+
+			// Send trx data and sign
+			fetch(`${apiURL}/signTransaction`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					transactionObject,
+					user: walletAccount
+				}),
+			})
+				.then(res => {
+					if (res.status !== 200) {
+						return res.json().then(error => {
+							houseError(`Error: ${error.message}`);
+						});
+					}
+					houseSuccess('Success!');
+					setSpecialBuyer('');
+					setBuyerFlag(false);
+					loadNFT(simpleNFT.houseID);
+				})
+				.catch(err => {
+					houseError(err)
+				});
+		} else {
+			try {
+				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).send({ from: account });
+				houseSuccess('Success!');
+				setSpecialBuyer('');
+				setBuyerFlag(false);
+				loadNFT(simpleNFT.houseID);
+			} catch (err) {
+				console.log(err);
+				houseError("Something went wrong!")
+			}
+		}
+	};
+
+	const changeHousePrice = async (houseID, housePrice) => {
+		if (!walletAccount) {
+			houseInfo("Please connect your wallet!")
+		} else {
+			if (Number(housePrice) < Number(MPrice)) {
+				houseWarning(`Please set the NFT price above the min price`);
+				return;
+			}
+			if (Number(housePrice) > Number(Hprice)) {
+				houseWarning(`Please Set the NFT price below the max price`);
+				return;
+			}
+			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
+			// const estimateGas = await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).estimateGas();
+
+			if (!account) {
+				const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).encodeABI();
+
+				const transactionObject = {
+					to: houseBusinessContract.options.address,
+					data
+				};
+
+				// Send trx data and sign
+				fetch(`${apiURL}/signTransaction`, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						transactionObject,
+						user: walletAccount
+					}),
+				})
+					.then(res => {
+						if (res.status !== 200) {
+							return res.json().then(error => {
+								houseError(`Error: ${error.message}`);
+								setLoading(false);
+							});
+						}
+
+						houseSuccess("You have successfully set your House price!")
+						loadNFT(houseID);
+					})
+					.catch(err => {
+						houseError(err)
+						return;
+					});
+
+			} else {
+				try {
+					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
+
+					houseSuccess("You have successfully set your House price!")
+					loadNFT(houseID);
+				} catch (error) {
+					console.log(error);
+					houseError('Something went wrong!');
+				}
+			}
+		}
+	}
+
+	const handlePayable = async (flag) => {
+		if (web3.utils.fromWei(simpleNFT.price) == 0) {
+			houseWarning("Please set NFT price to set payable");
+			return;
+		}
+
+		const buyer = (buyerFlag === true) ? specialBuyer : zeroAddress;
+
+		if (!account) {
+			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).encodeABI();
+			const transactionObject = {
+				to: houseBusinessContract.options.address,
+				data
+			}
+
+			// Send trx data and sign
+			fetch(`${apiURL}/signTransaction`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					transactionObject,
+					user: walletAccount
+				}),
+			})
+				.then(res => {
+					if (res.status !== 200) {
+						return res.json().then(error => {
+							houseError(`Error: ${error.message}`);
+						});
+					}
+
+					houseSuccess('Success!');
+					setSpecialBuyer('');
+					setBuyerFlag(false);
+					loadNFT(simpleNFT.houseID);
+				})
+				.catch(err => {
+					houseError(err)
+					return;
+				});
+		} else {
+			try {
+				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).send({ from: account });
+				houseSuccess('Success!');
+				setSpecialBuyer('');
+				setBuyerFlag(false);
+				loadNFT(simpleNFT.houseID);
+			} catch (err) {
+				console.log(err);
+				houseError("Something went wrong");
+			}
+		}
+		setLoading(false);
+	};
+
+	useEffect(() => {
+		if (walletAccount) {
+			initialConfig();
+		}
+	}, [walletAccount]);
+
+	useEffect(() => {
+		if (houseNftID) {
+			if (historyTypes.length > 0) {
+				loadNFT(houseNftID);
+			}
+		} else {
+			houseError('Invalid Url or NFT ID');
+			navigate('../../house/app');
+		}
+	}, [houseNftID, historyTypes]);
+
+	return (
+		<>
+			{(simpleNFT && simpleNFT.tokenName) ? (
+				<Grid container spacing={5}>
+					<Grid item xl={6} md={12}>
+						<Grid className={classes.nftMedia}>
+							<Button onClick={() => handleOpen()} className={classes.nftImg}>
+								<img alt={simpleNFT.tokenURI} src={simpleNFT.tokenURI} />
+							</Button>
+						</Grid>
+					</Grid>
+					<NFTdetail
+						classes={classes}
+						account={walletAccount}
+						simpleNFT={simpleNFT}
+						buyerFlag={buyerFlag}
+						setBuyerFlag={setBuyerFlag}
+						specialBuyer={specialBuyer}
+						setSpecialBuyer={setSpecialBuyer}
+						handleBuyerEdit={handleBuyerEdit}
+						handlePayable={handlePayable}
+						changeHousePrice={changeHousePrice}
+					/>
+					<Grid item xl={12} md={12}>
+						<Box component={'h3'}>House History</Box>
+						<Histories
+							classes={classes}
+							disabledArr={disabledArr}
+							histories={histories}
+							contracts={contracts}
+							changinghistoryType={changinghistoryType}
+							setChangingHistoryType={setChangingHistoryType}
+							historyTypes={historyTypes}
+							houseID={simpleNFT.houseID}
+							loadNFT={loadNFT}
+							walletAccount={walletAccount}
+							disconnectContract={handleDisconnectContract}
+						/>
+						{simpleNFT.contributor.currentOwner === `${walletAccount}` ? (
+							<Grid className={classes.addHistorySection}>
+								<NewHistory
+									classes={classes}
+									contracts={contracts}
+									cContract={cContract}
+									setCContract={setCContract}
+									loading={loading}
+									history={history}
+									setHistory={setHistory}
+									hID={hID}
+									setHID={setHID}
+									historyTypes={historyTypes}
+									oldHistoryTypeIds={oldHistoryTypeIds}
+									image={image}
+									brandType={brandType}
+									setBrandType={setBrandType}
+									brand={brand}
+									setBrand={setBrand}
+									solorDate={solorDate}
+									setSolorDate={setSolorDate}
+									pictureDesc={pictureDesc}
+									setPictureDesc={setPictureDesc}
+									handleImageChange={handleImageChange}
+									handleAddHistory={handleAddHistory}
+								/>
+							</Grid>
+						) : (
+							<></>
+						)}
+					</Grid>
+
+					<Modal
+						open={open}
+						onClose={handleClose}
+						aria-labelledby="modal-modal-title"
+						aria-describedby="modal-modal-description"
+					>
+						<Button sx={style} onClick={() => handleClose()}>
+							<img alt={simpleNFT.tokenURI} src={simpleNFT.tokenURI} />
+						</Button>
+					</Modal>
+				</Grid>
+			) : (
+				<HouseLoading />
+			)}
+		</>
+	);
 }
+
+function mapStateToProps(state) {
+	return {
+		account: state.account,
+	};
+}
+
+export default connect(mapStateToProps)(HouseDetails);
