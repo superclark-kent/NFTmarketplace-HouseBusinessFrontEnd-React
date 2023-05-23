@@ -101,18 +101,26 @@ function Contract(props) {
 
   const handleSign = async (item) => {
     setLoading(true);
+    let transactionFlag = false;
     if (item.creator === walletAccount) {
       if (item.contractSigner === zeroAddress) {
         houseError('Add Contract Signer First.');
         setLoading(false);
       } else {
+        transactionFlag = true;
+      }
+    } else {
+      transactionFlag = true;
+    }
+
+    if (transactionFlag) {
+      if (!account) {
         const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
         const transactionObject = {
           data,
           to: cleanContract.options.address
-        }
+        };
 
-        // Send trx data and sign
         fetch(`${apiURL}/signTransaction`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -131,37 +139,17 @@ function Contract(props) {
             loadContracts();
           })
           .catch(err => {
-            houseError(err)
+            houseError(err);
           });
-      }
-    } else {
-      const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
-      const transactionObject = {
-        data,
-        to: cleanContract.options.address
+      } else {
+        try {
+          cleanContract.methods.signContract(item.contractId, account).send({ from: account })
+        } catch (err) {
+          console.log(err);
+          houseError('Something went wrong');
+        }
       }
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          loadContracts();
-        })
-        .catch(err => {
-          houseError(err)
-        });
     }
   };
 
@@ -178,35 +166,47 @@ function Contract(props) {
     if (cSC === '') {
       houseError('Contract Signer is empty');
     } else {
-      setLoading(true);
-      const data = cleanContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
-      const transactionObject = {
-        data,
-        to: cleanContract.options.address
-      };
+      if (!account) {
+        setLoading(true);
+        const data = cleanContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
+        const transactionObject = {
+          data,
+          to: cleanContract.options.address
+        };
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-            });
-          }
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
+        })
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+              });
+            }
+            houseSuccess("Contract signer successfully added.");
+            loadContracts();
+            setTimeout(loadContracts, 3000);
+          })
+          .catch(err => {
+            houseError(err)
+          });
+      } else {
+        try {
+          await cleanContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
-        })
-        .catch(err => {
-          houseError(err)
-        });
+        } catch (err) {
+          console.log(err);
+          houseError('Something went wrong');
+        }
+      }
     }
     // }
   };
@@ -247,7 +247,7 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
-        try {
+        if (!account) {
           const data = cleanContract.methods
             .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
             .encodeABI();
@@ -276,9 +276,17 @@ function Contract(props) {
             .catch(err => {
               houseError(err)
             });
-        } catch (err) {
-          console.log(err);
-          houseError('Something went wrong');
+        } else {
+          try {
+            await cleanContract.methods
+              .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, account)
+              .send({ from: account });
+            houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
+            loadContracts();
+          } catch (err) {
+            console.log(err);
+            houseError('Something went wrong');
+          }
         }
       } else {
         houseError('You already sent notify to this signer');
@@ -318,7 +326,7 @@ function Contract(props) {
 
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
-    try {
+    if (!account) {
       const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).encodeABI();
       const transactionObject = {
         data,
@@ -347,9 +355,18 @@ function Contract(props) {
         .catch(err => {
           houseError(err)
         });
-    } catch (err) {
-      console.log('err', err)
+    } else {
+      try {
+        await cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
+        temp[k].contractSigner = CSigner;
+        setAllContracts(temp);
+        houseSuccess('Successed Changing Signer!');
+      } catch (err) {
+        console.log(err);
+        houseError('Something went wrong');
+      }
     }
+
     setEditFlag(-1);
   };
 

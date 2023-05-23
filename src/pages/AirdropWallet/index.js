@@ -163,7 +163,7 @@ function AirdropWallet(props) {
         } catch (err) {
             houseError(err);
         }
-        navigate(`${window.location.pathname}`);
+        // navigate(`${window.location.pathname}`);
     };
 
     const handleDeposit = async (e) => {

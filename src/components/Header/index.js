@@ -324,7 +324,14 @@ function Header(props) {
 				navigate("../../house/app");
 			}
 		}
-	}, [walletAccount, pathname]);
+	}, [pathname]);
+
+	useEffect(() => {
+		if (walletAccount) {
+			checkAdmin();
+			loadNotifies();
+		}
+	}, [walletAccount])
 
 	useEffect(() => {
 		if (account) {
