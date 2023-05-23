@@ -111,14 +111,14 @@ function CreateContract(props) {
             houseError("“Date to” must be later data then Date From”");
             setLoading(false);
           } else {
-            try {
-              // const aPrice = BigNumber.from(`${agreedPrice * 10 ** 18}`);
-              const aPrice = Web3.utils.toWei(`${agreedPrice}`, 'ether');
-              const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
-              const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
-              const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-              console.log('contractType', contractType)
+            // const aPrice = BigNumber.from(`${agreedPrice * 10 ** 18}`);
+            const aPrice = Web3.utils.toWei(`${agreedPrice}`, 'ether');
+            const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
+            const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
+            const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
+            console.log('contractType', contractType)
 
+            if (!account) {
               const data = cleanContract.methods
                 .ccCreation(
                   encryptedCompanyName,
@@ -169,9 +169,36 @@ function CreateContract(props) {
                 .catch(err => {
                   houseError(err)
                 });
-            } catch (error) {
-              console.log(error);
-              houseError("Something went wrong");
+            } else {
+              try {
+                await cleanContract.methods
+                .ccCreation(
+                  encryptedCompanyName,
+                  contractType,
+                  aSigner,
+                  ipUrl,
+                  sDate,
+                  eDate,
+                  aPrice,
+                  encryptedCurrency,
+                  account
+                ).send({ from: account })
+                houseSuccess("Success");
+                  setCFile(null);
+                  setCFileName("");
+                  setCompanyName("");
+                  setcontractSigner("");
+                  setContractType(contractType);
+                  setDateFrom("");
+                  setDateTo("");
+                  setAgreedPrice("");
+                  setCurrency("MATIC");
+                  setIsContractSinger(false);
+                  navigate("../../contract/main");
+              } catch (error) {
+                console.log(error);
+                houseError("Something went wrong");
+              }
             }
           }
         } else {
