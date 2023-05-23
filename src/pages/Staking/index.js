@@ -86,9 +86,12 @@ function Staking(props) {
         tokenURI: decryptedData,
       });
     }
+
+    console.log('otherNFTs', otherNFTs);
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
     var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
 
+    console.log('stakednfts', stakednfts);
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
       var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].houseID)[0];
@@ -121,7 +124,7 @@ function Staking(props) {
 
   const handleStaking = async (item, index) => {
     if (!account) {
-      let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
+      let data = houseBusinessContract.methods.approveDelegator(stakingContract.options.address, item.houseID).encodeABI();
       let transactionObject = {
         data,
         to: houseBusinessContract.options.address
@@ -176,7 +179,7 @@ function Staking(props) {
         });
     } else {
       try {
-        await houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).send({ from: account });
+        await houseBusinessContract.methods.approveDelegator(stakingContract.options.address, item.houseID).send({ from: account });
         await stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).send({ from: account });
         houseSuccess('You staked house NFT successfully.');
         loadNFTs();

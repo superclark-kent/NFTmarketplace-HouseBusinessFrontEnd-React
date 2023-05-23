@@ -133,9 +133,10 @@ function AirdropWallet(props) {
         }
     };
 
-    const airdropERC20Token = () => {
-        try {
-            const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
+    const airdropERC20Token = async () => {
+        const amount = Web3.utils.toWei(`${paymentAmount / 100}`, 'ether');
+
+        if (!account) {
             const data = OperatorContract.methods.mintAndStore(walletAccount, amount).encodeABI();
 
             const transactionObject = {
@@ -159,9 +160,14 @@ function AirdropWallet(props) {
                 .catch(err => {
                     throw new Error(err);
                 });
-
-        } catch (err) {
-            houseError(err);
+        } else {
+            try {
+                await OperatorContract.methods.mintAndStore(walletAccount, amount).send({ from: account });
+                houseSuccess(`Congratulations, you received ${paymentAmount / 100} $HBT token airdrop.`);
+                getCreditBalance();
+            } catch (err) {
+                houseError(err);
+            }
         }
         // navigate(`${window.location.pathname}`);
     };
