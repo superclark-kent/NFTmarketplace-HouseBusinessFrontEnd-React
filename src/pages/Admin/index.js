@@ -157,7 +157,7 @@ export default function Admin() {
     var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
     var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
-    var _uploadedCount = await houseDocContract.methods.ccCounter().call()
+    var _uploadedCount = await houseDocContract.methods.hdCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
     setPenalty(penalty);
