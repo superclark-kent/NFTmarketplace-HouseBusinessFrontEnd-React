@@ -211,13 +211,15 @@ export default function Histories({
       var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
       var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
       var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
+      var yearField = (histories[i].yearField).toString().slice(0, 3) == '999' ? ((histories[i].yearField).toString().slice(3)) * -1 : histories[i].yearField
       tempHistory.push({
         ...histories[i],
         otherInfo: decryptedHistory,
         brandType: decryptedBrandType,
         houseBrand: decryptedHouseBrand,
         desc: decryptedDesc,
-        houseImg: decryptedImg
+        houseImg: decryptedImg,
+        yearField: yearField
       });
       dArr[i] = true;
     }

@@ -320,7 +320,6 @@ function Header(props) {
 
 	useEffect(() => {
 		if (cookies.connected === true) {
-			console.log('cookies', cookies);
 			dispatch(setAccount(cookies.walletAccount));
 		}
 

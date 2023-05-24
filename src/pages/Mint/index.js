@@ -78,7 +78,10 @@ function Mint(props) {
 	};
 
   const handleHouseMint = async () => {
-    const year = solarDate.valueOf();
+    var year = solarDate.valueOf();
+    if (year < 0) {
+      year = Number('999' + Math.abs(year))
+    }
     if (!account && !walletAccount) {
       houseInfo("Please connect your wallet.");
     } else {
@@ -145,7 +148,6 @@ function Mint(props) {
 									houseError(err)
 								});
 						} else {
-							console.log('metamask: ', account);
               try {
                 await houseBusinessContract.methods
                   .mintHouse(zeroAddress, encryptedName, encryptedipfsUrl, encryptedType, year)
@@ -272,9 +274,9 @@ function Mint(props) {
                 views={["year"]}
                 label="Year of construction"
                 value={solarDate}
-                minDate={new Date("1970")}
                 maxDate={new Date("2023")}
                 onChange={(date) => {
+                  console.log('ddd', date.valueOf())
                   setSolarDate(date);
                 }}
                 renderInput={(params) => (
