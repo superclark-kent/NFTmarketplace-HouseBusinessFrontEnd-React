@@ -234,10 +234,10 @@ function Contract(props) {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call({ from: notifyReceiver });
+    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
-      if (item.contractId === sentNotifies[i].ccId) {
+      if (item.contractId === sentNotifies[i].hdID) {
         flag = true;
       }
     }

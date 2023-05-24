@@ -670,15 +670,15 @@ function Header(props) {
 						Notifies
 					</Typography>
 					<List sx={{ mb: 2 }} onClick={handleNotify}>
-						{notifies.map(({ ccID, nSender, notifyContent }, key) => (
+						{notifies.map(({ hdID, nSender, notifyContent }, key) => (
 							<Fragment key={key}>
-								<ListItem button>
+								<ListItem>
 									<ListItemAvatar>
 										<Avatar alt="Profile Picture" src={defaultAvatar} />
 									</ListItemAvatar>
 									<ListItemText
 										primary={notifyContent}
-										secondary={`From ${nSender} in contract id: ${ccID}`}
+										secondary={`From ${nSender} in contract id: ${hdID}`}
 									/>
 								</ListItem>
 							</Fragment>
