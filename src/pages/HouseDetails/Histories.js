@@ -84,6 +84,9 @@ export default function Histories({
     }
     if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
+      if (_yearField < 0) {
+        _yearField = Number('999' + Math.abs(_yearField))
+      }
       changedFlag = true;
     }
     if (homeHistory.otherInfo) {
@@ -122,7 +125,7 @@ export default function Histories({
             user: walletAccount
           }),
         })
-          .then(res => {
+          .then(async (res) => {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);

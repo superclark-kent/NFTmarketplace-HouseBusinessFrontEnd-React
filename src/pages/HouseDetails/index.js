@@ -193,7 +193,12 @@ function HouseDetails(props) {
       _brandType = brandType;
     }
     if (homeHistory.yearNeed === true) {
-      if (changeDate) _yearField = solorDate.valueOf();
+      if (changeDate) {
+				_yearField = solorDate.valueOf();
+				if (_yearField < 0) {
+					_yearField = Number('999' + Math.abs(_yearField))
+				}
+			}
       else _yearField = 0;
     }
     try {
@@ -240,10 +245,6 @@ function HouseDetails(props) {
       console.log('err', err)
     }
   };
-
-  const handleConnectContract = async () => {
-
-  }
 
   const handleDisconnectContract = async (hIndex, contractId) => {
     const houseID = simpleNFT.houseID;
