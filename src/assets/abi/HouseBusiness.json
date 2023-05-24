@@ -78,37 +78,6 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "hIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "contractId",
-        "type": "uint256"
-      }
-    ],
-    "name": "ContractDisconnected",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
         "name": "contractId",
         "type": "uint256"
       },
@@ -219,177 +188,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "hID",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "label",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "connectContract",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "imgNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brand",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "description",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brandType",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "yearNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "otherInfo",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "HistoryTypeAdded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "hIndex",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "hTypeCounter",
-        "type": "uint256"
-      }
-    ],
-    "name": "HistoryTypeRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "hID",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "label",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "connectContract",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "imgNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brand",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "description",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "brandType",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "yearNeed",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "otherInfo",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "value",
-        "type": "uint256"
-      }
-    ],
-    "name": "HistoryTypeUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "minter",
         "type": "address"
       },
@@ -456,31 +254,6 @@
       }
     ],
     "name": "HouseNftBought",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "name": "HousePriceChanged",
     "type": "event"
   },
   {
@@ -572,6 +345,11 @@
         "internalType": "uint256",
         "name": "_yearField",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_flag",
+        "type": "bool"
       }
     ],
     "name": "addHistory",
@@ -988,6 +766,11 @@
         "internalType": "uint256",
         "name": "_yearField",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_flag",
+        "type": "bool"
       }
     ],
     "name": "editHistory",
@@ -1222,6 +1005,11 @@
             "internalType": "uint256",
             "name": "yearField",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "flag",
+            "type": "bool"
           }
         ],
         "internalType": "struct HouseBusiness.History[]",
@@ -1364,6 +1152,11 @@
         "internalType": "uint256",
         "name": "yearField",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "flag",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1507,6 +1300,11 @@
         "internalType": "uint256",
         "name": "_year",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_flag",
+        "type": "bool"
       }
     ],
     "name": "mintHouse",

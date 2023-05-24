@@ -14,7 +14,7 @@ import { useWeb3React } from '@web3-react/core';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseInfo, houseSuccess } from 'hooks/useToast';
+import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { apiURL, secretKey } from 'mainConfig';
 import FileUpload from 'utils/ipfs';
 
@@ -44,7 +44,7 @@ export default function Histories({
   const [cPicDesc, setCPicDesc] = useState('');
   const [cBrand, setCBrand] = useState('');
   const [cBrandType, setCBrandType] = useState('');
-  const [cYearField, setCYearField] = useState('');
+  const [cYearField, setCYearField] = useState(new Date("1970"));
   const [otherInfo, setOtherInfo] = useState('');
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
@@ -58,6 +58,14 @@ export default function Histories({
     var _brand = historyItem.houseBrand;
     var _brandType = historyItem.brandType;
     var _yearField = Number(historyItem.yearField);
+    var flag = false;
+
+    const _year_ =  cYearField.toString().slice(11, 15);
+    if (Number(_year_) < 1900) {
+      houseError("Please choose correct Year");
+      setLoading(false);
+      return;
+    }
 
     var changedFlag = false;
     if (homeHistory.imgNeed) {
@@ -84,9 +92,7 @@ export default function Histories({
     }
     if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
       _yearField = cYearField.valueOf();
-      if (_yearField < 0) {
-        _yearField = Number('999' + Math.abs(_yearField))
-      }
+      if (_yearField < 0) flag = true;
       changedFlag = true;
     }
     if (homeHistory.otherInfo) {
@@ -107,7 +113,8 @@ export default function Histories({
             _otherInfo,
             _desc,
             _brandType,
-            _yearField
+            Math.abs(_yearField),
+            flag
           )
           .encodeABI();
 
@@ -152,7 +159,8 @@ export default function Histories({
               _otherInfo,
               _desc,
               _brandType,
-              _yearField
+              Math.abs(_yearField),
+              flag
             ).send({ from: account });
 
           initialConf();
@@ -178,15 +186,14 @@ export default function Histories({
     var decrypteBrand = bytesBrand.toString(CryptoJS.enc.Utf8);
     var bytesBrandType = CryptoJS.AES.decrypt(histories[historyIndex].brandType, secretKey);
     var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
-    var bytesYearField = CryptoJS.AES.decrypt(histories[historyIndex].yearField, secretKey);
-    var decryptedYearField = bytesYearField.toString(CryptoJS.enc.Utf8);
     var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].otherInfo, secretKey);
     var decryptedOtherInfo = bytesCHistory.toString(CryptoJS.enc.Utf8);
+    var yearField = histories[historyIndex].flag ? histories[historyIndex].yearField * -1 : histories[historyIndex].yearField;
     setCImage(decrypteCImage);
     setCPicDesc(decryptePicDesc);
     setCBrand(decrypteBrand);
     setCBrandType(decryptedBrandType);
-    setCYearField(new Date(Number(decryptedYearField)));
+    setCYearField(new Date(Number(yearField)));
     setOtherInfo(decryptedOtherInfo);
 
     var dArr = [];
@@ -214,7 +221,7 @@ export default function Histories({
       var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
       var bytesImg = CryptoJS.AES.decrypt(histories[i].houseImg, secretKey);
       var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
-      var yearField = (histories[i].yearField).toString().slice(0, 3) == '999' ? ((histories[i].yearField).toString().slice(3)) * -1 : histories[i].yearField
+      var yearField = histories[i].flag ? histories[i].yearField * -1 : histories[i].yearField;
       tempHistory.push({
         ...histories[i],
         otherInfo: decryptedHistory,

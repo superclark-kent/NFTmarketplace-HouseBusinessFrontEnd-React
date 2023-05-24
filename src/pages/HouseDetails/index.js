@@ -64,7 +64,7 @@ function HouseDetails(props) {
   const [pictureDesc, setPictureDesc] = useState('');
   const [brand, setBrand] = useState('');
   const [brandType, setBrandType] = useState('');
-  const [solorDate, setSolorDate] = useState(5364662400);
+  const [solorDate, setSolorDate] = useState(new Date().valueOf());
   const [changeDate, setChangeDate] = useState(false);
   const [MPrice, setMprice] = useState(0.01);
   const [Hprice, setHprice] = useState(1);
@@ -168,13 +168,14 @@ function HouseDetails(props) {
 
   const handleAddHistory = async () => {
     setLoading(true);
+		var flag = false;
     var _houseId = simpleNFT.houseID,
       _houseImg = '',
       _otherInfo = otherInfo || '',
       _desc = '',
       _brand = '',
       _brandType = '',
-      _yearField = 0;
+      _yearField = 1;
 
 		var homeHistory = historyTypes[hID];
 
@@ -195,12 +196,11 @@ function HouseDetails(props) {
     if (homeHistory.yearNeed === true) {
       if (changeDate) {
 				_yearField = solorDate.valueOf();
-				if (_yearField < 0) {
-					_yearField = Number('999' + Math.abs(_yearField))
-				}
+				if (_yearField < 0) flag = true;
 			}
-      else _yearField = 0;
+      else _yearField = 1;
     }
+
     try {
       try {
         var encryptedHouseImage = _houseImg == "" ? "" : CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
@@ -218,12 +218,11 @@ function HouseDetails(props) {
             encryptedOtherInfo,
             encryptedDesc,
             encryptedBrandType,
-            _yearField
+            _yearField,
+						flag
           )
           .send({ from: account })
-          .then((res) => {
-            houseSuccess('You added the history successfully!');
-          });
+					houseSuccess('You added the history successfully!');
       } catch (err) {
         console.log('error', err.message)
         houseError('Something Went wrong!');

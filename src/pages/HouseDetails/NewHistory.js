@@ -114,7 +114,9 @@ export default function NewHistory({
                 <DatePicker
                   views={['year', 'month', 'day']}
                   label="Date"
+                  openTo='month'
                   value={solorDate}
+                  default
                   disabled={loading}
                   onChange={(date) => {
                     setChangeDate(true);

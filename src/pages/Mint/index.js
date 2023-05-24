@@ -79,8 +79,10 @@ function Mint(props) {
 
   const handleHouseMint = async () => {
     var year = solarDate.valueOf();
-    if (year < 0) {
-      year = Number('999' + Math.abs(year))
+    var flag = year < 0 ? true : false;
+    if (year < -2208991965000) {
+      houseError("Please choose correct Year");
+      return;
     }
     if (!account && !walletAccount) {
       houseInfo("Please connect your wallet.");
@@ -110,7 +112,7 @@ function Mint(props) {
             if (!account) {
               // Create transaction data
               const data = houseBusinessContract.methods
-                .mintHouse(walletAccount, encryptedName, encryptedipfsUrl, encryptedType, year)
+                .mintHouse(walletAccount, encryptedName, encryptedipfsUrl, encryptedType, Math.abs(year), flag)
                 .encodeABI();
 							console.log('walletAccount: ', walletAccount);
 
@@ -150,8 +152,10 @@ function Mint(props) {
 						} else {
               try {
                 await houseBusinessContract.methods
-                  .mintHouse(zeroAddress, encryptedName, encryptedipfsUrl, encryptedType, year)
+                  .mintHouse(zeroAddress, encryptedName, encryptedipfsUrl, encryptedType, Math.abs(year), flag)
                   .send({ from: account });
+                  houseSuccess("House NFT minted successfuly.");
+                  navigate("../../house/myNfts");
               } catch (err) {
                 console.log('err', err)
               }
@@ -163,8 +167,6 @@ function Mint(props) {
             setHouseName("");
             setHouseType("terraced");
             setSolarDate(new Date("1970"));
-            houseSuccess("House NFT minted successfuly.");
-            navigate("../../house/myNfts");
           } catch (error) {
             console.log(error);
             houseError('Something went wrong');
@@ -276,7 +278,6 @@ function Mint(props) {
                 value={solarDate}
                 maxDate={new Date("2023")}
                 onChange={(date) => {
-                  console.log('ddd', date.valueOf())
                   setSolarDate(date);
                 }}
                 renderInput={(params) => (
