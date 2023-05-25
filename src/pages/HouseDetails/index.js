@@ -3,25 +3,24 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
-import CryptoJS from 'crypto-js';
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
-import { ContactPhoneSharp } from '@mui/icons-material';
+import { useNavigate, useParams } from 'react-router-dom';
+
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import { pages } from 'components/Header';
-import { BigNumber, ethers } from 'ethers';
 import HouseLoading from 'components/HouseLoading';
-import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
+import CryptoJS from 'crypto-js';
+import { BigNumber, ethers } from 'ethers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress, apiURL } from 'mainConfig';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { decryptContract } from 'utils';
 import FileUpload from 'utils/ipfs';
 import Histories from './Histories';
 import NFTdetail from './NFTdetail';
 import NewHistory from './NewHistory';
-import { hi } from 'date-fns/locale';
 
 const style = {
 	position: 'absolute',
@@ -45,282 +44,228 @@ function HouseDetails(props) {
 	const walletAccount = props.account.account;
 	const { houseNftID } = useParams();
 
-	const cleanContract = useCleanContract();
-	const houseBusinessContract = useHouseBusinessContract();
+  const houseBusinessContract = useHouseBusinessContract();
+  const houseDocContract = useHouseDocContract();
 
-	const classes = useNftDetailStyle();
-	const [simpleNFT, setSimpleNFT] = useState({});
+  const classes = useNftDetailStyle();
+  const [simpleNFT, setSimpleNFT] = useState({});
+  const [otherInfo, setOtherInfo] = useState('');
+  const [hID, setHID] = useState('0');
+  const [disabledArr, setDisabledArr] = useState([]);
+  const [histories, setHistories] = useState([]);
+
 	const [history, setHistory] = useState('');
-	const [hID, setHID] = useState('0');
-	const [disabledArr, setDisabledArr] = useState([]);
-	const [histories, setHistories] = useState([]);
 
 	const [buyerFlag, setBuyerFlag] = useState(false);
 	const [specialBuyer, setSpecialBuyer] = useState('');
 
-	// Image
-	const [image, setImage] = useState(null);
-	const [pictureDesc, setPictureDesc] = useState('');
-	const [brand, setBrand] = useState('');
-	const [brandType, setBrandType] = useState('');
-	const [solorDate, setSolorDate] = useState(new Date().valueOf());
-	const [MPrice, setMprice] = useState(0.01);
-	const [Hprice, setHprice] = useState(1);
+  // Image
+  const [image, setImage] = useState(null);
+  const [pictureDesc, setPictureDesc] = useState('');
+  const [brand, setBrand] = useState('');
+  const [brandType, setBrandType] = useState('');
+  const [solorDate, setSolorDate] = useState(new Date().valueOf());
+  const [changeDate, setChangeDate] = useState(false);
+  const [MPrice, setMprice] = useState(0.01);
+  const [Hprice, setHprice] = useState(1);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [cContract, setCContract] = useState('');
+  const [contracts, setContracts] = useState([]);
+  const [historyTypes, setHistoryTypes] = useState([]);
+  const [oldHistoryTypeIds, setOldHistoryTypeIds] = useState([]);
+  const [changinghistoryType, setChangingHistoryType] = useState('0');
 
-	const [loading, setLoading] = useState(false);
 
-	const [cContract, setCContract] = useState('');
-	const [contracts, setContracts] = useState([]);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-	const [changinghistoryType, setChangingHistoryType] = useState('0');
+  const initialConfig = async () => {
+    var minPrice = await houseBusinessContract.methods.minPrice().call();
+    var maxPrice = await houseBusinessContract.methods.maxPrice().call();
+    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      allHTypes.push(hTypes[i]);
+    }
+    setHistoryTypes(allHTypes);
+    setMprice(web3.utils.fromWei(minPrice));
+    setHprice(web3.utils.fromWei(maxPrice));
+  };
 
-	const [open, setOpen] = useState(false);
-	const handleOpen = () => setOpen(true);
-	const handleClose = () => setOpen(false);
+  const loadNFT = async (_id) => {
+    var allContracts = await houseDocContract.methods.getAllDocContracts().call();
+    var _housePrice = await houseBusinessContract.methods.getHousePrice(_id).call();
+    var cArr = [];
+    for (let i = 0; i < allContracts.length; i++) {
+      if ((allContracts[i].owner).toLowerCase() == account.toLowerCase()) {
+        const contract = decryptContract(allContracts[i]);
+        cArr.push({
+          ...contract,
+          label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
+        });
+      }
+    }
+    setContracts(cArr);
+    setTotalPrice(_housePrice)
 
-	const [historyTypes, setHistoryTypes] = useState([]);
+    var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
+    var nft = nfts.filter((item) => item.houseID === _id)[0];
+    var chistories = await houseBusinessContract.methods.getHistory(_id).call();
+    var arr = [];
+    for (var i = 0; i < chistories.length; i++) {
+      arr.push(chistories[i].historyTypeId)
+    }
+    setOldHistoryTypeIds(arr);
+    setHistories(chistories);
 
-	const initialConfig = async () => {
-		var minPrice = await houseBusinessContract.methods.minPrice().call();
-		var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-		var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-		var allHTypes = [];
-		for (let i = 0; i < hTypes.length; i++) {
-			allHTypes.push(hTypes[i]);
-		}
-		setHistoryTypes(allHTypes);
-		setMprice(web3.utils.fromWei(minPrice));
-		setHprice(web3.utils.fromWei(maxPrice));
-	};
-
-	const loadNFT = async (_id) => {
-		var allContracts = await cleanContract.methods.getAllCleanContracts().call();
-		var cArr = [];
-		for (let i = 0; i < allContracts.length; i++) {
-			if ((allContracts[i].owner).toLowerCase() == walletAccount.toLowerCase()) {
-				const contract = decryptContract(allContracts[i]);
-				cArr.push({
-					...contract,
-					label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
-				});
-			}
-		}
-		setContracts(cArr);
-
-		var nfts = await houseBusinessContract.methods.getAllHouses().call();
-		var nft = nfts.filter((item) => item.houseID === _id)[0];
-		var chistories = await houseBusinessContract.methods.getHistory(_id).call();
-
-		setHistories(chistories);
-
-		if (nft) {
-			if (nft.contributor.buyer) {
-				setSpecialBuyer(nft.contributor.buyer);
-			}
-			var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, walletAccount).call();
-			if (nft.contributor.currentOwner === walletAccount || confirm === true) {
-				var flag = false;
-				for (let i = 0; i < pages.length; i++) {
-					if (pages[i].router === _id) {
-						flag = true;
-					}
-				}
-				if (nft) {
-					var bytes = CryptoJS.AES.decrypt(nft.tokenURI, secretKey);
-					var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    if (nft) {
+      if (nft.contributor.buyer) {
+        setSpecialBuyer(nft.contributor.buyer);
+      }
+      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, account).call();
+      if (nft.contributor.currentOwner === account || confirm === true) {
+        var flag = false;
+        for (let i = 0; i < pages.length; i++) {
+          if (pages[i].router === _id) {
+            flag = true;
+          }
+        }
+        if (nft) {
+          var bytes = CryptoJS.AES.decrypt(nft.tokenURI, secretKey);
+					var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
 					var bytesName = CryptoJS.AES.decrypt(nft.tokenName, secretKey);
 					var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
 					var bytesType = CryptoJS.AES.decrypt(nft.tokenType, secretKey);
 					var decryptedType = bytesType.toString(CryptoJS.enc.Utf8);
-					setSimpleNFT({
-						...nft,
-						tokenURI: decryptedData,
+          setSimpleNFT({
+            ...nft,
+            tokenURI: decryptedURI,
 						tokenName: decryptedName,
 						tokenType: decryptedType,
-					});
-					var dArr = [];
-					for (let i = 0; i < chistories.length; i++) {
-						dArr[i] = true;
-					}
-					setDisabledArr(dArr);
-				} else if (flag === true) {
-					navigate(`../../house/${_id}`);
-				} else {
-					houseError('Invalid Url or NFT ID');
-					navigate('../../house/app');
-				}
-			} else {
-				houseError("You don't have permission to view this NFT detail");
-				navigate('../../house/app');
-			}
-		} else {
-			houseError('Invalid Url or NFT ID');
-			navigate('../../house/app');
-		}
-	};
+          });
+          var dArr = [];
+          for (let i = 0; i < chistories.length; i++) {
+            dArr[i] = true;
+          }
+          setDisabledArr(dArr);
+        } else if (flag === true) {
+          navigate(`../../house/${_id}`);
+        } else {
+          houseError('Invalid Url or NFT ID');
+          navigate('../../house/app');
+        }
+      } else {
+        houseError("You don't have permission to view this NFT detail");
+        navigate('../../house/app');
+      }
+    } else {
+      houseError('Invalid Url or NFT ID');
+      navigate('../../house/app');
+    }
+  };
 
-	const handleAddHistory = async () => {
-		setLoading(true);
-		var _houseID = simpleNFT.houseID,
-			_houseImg = '',
-			_history = history || '',
-			_desc = '',
-			_brand = '',
-			_brandType = '',
-			_yearField = 0;
+  const handleAddHistory = async () => {
+    setLoading(true);
+		var flag = false;
+    var _houseId = simpleNFT.houseID,
+      _houseImg = '',
+      _otherInfo = otherInfo || '',
+      _desc = '',
+      _brand = '',
+      _brandType = '',
+      _yearField = 1;
 
 		var homeHistory = historyTypes[hID];
 
-		if (homeHistory.imgNeed === true) {
-			if (!image) {
-				houseError('Upload Image');
-				setLoading(false);
-				return;
+    if (homeHistory.imgNeed === true) {
+      if (image) {
+        _houseImg = await FileUpload(image);
+      }
+    }
+    if (homeHistory.descNeed === true) {
+      _desc = pictureDesc;
+    }
+    if (homeHistory.brandNeed === true) {
+      _brand = brand;
+    }
+    if (homeHistory.brandTypeNeed === true) {
+      _brandType = brandType;
+    }
+    if (homeHistory.yearNeed === true) {
+      if (changeDate) {
+				_yearField = solorDate.valueOf();
+				if (_yearField < 0) flag = true;
 			}
-			_houseImg = await FileUpload(image);
-		}
-		if (homeHistory.descNeed === true) {
-			_desc = pictureDesc;
-		}
-		if (homeHistory.brandNeed === true) {
-			_brand = brand;
-		}
-		if (homeHistory.brandTypeNeed === true) {
-			_brandType = brandType;
-		}
-		if (homeHistory.yearNeed === true) {
-			_yearField = solorDate.valueOf();
-		}
-		var encryptedHouseImage = CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
-		var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
-		var encryptedHistory = CryptoJS.AES.encrypt(_history, secretKey).toString();
-		var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
-		var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
+      else _yearField = 1;
+    }
 
-		if (!account) {
-			const data = houseBusinessContract.methods
-				.addHistory(
-					Number(_houseID),
-					Number(cContract),
-					hID,
-					encryptedHouseImage,
-					encryptedBrand,
-					encryptedHistory,
-					encryptedDesc,
-					encryptedBrandType,
-					_yearField
-				).encodeABI();
-			const transactionObject = {
-				data,
-				to: houseBusinessContract.options.address
-			};
-
-			// Send trx data and sign
-			fetch(`${apiURL}/signTransaction`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					transactionObject,
-					user: walletAccount
-				}),
-			})
-				.then(res => {
-					if (res.status !== 200) {
-						return res.json().then(error => {
-							houseError(`Error: ${error.message}`);
-							setLoading(false);
-						});
-					}
+    try {
+      try {
+        var encryptedHouseImage = _houseImg == "" ? "" : CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
+        var encryptedBrand = _brand == "" ? "" : CryptoJS.AES.encrypt(_brand, secretKey).toString();
+        var encryptedOtherInfo = _otherInfo == "" ? "" : CryptoJS.AES.encrypt(_otherInfo, secretKey).toString();
+        var encryptedDesc = _desc == "" ? "" : CryptoJS.AES.encrypt(_desc, secretKey).toString();
+        var encryptedBrandType = _brandType == "" ? "" : CryptoJS.AES.encrypt(_brandType, secretKey).toString();
+        await houseBusinessContract.methods
+          .addHistory(
+            Number(_houseId),
+            Number(cContract),
+            hID,
+            encryptedHouseImage,
+            encryptedBrand,
+            encryptedOtherInfo,
+            encryptedDesc,
+            encryptedBrandType,
+            _yearField,
+						flag
+          )
+          .send({ from: account })
 					houseSuccess('You added the history successfully!');
-				})
-				.catch(err => {
-					houseError(err.message)
-				});
+      } catch (err) {
+        console.log('error', err.message)
+        houseError('Something Went wrong!');
+        setLoading(false);
+      }
 
-			loadNFT(_houseID);
-			setHID('0');
-			setHistory('');
-			setImage('');
-			setPictureDesc('');
-			setBrand('');
-			setBrandType('');
-			setSolorDate(0);
-		} else {
-			try {
-				await houseBusinessContract.methods
-					.addHistory(
-						Number(_houseID),
-						Number(cContract),
-						hID,
-						encryptedHouseImage,
-						encryptedBrand,
-						encryptedHistory,
-						encryptedDesc,
-						encryptedBrandType,
-						_yearField
-					).send({ from: account });
-				houseSuccess('You added the history successfully!');
+      loadNFT(_houseId);
+      setHID('0');
+      setOtherInfo('');
+      setImage('');
+      setPictureDesc('');
+      setBrand('');
+      setBrandType('');
+      setSolorDate(0);
+      setLoading(false);
+    } catch (err) {
+      houseError('Something Went wrong!');
+      setLoading(false);
+      console.log('err', err)
+    }
+  };
 
-				loadNFT(_houseID);
-				setHID('0');
-				setHistory('');
-				setImage('');
-				setPictureDesc('');
-				setBrand('');
-				setBrandType('');
-				setSolorDate(0);
-			} catch (err) {
-				houseError('Something Went wrong!');
-				console.log('err', err)
-			}
-		}
+  const handleDisconnectContract = async (hIndex, contractId) => {
+    const houseID = simpleNFT.houseID;
+    setLoading(true);
+    try {
+      await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
+      houseSuccess('You disconnected contract sucessfully!');
+      loadNFT(houseID);
+      setLoading(false);
+    } catch (error) {
+      houseError('Something went wrong!');
+      console.error(error);
+      setLoading(false);
+    }
+  };
 
-		setLoading(false);
-	};
-
-	const handleDisconnectContract = async (hIndex, contractId) => {
-		const houseID = simpleNFT.houseID;
-		setLoading(true);
-		if (!account) {
-			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).encodeABI();
-			const transactionObject = {
-				to: houseBusinessContract.options.address,
-				data
-			};
-			// Send trx data and sign
-			fetch(`${apiURL}/signTransaction`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					transactionObject,
-					user: walletAccount
-				}),
-			})
-				.then(res => {
-					if (res.status !== 200) {
-						return res.json().then(error => {
-							houseError(`Error: ${error.message}`);
-						});
-					}
-					houseSuccess('You disconnected contract sucessfully!');
-					loadNFT(houseID);
-				})
-				.catch(err => {
-					houseError(err)
-				});
-		} else {
-			try {
-				await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
-				houseSuccess('You disconnected contract sucessfully!');
-				loadNFT(houseID);
-			} catch (error) {
-				houseError('Something went wrong!');
-				console.error(error);
-			}
-		}
-
-		setLoading(false);
-	};
+  const handleImageChange = async (e) => {
+    var uploadedImage = e.target.files[0];
+    if (uploadedImage) {
+      setImage(uploadedImage);
+    }
+  };
 
 	const handleBuyerEdit = async () => {
 		if (web3.utils.fromWei(simpleNFT.price) == 0) {
@@ -436,11 +381,12 @@ function HouseDetails(props) {
 					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
 
 					houseSuccess("You have successfully set your House price!")
-					loadNFT(houseID);
 				} catch (error) {
 					console.log(error);
 					houseError('Something went wrong!');
 				}
+				loadNFT(houseID);
+				setLoading(false);
 			}
 		}
 	}
@@ -500,13 +446,6 @@ function HouseDetails(props) {
 		setLoading(false);
 	};
 
-	const handleImageChange = async (e) => {
-		var uploadedImage = e.target.files[0];
-		if (uploadedImage) {
-			setImage(uploadedImage);
-		}
-	};
-
 	useEffect(() => {
 		if (walletAccount) {
 			initialConfig();
@@ -539,6 +478,9 @@ function HouseDetails(props) {
 						classes={classes}
 						account={walletAccount}
 						simpleNFT={simpleNFT}
+						totalPrice={totalPrice}
+            loading={loading}
+            setLoading={setLoading}
 						buyerFlag={buyerFlag}
 						setBuyerFlag={setBuyerFlag}
 						specialBuyer={specialBuyer}
@@ -575,6 +517,7 @@ function HouseDetails(props) {
 									hID={hID}
 									setHID={setHID}
 									historyTypes={historyTypes}
+									oldHistoryTypeIds={oldHistoryTypeIds}
 									image={image}
 									brandType={brandType}
 									setBrandType={setBrandType}
@@ -582,6 +525,7 @@ function HouseDetails(props) {
 									setBrand={setBrand}
 									solorDate={solorDate}
 									setSolorDate={setSolorDate}
+									setChangeDate={setChangeDate}
 									pictureDesc={pictureDesc}
 									setPictureDesc={setPictureDesc}
 									handleImageChange={handleImageChange}

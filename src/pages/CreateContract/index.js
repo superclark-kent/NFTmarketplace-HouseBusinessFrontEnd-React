@@ -18,9 +18,7 @@ import { BigNumber } from "ethers";
 import Web3 from "web3";
 
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import {
-  useCleanContract, useHouseBusinessContract
-} from "hooks/useContractHelpers";
+import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
 import { secretKey, zeroAddress, apiURL } from "mainConfig";
 import FileUpload from "utils/ipfs";
@@ -35,8 +33,8 @@ function CreateContract(props) {
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
   const classes = useHouseMintStyle();
-  const cleanContract = useCleanContract();
   const houseBusinessContract = useHouseBusinessContract();
+  const houseDocContract = useHouseDocContract();
   const navigate = useNavigate();
   // Contract
   const [cFile, setCFile] = useState(null);
@@ -116,11 +114,9 @@ function CreateContract(props) {
             const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-            console.log('contractType', contractType)
-
-            if (!account) {
-              const data = cleanContract.methods
-                .ccCreation(
+            if(!account) {
+              await houseDocContract.methods
+                .hdCreation(
                   encryptedCompanyName,
                   contractType,
                   aSigner,
@@ -134,7 +130,7 @@ function CreateContract(props) {
 
               const transactionObject = {
                 data,
-                to: cleanContract.options.address
+                to: houseDocContract.options.address
               }
 
               // Send trx data and sign
@@ -171,8 +167,8 @@ function CreateContract(props) {
                 });
             } else {
               try {
-                await cleanContract.methods
-                .ccCreation(
+                await houseDocContract.methods
+                .hdCreation(
                   encryptedCompanyName,
                   contractType,
                   aSigner,
@@ -238,7 +234,6 @@ function CreateContract(props) {
         flag: item.connectContract
       })
     })
-    console.log(arr);
     setContracTypes(arr);
   }, [])
 

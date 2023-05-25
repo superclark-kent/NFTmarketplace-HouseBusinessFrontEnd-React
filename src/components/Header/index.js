@@ -45,16 +45,18 @@ import Modal from "@mui/material/Modal";
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import { useCleanContract, useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContractHelpers";
+
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
+import CryptoJS from 'crypto-js';
 
 import Coinbase from "assets/images/Coinbase.png";
 import Metamask from "assets/images/Metamask.png";
 import MainLogo from "assets/images/Offero.png";
 import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import defaultAvatar from "assets/images/avatar.png";
-import { connectorsByName } from "mainConfig";
+import { connectorsByName, secretKey } from "mainConfig";
 import { useCookies } from "react-cookie";
 
 
@@ -223,13 +225,13 @@ function ElevationScroll(props) {
 }
 
 function Header(props) {
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { account, activate, deactivate, library } = useWeb3React();
+  const houseDocContract = useHouseDocContract();
 	const walletAccount = props.account.account;
 	const classes = useHeaderStyles();
-	const navigate = useNavigate();
-	const { account, activate, deactivate, library } = useWeb3React();
 	const houseBusinessContract = useHouseBusinessContract();
-	const cleanContract = useCleanContract();
 
 	const [notifies, setNotifies] = useState([]);
 	const [badgeLeng, setBadgeLeng] = useState("");
@@ -289,32 +291,35 @@ function Header(props) {
 		setIsMember(isMember);
 	};
 
-	const loadNotifies = async () => {
-		var notifies = await cleanContract.methods.getAllNotifies(walletAccount).call();
-		var arr = [], nArr = [];
-		for (let i = 0; i < notifies.length; i++) {
-			if (notifies[i].status === false) {
-				arr.push(notifies[i]);
-			}
-			if (!cookies.notifies) {
-				nArr.push(notifies[i]);
-			} else if (
-				cookies.notifies.findIndex(
-					(item) => item[3] === notifies[i].notifySentTime
-				) === -1 &&
-				notifies[i].status === false
-			) {
-				nArr.push(notifies[i]);
-			}
-		}
-
+  const loadNotifies = async () => {
+    var notifies = await houseDocContract.methods.getAllNotifies(account).call();
+    var arr = [], nArr = [];
+    for (let i = 0; i < notifies.length; i++) {
+      if (notifies[i].status === false) {
+				var bytesNotify = CryptoJS.AES.decrypt(notifies[i].notifyContent, secretKey);
+				var decryptedNotify = bytesNotify.toString(CryptoJS.enc.Utf8);
+        arr.push({
+					...notifies[i],
+					notifyContent: decryptedNotify
+				});
+      }
+      if (!cookies.notifies) {
+        nArr.push(notifies[i]);
+      } else if (
+        cookies.notifies.findIndex(
+          (item) => item[3] === notifies[i].notifySentTime
+        ) === -1 &&
+        notifies[i].status === false
+      ) {
+        nArr.push(notifies[i]);
+      }
+    }
 		setNotifies(arr);
 		setBadgeLeng(nArr.length);
 	};
 
 	useEffect(() => {
 		if (cookies.connected === true) {
-			console.log('cookies', cookies);
 			dispatch(setAccount(cookies.walletAccount));
 		}
 
@@ -664,15 +669,15 @@ function Header(props) {
 						Notifies
 					</Typography>
 					<List sx={{ mb: 2 }} onClick={handleNotify}>
-						{notifies.map(({ ccID, nSender, notifyContent }, key) => (
+						{notifies.map(({ hdID, nSender, notifyContent }, key) => (
 							<Fragment key={key}>
-								<ListItem button>
+								<ListItem>
 									<ListItemAvatar>
 										<Avatar alt="Profile Picture" src={defaultAvatar} />
 									</ListItemAvatar>
 									<ListItemText
 										primary={notifyContent}
-										secondary={`From ${nSender} in contract id: ${ccID}`}
+										secondary={`From ${nSender} in contract id: ${hdID}`}
 									/>
 								</ListItem>
 							</Fragment>
