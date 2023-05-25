@@ -172,7 +172,7 @@ function Nfts(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
-    houseNft: state.houseNft
+    houseNft: state.houseNft,
   };
 }
 

@@ -10,7 +10,7 @@ import {
     HOME_DISCONNECT_WALLET_BEGIN,
     HOME_DISCONNECT_WALLET_SUCCESS,
     HOME_DISCONNECT_WALLET_FAILURE,
-} from '../../constants'
+} from 'redux/constants'
 
 // Initial States
 const initialState = {

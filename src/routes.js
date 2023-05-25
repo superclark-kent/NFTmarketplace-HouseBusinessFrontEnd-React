@@ -1,87 +1,42 @@
-import React from 'react'
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes } from "react-router-dom";
 
 // layouts
-import {
-    MainLayout,
-    FullLayout,
-} from './layouts'
+import { MainLayout } from "./layouts";
 
 // pages
-import NotFound from 'pages/notFound';
-import AirdropWallet from 'pages/AirdropWallet';
-import Dashboard from './pages/Dashboard';
-import Mint from 'pages/Mint';
-import Nfts from 'pages/NFTs';
-import HouseDetails from 'pages/HouseDetails';
-import Staking from 'pages/Staking';
-import Contract from 'pages/Contract';
-import CreateContract from 'pages/CreateContract';
-import Admin from 'pages/Admin';
-import ThirdParty from 'pages/ThirdParty';
+import Admin from "pages/Admin";
+import AirdropWallet from "pages/AirdropWallet";
+import Contract from "pages/Contract";
+import CreateContract from "pages/CreateContract";
+import HouseDetails from "pages/HouseDetails";
+import Mint from "pages/Mint";
+import Nfts from "pages/NFTs";
+import Staking from "pages/Staking";
+import ThirdParty from "pages/ThirdParty";
+import NotFound from "pages/notFound";
+import Dashboard from "./pages/Dashboard";
 
 export default function Router() {
-
-    return useRoutes([
-        {
-            path: '/admin',
-            element: <MainLayout />,
-            children: [
-                { path: 'main', element: <Admin /> },
-            ]
-        },
-        {
-            path: '/account',
-            element: <MainLayout />,
-            children: [
-                { path: ':walletID', element: <AirdropWallet /> },
-            ]
-        },
-        {
-            path: '/third-party',
-            element: <MainLayout />,
-            children: [
-                { path: 'main', element: <ThirdParty /> },
-            ]
-        },
-        {
-            path: '/house',
-            element: <MainLayout />,
-            children: [
-                { path: 'app', element: <Dashboard /> },
-                { path: 'mint', element: <Mint /> },
-                { path: 'myNfts', element: <Nfts /> },
-                { path: 'staking', element: <Staking /> },
-            ]
-        },
-        {
-            path: '/item',
-            element: <MainLayout />,
-            children: [
-                { path: ':houseNftID', element: <HouseDetails /> },
-            ]
-        },
-        {
-            path: '/contract',
-            element: <MainLayout />,
-            children: [
-                { path: 'main', element: <Contract /> },
-                { path: 'create', element: <CreateContract /> },
-            ]
-        },
-        {
-            path: '/',
-            element: <FullLayout />,
-            children: [
-                { path: '/', element: <Navigate to='/house/app' /> },
-                { path: '/', element: <Navigate to='/house/mint' /> },
-                { path: '/', element: <Navigate to='/house/myNfts' /> },
-                { path: '/', element: <Navigate to='/house/staking' /> },
-                { path: '/', element: <Navigate to='/contract/main' /> },
-                { path: '404', element: <NotFound /> },
-                { path: '*', element: <Navigate to='/404' /> }
-            ]
-        },
-        { path: '*', element: <Navigate to='/404' replace /> }
-    ])
+  return useRoutes([
+    {
+      path: "/",
+      element: <MainLayout />,
+      children: [
+        { path: "/", element: <Navigate to="/house/app" /> },
+        { path: "/house/app", element: <Dashboard /> },
+        { path: "/house/mint", element: <Mint /> },
+        { path: "/house/myNfts", element: <Nfts /> },
+        { path: "/house/staking", element: <Staking /> },
+        { path: "/contract/main", element: <Contract /> },
+        { path: "/contract/create", element: <CreateContract /> },
+        { path: "/admin/main", element: <Admin /> },
+        { path: "/account/:walletID", element: <AirdropWallet /> },
+        { path: "/third-party/main", element: <ThirdParty /> },
+        { path: "/item/:houseNftID", element: <HouseDetails /> },
+        { path: "404", element: <NotFound /> },
+        { path: "*", element: <Navigate to="/404" /> },
+      ],
+    },
+    { path: "*", element: <Navigate to="/404" replace /> },
+  ]);
 }
