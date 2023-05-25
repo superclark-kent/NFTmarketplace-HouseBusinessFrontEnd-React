@@ -19,6 +19,7 @@ function Contract(props) {
   const web3 = useWeb3();
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const historyTypes = props.historyTypes.historyTypes;
   const classes = useContractStyle();
   const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
@@ -37,7 +38,6 @@ function Contract(props) {
   const [editFlag, setEditFlag] = useState(-1);
   const [CSigner, setCSigner] = useState('');
   const [newSgnerLoading, setNewSgnerLoading] = useState(false);
-  const [historyTypes, setHistoryTypes] = useState([]);
 
   const decryptFileFromUrl = async (url) => {
     const __decryptedFile = await decryptfile(url);
@@ -307,18 +307,9 @@ function Contract(props) {
     return `${dy}-${mt}-${yr}`;
   };
 
-  const getAllHistoryTypes = async () => {
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      allHTypes.push(hTypes[i]);
-    }
-    setHistoryTypes(allHTypes);
-  }
-
   useEffect(() => {
     if (walletAccount) {
-      getAllHistoryTypes();
+      // getAllHistoryTypes();
       loadContracts();
     }
   }, [walletAccount]);
@@ -726,6 +717,7 @@ function Contract(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
+    historyTypes: state.historyTypes
   };
 }
 

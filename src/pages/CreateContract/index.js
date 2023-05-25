@@ -32,6 +32,7 @@ function CreateContract(props) {
   const { account } = useWeb3React();
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const historyTypes = props.historyTypes.historyTypes;
   const classes = useHouseMintStyle();
   const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
@@ -224,9 +225,8 @@ function CreateContract(props) {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
-    hTypes.map((item, idx) => {
+    historyTypes.map((item, idx) => {
       arr.push({
         idx: idx,
         value: item.hLabel,
@@ -235,7 +235,7 @@ function CreateContract(props) {
       })
     })
     setContracTypes(arr);
-  }, [])
+  }, [historyTypes])
 
   return (
     <Stack
@@ -469,6 +469,7 @@ function CreateContract(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
+    historyTypes: state.historyTypes
   };
 }
 

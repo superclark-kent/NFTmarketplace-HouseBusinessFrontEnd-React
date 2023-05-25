@@ -1,8 +1,16 @@
+import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
-import CachedIcon from '@mui/icons-material/Cached';
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Grid } from '@mui/material';
 import { Box } from '@mui/system';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { useWeb3React } from '@web3-react/core';
 import useNftStyle from 'assets/styles/nftStyle';
 import CryptoJS from 'crypto-js';
@@ -10,9 +18,6 @@ import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
-import { useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
 import MoreDetail from './MoreDetail';
 
@@ -26,6 +31,7 @@ function Dashboard(props) {
   const houseBusinessContract = useHouseBusinessContract()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
+  const [viewDatapoint, setViewDatapoint] = useState(false);
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -112,7 +118,7 @@ function Dashboard(props) {
 
   const addAllowMe = async (item) => {
     try {
-      await houseBusinessContract.methods.addAllowList(item.houseID, account).send({from: account})
+      await houseBusinessContract.methods.addAllowList(item.houseID, account).send({ from: account })
     } catch (err) {
       console.log('err', err)
     }
@@ -121,6 +127,20 @@ function Dashboard(props) {
   const handleClickMoreDetail = async (item) => {
     navigate(`../../item/${item.houseID}`)
   }
+
+  const handleClickViewDatapoint = async () => {
+
+  }
+
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   useEffect(() => {
     console.log('useEffect triggered with walletAccount:', walletAccount);
@@ -177,7 +197,15 @@ function Dashboard(props) {
                           <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
                         </LoadingButton> : <></>
                     }
-                    {walletAccount ? <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> : <></>}
+                    {/* <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> */}
+                    <Box
+                      component={'a'}
+                      className={nftClasses.nftHouseHistory}
+                      onClick={handleClickOpen}
+                    >
+                      <CachedIcon />
+                      {`View Datapoint`}
+                    </Box>
                   </Grid>
                 </Grid>
               </Grid>
@@ -185,6 +213,28 @@ function Dashboard(props) {
           }) : ''
         }
       </Grid>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"You don't have permission to view datapoint for this House"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            If you want to view the datapoint, please pay for it
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={handleClose} autoFocus>
+            Pay
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   )
 }
@@ -192,7 +242,7 @@ function Dashboard(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
-    houseNft: state.houseNft
+    houseNft: state.houseNft,
   };
 }
 
