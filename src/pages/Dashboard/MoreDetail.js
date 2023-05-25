@@ -23,14 +23,14 @@ export default function MoreDetail({
         }
     }, [account])
 
-    if (item.contributor.currentOwner === account || confirm === true) {
+    // if (item.contributor.currentOwner === account || confirm === true) {
         return (
             <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => handleClickMoreDetail(item)} >
                 <CachedIcon />
-                {`More Detail`}
+                {`View Datapoint`}
             </Box>
         )
-    }
+    // }
 
     return (
         <></>

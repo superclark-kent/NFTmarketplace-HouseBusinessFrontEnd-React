@@ -49,6 +49,7 @@ import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContract
 
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
+import { setHistoryTypes } from "redux/actions/historyTypes";
 import CryptoJS from 'crypto-js';
 
 import Coinbase from "assets/images/Coinbase.png";
@@ -58,7 +59,7 @@ import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import defaultAvatar from "assets/images/avatar.png";
 import { connectorsByName, secretKey } from "mainConfig";
 import { useCookies } from "react-cookie";
-
+import { useWeb3 } from 'hooks/useWeb3';
 
 const style = {
 	position: "absolute",
@@ -227,7 +228,8 @@ function ElevationScroll(props) {
 function Header(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { account, activate, deactivate, library } = useWeb3React();
+	const web3 = useWeb3();
+  const { account, activate, deactivate } = useWeb3React();
   const houseDocContract = useHouseDocContract();
 	const walletAccount = props.account.account;
 	const classes = useHeaderStyles();
@@ -318,6 +320,19 @@ function Header(props) {
 		setBadgeLeng(nArr.length);
 	};
 
+	const getAllHistoryTypes = async () => {
+		var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+    var allHTypes = [];
+    for (let i = 0; i < hTypes.length; i++) {
+      if (hTypes[i].hLabel === '') continue;
+      allHTypes.push({
+        ...hTypes[i],
+        value: web3.utils.fromWei(hTypes[i].value)
+      });
+    }
+		dispatch(setHistoryTypes(allHTypes));
+	}
+
 	useEffect(() => {
 		if (cookies.connected === true) {
 			dispatch(setAccount(cookies.walletAccount));
@@ -345,6 +360,10 @@ function Header(props) {
 			dispatch(setAccount(null));
 		}
 	}, [account]);
+
+	useEffect(() => {
+		getAllHistoryTypes();
+	}, [])
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {
@@ -810,6 +829,7 @@ function Header(props) {
 function mapStateToProps(state) {
 	return {
 		account: state.account,
+		historyTypes: state.historyTypes
 	};
 }
 

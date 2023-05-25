@@ -42,6 +42,7 @@ function HouseDetails(props) {
 	const web3 = useWeb3();
 	const dispatch = useDispatch();
 	const walletAccount = props.account.account;
+	const historyTypes = props.historyTypes.historyTypes;
 	const { houseNftID } = useParams();
 
   const houseBusinessContract = useHouseBusinessContract();
@@ -73,7 +74,6 @@ function HouseDetails(props) {
   const [loading, setLoading] = useState(false);
   const [cContract, setCContract] = useState('');
   const [contracts, setContracts] = useState([]);
-  const [historyTypes, setHistoryTypes] = useState([]);
   const [oldHistoryTypeIds, setOldHistoryTypeIds] = useState([]);
   const [changinghistoryType, setChangingHistoryType] = useState('0');
 
@@ -84,12 +84,6 @@ function HouseDetails(props) {
   const initialConfig = async () => {
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      allHTypes.push(hTypes[i]);
-    }
-    setHistoryTypes(allHTypes);
     setMprice(web3.utils.fromWei(minPrice));
     setHprice(web3.utils.fromWei(maxPrice));
   };
@@ -110,7 +104,7 @@ function HouseDetails(props) {
     setContracts(cArr);
     setTotalPrice(_housePrice)
 
-    var nfts = await houseBusinessContract.methods.getAllHouses().call({ from: account });
+    var nfts = await houseBusinessContract.methods.getAllHouses().call();
     var nft = nfts.filter((item) => item.houseID === _id)[0];
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
     var arr = [];
@@ -558,6 +552,7 @@ function HouseDetails(props) {
 function mapStateToProps(state) {
 	return {
 		account: state.account,
+		historyTypes: state.historyTypes
 	};
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
 import {
   Box, Button, Divider, Grid, IconButton, InputBase,
   Paper,
@@ -66,7 +67,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export default function Admin() {
+const Admin = (props) => {
 
   const [person, setPerson] = useState([]);
   const [personName, setPersonName] = useState([]);
@@ -97,12 +98,11 @@ export default function Admin() {
   const web3 = useWeb3();
   const { account } = useWeb3React();
   const navigate = useNavigate();
+  const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
-
-  const [historyTypes, setHistoryTypes] = useState([]);
 
   const [MPrice, setMprice] = useState(0.2);
   const [Hprice, setHprice] = useState(2);
@@ -177,18 +177,6 @@ export default function Admin() {
     }
 
     setVisibleProperty(tempList);
-
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      if (hTypes[i].hLabel === '') continue;
-      allHTypes.push({
-        ...hTypes[i],
-        value: web3.utils.fromWei(hTypes[i].value)
-      });
-    }
-
-    setHistoryTypes(allHTypes);
   };
 
   const initialConfig2 = async () => {
@@ -1104,3 +1092,13 @@ export default function Admin() {
     </Grid>
   );
 }
+
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+    historyTypes: state.historyTypes
+  };
+}
+
+export default connect(mapStateToProps)(Admin);

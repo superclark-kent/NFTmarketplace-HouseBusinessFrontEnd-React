@@ -102,6 +102,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
   };
 
   const handleRemove = async (itemIndex) => {
+    setLoading(true);
     try {
       const tx = await houseBusinessContract.methods.removeHistoryType(itemIndex).send({ from: account });
       let temp = [...Hdata];
@@ -113,6 +114,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     } catch (err) {
       console.log('err', err)
     }
+    setLoading(false);
   };
 
   const handleItemChange = (item, hIndex, changeType, checked) => {
