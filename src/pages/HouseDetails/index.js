@@ -512,8 +512,8 @@ function HouseDetails(props) {
 									cContract={cContract}
 									setCContract={setCContract}
 									loading={loading}
-									history={history}
-									setHistory={setHistory}
+									otherInfo={otherInfo}
+                  setOtherInfo={setOtherInfo}
 									hID={hID}
 									setHID={setHID}
 									historyTypes={historyTypes}
