@@ -256,7 +256,6 @@ export default function Histories({
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
               disabled={disabledArr[index] || loading}
-            // disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>

@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
+  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract, useMarketplaceContract
 } from 'hooks/useContractHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -33,6 +33,7 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
+import { set } from 'lodash';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -100,6 +101,7 @@ const Admin = (props) => {
   const navigate = useNavigate();
   const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract();
+  const marketplaceContract = useMarketplaceContract();
   const houseDocContract = useHouseDocContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
@@ -133,7 +135,8 @@ const Admin = (props) => {
   const [Pprice, setPprice] = useState('');
   const [Pperiod, setPperiod] = useState(0);
   const [DataLimit, setDataLimit] = useState('');
-  const [labelPercents, setLabelPercents] = useState([])
+  const [labelPercents, setLabelPercents] = useState([]);
+  const [labelValue, setLabelValue] = useState([]);
 
   const PeriodList = [
     {
@@ -154,8 +157,8 @@ const Admin = (props) => {
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     var penalty = await stakingContract.methods.penalty().call();
-    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
-    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
+    var royaltyCreator = await marketplaceContract.methods.royaltyCreator().call();
+    var royaltyMarket = await marketplaceContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
     var _uploadedCount = await houseDocContract.methods.hdCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
@@ -169,7 +172,8 @@ const Admin = (props) => {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
-    getLabelPercent()
+    getLabelPercent();
+    getLabelValue();
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -194,8 +198,13 @@ const Admin = (props) => {
   }
 
   const getLabelPercent = async () => {
-    var _labelPercents = await houseBusinessContract.methods.labelPercent().call();
+    var _labelPercents = await marketplaceContract.methods.labelPercent().call();
     setLabelPercents(_labelPercents);
+  }
+
+  const getLabelValue = async () => {
+    var _labelValue = await marketplaceContract.methods.labelValue().call();
+    setLabelValue(_labelValue);
   }
 
   const AccessAdmin = () => {
@@ -234,7 +243,7 @@ const Admin = (props) => {
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
       houseSuccess('Creator Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -245,7 +254,7 @@ const Admin = (props) => {
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
       houseSuccess('Market Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -1043,7 +1052,13 @@ const Admin = (props) => {
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
-            <TypePercent classes={classes} labelPercents={labelPercents} getLabelPercent={getLabelPercent} />
+            <TypePercent
+              classes={classes}
+              labelPercents={labelPercents}
+              labelValue={labelValue}
+              getLabelPercent={getLabelPercent}
+              getLabelValue={getLabelValue}
+            />
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>

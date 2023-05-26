@@ -7,16 +7,16 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
-import CryptoJS from 'crypto-js';
 import useHouseMintStyle from "assets/styles/houseMintStyle";
+import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import FileUpload from "utils/ipfs";
 import { setAccount } from "redux/actions/account";
+import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
 	display: "none",
