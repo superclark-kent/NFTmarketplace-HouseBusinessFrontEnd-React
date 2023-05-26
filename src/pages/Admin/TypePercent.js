@@ -55,9 +55,7 @@ const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 export default function TypePercent({ 
   classes, 
   labelPercents, 
-  labelValue,
-  getLabelPercent,
-  getLabelValue,
+  getLabelPercent
 }) {
 
   const { account } = useWeb3React();
@@ -102,23 +100,7 @@ export default function TypePercent({
     getLabelPercent();
   }
 
-  const saveLabelValue = async () => {
-    setLoading(true);
-    var _value = BigNumber.from(`${Number('0.1') * 10 ** 18}`);
-    var _labelValue = [_value, _value, _value, _value, _value, _value, _value]
-    try {
-      await marketplaceContract.methods.setLabelValue(_labelValue).send({ from: account });
-    } catch (err) {
-      console.log('err', err)
-    }
-    setLoading(false);
-    setDisabled(true);
-    setEditPercent(false);
-    getLabelPercent();
-  }
-
   useEffect(() => {
-    console.log('labelValue', labelValue)
     setContract(labelPercents[0])
     setImage(labelPercents[1])
     setBrand(labelPercents[2])
@@ -328,87 +310,6 @@ export default function TypePercent({
                             color="primary"
                             onClick={() => {
                               setEditPercent(false)
-                              setDisabled(true);
-                            }}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </>
-                    }
-                  </>
-                )
-              }
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid item md={12}>
-        <Grid className={classes.addHeader}>
-          <Box component={"h3"}>Set Value of History Labels</Box>
-        </Grid>
-        <Grid container disabled>
-          <Grid container className={classes.historyItems}>
-            <Grid
-              key={`history-header-value`}
-              sx={{ fontWeight: "500" }}
-              className={classes.firstgrid}
-            >
-              <label>Value(MATIC)</label>
-            </Grid>
-            {labelsValue.map((item, index) => {
-              return (
-                <Grid item className={classes.perLabel}>
-                  <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
-                    <OutlinedInput
-                      id="outlined-adornment-weight"
-                      aria-describedby="outlined-weight-helper-text"
-                      inputProps={{
-                        'aria-label': 'weight',
-                      }}
-                      size="small"
-                      type="number"
-                      value={item}
-                      onChange={(e) => {
-                        if (e.target.value < 0) return;
-                        setYear(e.target.value)
-                      }}
-                      disabled={disabled}
-                    />
-                  </FormControl>
-                </Grid>
-              )
-            })}
-            <Grid item className={classes.grid}>
-              {!editValue ?
-                <IconButton
-                  aria-label="edit"
-                  color="primary"
-                  onClick={() => {
-                    setEditValue(true)
-                    setDisabled(false);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                :
-                (
-                  <>
-                    {
-                      loading === true ?
-                        <CircularProgress /> :
-                        <>
-                          <IconButton
-                            aria-label="edit"
-                            color="primary"
-                            onClick={saveLabelValue}
-                          >
-                            <SaveIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="cancel"
-                            color="primary"
-                            onClick={() => {
-                              setEditValue(false)
                               setDisabled(true);
                             }}
                           >

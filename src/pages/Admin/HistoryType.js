@@ -29,7 +29,8 @@ const hHeaders = [
   "Year",
   "Other Info",
   "Percentage",
-  "Value(MATIC)",
+  "Main Value(MATIC)",
+  "Extra to View(MATIC)",
   "Actions",
 ];
 
@@ -62,14 +63,16 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
     obj["otherInfo"] = false;
     obj["yearNeed"] = false;
     obj["percent"] = 0;
-    obj["value"] = 0;
+    obj["mValue"] = 0;
+    obj["eValue"] = 0;
     setNewItem(obj);
     setNewHistory("");
     setAddFlag(true);
   };
 
   const handleSave = async (historyItem, typeID) => {
-    const typeValue = BigNumber.from(`${Number(historyItem.value) * 10 ** 18}`);
+    const mainValue = BigNumber.from(`${Number(historyItem.mValue) * 10 ** 18}`);
+    const extraValue = BigNumber.from(`${Number(historyItem.eValue) * 10 ** 18}`);
     setLoading(true);
     try {
       await marketplaceContract.methods
@@ -83,7 +86,8 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
           historyItem.brandTypeNeed,
           historyItem.yearNeed,
           historyItem.otherInfo,
-          typeValue,
+          mainValue,
+          extraValue,
           addFlag
         )
         .send({ from: account });
@@ -357,7 +361,7 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
               </Grid>
               <Grid item className={classes.perLabel}>
                 <TextField
-                  value={item.value}
+                  value={item.mValue}
                   id="outlined-basic"
                   variant="outlined"
                   sx={{ m: '8px' }}
@@ -366,7 +370,22 @@ export default function HistoryType({ classes, historyTypes, labelPercents }) {
                   type="number"
                   onChange={(e) => {
                     if (e.target.value < 0) return;
-                    handleItemChange(item, itemIndex, 'value', e.target.value)
+                    handleItemChange(item, itemIndex, 'mValue', e.target.value)
+                  }}
+                />
+              </Grid>
+              <Grid item className={classes.perLabel}>
+                <TextField
+                  value={item.eValue}
+                  id="outlined-basic"
+                  variant="outlined"
+                  sx={{ m: '8px' }}
+                  size="small"
+                  className={classes.fullWidth}
+                  type="number"
+                  onChange={(e) => {
+                    if (e.target.value < 0) return;
+                    handleItemChange(item, itemIndex, 'eValue', e.target.value)
                   }}
                 />
               </Grid>

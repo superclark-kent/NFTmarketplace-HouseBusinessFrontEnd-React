@@ -136,7 +136,6 @@ const Admin = (props) => {
   const [Pperiod, setPperiod] = useState(0);
   const [DataLimit, setDataLimit] = useState('');
   const [labelPercents, setLabelPercents] = useState([]);
-  const [labelValue, setLabelValue] = useState([]);
 
   const PeriodList = [
     {
@@ -173,7 +172,6 @@ const Admin = (props) => {
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
     getLabelPercent();
-    getLabelValue();
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -200,11 +198,6 @@ const Admin = (props) => {
   const getLabelPercent = async () => {
     var _labelPercents = await marketplaceContract.methods.labelPercent().call();
     setLabelPercents(_labelPercents);
-  }
-
-  const getLabelValue = async () => {
-    var _labelValue = await marketplaceContract.methods.labelValue().call();
-    setLabelValue(_labelValue);
   }
 
   const AccessAdmin = () => {
@@ -1055,9 +1048,7 @@ const Admin = (props) => {
             <TypePercent
               classes={classes}
               labelPercents={labelPercents}
-              labelValue={labelValue}
               getLabelPercent={getLabelPercent}
-              getLabelValue={getLabelValue}
             />
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />

@@ -351,6 +351,107 @@
     "name": "getContractById",
     "outputs": [
       {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "contractId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "companyName",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "contractType",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "contractURI",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateFrom",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "dateTo",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "agreedPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "currency",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "contractSigner",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "creatorApproval",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "creatorSignDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "signerApproval",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "signerSignDate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "status",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct HouseDoc.DocContract",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "contractId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getContractOwnerById",
+    "outputs": [
+      {
         "internalType": "address",
         "name": "_contractOwner",
         "type": "address"
