@@ -60,12 +60,7 @@ function Dashboard(props) {
   const [available, setAvailable] = useState(false);
 
   const loadNFTs = async () => {
-    try {
-      var tx = await houseBusinessContract.methods.getAllowFee(1, [0,1]).call()
-      console.log('tx', tx)
-    } catch (err) {
-      console.log('err', err)
-    }
+    
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
       .then(async (gNFTs) => {
@@ -163,7 +158,17 @@ function Dashboard(props) {
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = async (_id, _owner) => {
+
+    try {
+      var tx = await houseBusinessContract.methods.addAllowUser(1, [0]).send({ from: account})
+      console.log('tx', tx)
+    } catch (err) {
+      console.log('err', err)
+    }
+
+
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
+    console.log('chistories', chistories)
 
     var tempHistory = [];
     for (let i = 0; i < chistories.length; i++) {
@@ -294,7 +299,7 @@ function Dashboard(props) {
       >
         <DialogContent xl={6} md={12}>
           <Grid>
-            {histories.map((item, index) => {
+            {availableHistorie.map((item, index) => {
               var homeHistory = historyTypes[item.historyTypeId];
               return (
                 <ListItem key={index} component="div" disablePadding>
