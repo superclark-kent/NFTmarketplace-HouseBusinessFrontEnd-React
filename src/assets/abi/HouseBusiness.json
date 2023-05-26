@@ -289,6 +289,24 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256[]",
+        "name": "_hIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "addAllowUser",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint256",
         "name": "_contractId",
         "type": "uint256"
@@ -742,30 +760,6 @@
         "internalType": "struct HouseBusiness.House[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_houseId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_hIds",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "getAllowFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",

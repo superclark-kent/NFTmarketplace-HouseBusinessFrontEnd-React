@@ -106,6 +106,7 @@ const useNftDetailStyle = makeStyles((theme) => ({
     width: "100%",
     marginTop: "16px !important",
     marginBottom: "16px !important",
+    marginLeft: "10px !important"
   },
   listHistoryField: {
     width: "50%",
