@@ -12,17 +12,6 @@ export default function MoreDetail({
 
     const [confirm, setConfirm] = useState(false)
 
-    const checkConfirm = async () => {
-        var cf = await houseBusinessContract.methods.checkAllowedList(item.houseID, account).call();
-        setConfirm(cf)
-    }
-
-    useEffect(() => {
-        if (account) {
-            checkConfirm()
-        }
-    }, [account])
-
     // if (item.contributor.currentOwner === account || confirm === true) {
         return (
             <Box component={'a'} className={nftClasses.nftHouseHistory} onClick={() => handleClickMoreDetail(item)} >
