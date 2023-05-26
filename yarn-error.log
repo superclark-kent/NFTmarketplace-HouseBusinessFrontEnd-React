@@ -1,0 +1,103 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Users\ATHENA\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add @mui/x-date-pickers
+
+PATH: 
+  C:\Users\ATHENA\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\local\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\usr\bin;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\ATHENA\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Program Files\Git\cmd;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\Bitvise SSH Client;C:\Users\ATHENA\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Users\ATHENA\AppData\Local\Programs\Python\Python311\Scripts;C:\Users\ATHENA\AppData\Local\Programs\Python\Python311;C:\Users\ATHENA\AppData\Local\Microsoft\WindowsApps;C:\Users\ATHENA\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\ATHENA\AppData\Roaming\npm;C:\Users\ATHENA\AppData\Local\GitHubDesktop\bin;C:\Users\ATHENA\AppData\Roaming\nvm;C:\Program Files\nodejs;C:\Program Files (x86)\BrowserStackLocal;C:\Program Files\Git\usr\bin\vendor_perl;C:\Program Files\Git\usr\bin\core_perl
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  18.12.1
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-5.11.16.tgz: ESOCKETTIMEDOUT
+      at ClientRequest.<anonymous> (C:\Users\ATHENA\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141517:19)
+      at Object.onceWrapper (node:events:627:28)
+      at ClientRequest.emit (node:events:513:28)
+      at TLSSocket.emitRequestTimeout (node:_http_client:838:9)
+      at Object.onceWrapper (node:events:627:28)
+      at TLSSocket.emit (node:events:525:35)
+      at Socket._onTimeout (node:net:562:8)
+      at listOnTimeout (node:internal/timers:564:17)
+      at process.processTimers (node:internal/timers:507:7)
+
+npm manifest: 
+  {
+    "name": "defi-business",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+      "@emotion/react": "^11.9.3",
+      "@emotion/styled": "^11.9.3",
+      "@ethersproject/providers": "^5.6.2",
+      "@ethersproject/units": "^5.6.0",
+      "@mui/icons-material": "^5.5.1",
+      "@mui/lab": "^5.0.0-alpha.78",
+      "@mui/material": "^5.5.3",
+      "@mui/styled-engine-sc": "^5.5.2",
+      "@mui/styles": "^5.5.3",
+      "@mui/x-date-pickers": "^5.0.0-alpha.1",
+      "@stripe/react-stripe-js": "^2.1.0",
+      "@stripe/stripe-js": "^1.52.1",
+      "@walletconnect/client": "^1.7.7",
+      "@walletconnect/qrcode-modal": "^1.7.7",
+      "@web3-react/core": "^6.1.9",
+      "@web3-react/frame-connector": "^6.0.9",
+      "@web3-react/injected-connector": "^6.0.7",
+      "@web3-react/walletconnect-connector": "^6.2.13",
+      "@web3-react/walletlink-connector": "^6.2.14",
+      "crypto-js": "^4.1.1",
+      "date-fns": "^2.28.0",
+      "dotenv": "^16.0.3",
+      "ethers": "^5.6.2",
+      "framer-motion": "^4.1.17",
+      "ipfs-http-client": "^56.0.1",
+      "lodash": "^4.17.21",
+      "material-react-toastify": "^1.0.1",
+      "pdf-lib": "^1.17.1",
+      "pdfjs-dist": "^2.12.313",
+      "react": "^17.0.2",
+      "react-cookie": "^4.1.1",
+      "react-dom": "^17.0.2",
+      "react-pdf": "^5.7.2",
+      "react-redux": "^7.2.6",
+      "react-router-dom": "^6.2.2",
+      "react-scripts": "4.0.3",
+      "react-swipeable-views": "^0.14.0",
+      "redux": "^4.1.2",
+      "redux-debounced": "^0.5.0",
+      "redux-persist": "^6.0.0",
+      "redux-thunk": "^2.4.1",
+      "sass": "^1.53.0",
+      "styled-components": "^5.3.5",
+      "web-vitals": "^1.1.1",
+      "web3": "^1.9.0"
+    },
+    "scripts": {
+      "dev": "react-scripts start",
+      "start": "react-scripts --openssl-legacy-provider start",
+      "build": "react-scripts build",
+      "lint": "eslint . --ext js,jsx",
+      "lint:fix": "eslint . --ext js,jsx --fix",
+      "format": "prettier --write \"**/*.{js,jsx,json,md}\""
+    },
+    "browserslist": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "devDependencies": {
+      "file-loader": "^6.2.0",
+      "react-error-overlay": "^6.0.9"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
