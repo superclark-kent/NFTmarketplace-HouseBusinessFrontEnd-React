@@ -348,7 +348,7 @@ function Header(props) {
 	}, [pathname]);
 
 	useEffect(() => {
-		if (walletAccount) {
+		if (walletAccount || account) {
 			checkAdmin();
 			loadNotifies();
 		}

@@ -33,7 +33,6 @@ import SaveAsIcon from '@mui/icons-material/SaveAs';
 import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
-import { DateField } from '@mui/x-date-pickers/DateField';
 
 function Dashboard(props) {
   const nftClasses = useNftStyle()
@@ -268,7 +267,6 @@ function Dashboard(props) {
           <Grid>
             {histories.map((item, index) => {
               var homeHistory = historyTypes[item.historyTypeId];
-              console.log('homeHistory', homeHistory, item)
               return (
                 <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
                   <TextField
@@ -277,6 +275,7 @@ function Dashboard(props) {
                     label="History Type"
                     value={homeHistory.hLabel}
                     variant="filled"
+                    disabled={true}
                   >
                   </TextField>
                   {homeHistory.imgNeed === true ? (
@@ -288,12 +287,7 @@ function Dashboard(props) {
                             id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
                             multiple
                             type="file"
-                            onChange={(e) => {
-                              var uploadedImage = e.target.files[0];
-                              if (uploadedImage) {
-                                setCImage(uploadedImage);
-                              }
-                            }}
+                            disabled={true}
                           />
                           <IconButton
                             color="primary"
@@ -317,7 +311,7 @@ function Dashboard(props) {
                       variant="filled"
                       className={classes.addHistoryField}
                       value={item.desc}
-                      onChange={(e) => setCPicDesc(e.target.value)}
+                      disabled={true}
                     />
                   ) : null}
                   {homeHistory.brandNeed === true ? (
@@ -328,7 +322,7 @@ function Dashboard(props) {
                       variant="filled"
                       className={classes.addHistoryField}
                       value={item.houseBrand}
-                      onChange={(e) => setCBrand(e.target.value)}
+                      disabled={true}
                     />
                   ) : null}
                   {homeHistory.brandTypeNeed === true ? (
@@ -339,16 +333,21 @@ function Dashboard(props) {
                       variant="filled"
                       className={classes.addHistoryField}
                       value={item.brandType}
-                      onChange={(e) => setCBrandType(e.target.value)}
+                      disabled={true}
                     />
                   ) : null}
                   {homeHistory.yearNeed === true ? (
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                       <Grid container justify="space-around">
-                        <DateField
+                        <DatePicker
                           views={['year', 'month', 'day']}
                           label="Date"
                           value={new Date(Number(item.yearField))}
+                          renderInput={(params) => (
+                            <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
+                          )}
+                          disabled={true}
+                          disableOpenPicker={true}
                         />
                       </Grid>
                     </LocalizationProvider>
@@ -360,7 +359,7 @@ function Dashboard(props) {
                     variant="filled"
                     className={classes.listHistoryField}
                     value={item.otherInfo}
-                    onChange={(e) => setOtherInfo(e.target.value)}
+                    disabled={true}
                   />}
                   {item.contractId > 0 ? (
                     <>
