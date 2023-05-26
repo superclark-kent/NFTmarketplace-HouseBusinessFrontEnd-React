@@ -47,7 +47,7 @@ function Contract(props) {
   const loadContracts = async () => {
     setLoading(true);
 
-    const allCleanContracts = await cleanContract.methods.getAllCleanContracts().call();
+    const allCleanContracts = await cleanContract.methods.getAllDocContracts().call();
     console.log(allCleanContracts)
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {

@@ -94,7 +94,7 @@ function HouseDetails(props) {
 	};
 
 	const loadNFT = async (_id) => {
-		var allContracts = await cleanContract.methods.getAllCleanContracts().call();
+		var allContracts = await cleanContract.methods.getAllDocContracts().call();
 		var cArr = [];
 		for (let i = 0; i < allContracts.length; i++) {
 			if ((allContracts[i].owner).toLowerCase() == walletAccount.toLowerCase()) {

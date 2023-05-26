@@ -10,12 +10,12 @@ export const POLLING_INTERVAL = 12000;
 
 // p => 0x4bF6b957744eE2E99e40c43612Cb0D25a63b2454
 // m => 0xc4AF5D47A46Ade2865652CE834Ca7F47539cc30C
-export const ERC20Address = '0x590e1603741308221DAfE611E1212DB871C3c626';
-export const HouseBusinessAddress = '0x22719c76E452317fF16c7f4d6eCCFDFE0EEBa0c4';
-export const ContractAddress = '0xaCB4Ec89105FDb151460129649A13a2d8F25AD1D';
-export const StakingAddress = '0xB41fC1Df90AeCbc9F141f4B0AF96FdD1162570Eb';
-export const ThirdPartyAddress = '0x6f73E20BBD0e6a7310399E086f2214C89883a6a2';
-export const OperatorAddress = '0xf9EDF1D9E2a0c7092957b4d5801c4E8915bFa41f';
+export const ERC20Address = '0x32A1597A2c9d0832eF47dc4E057C3939d3f2b4FD';
+export const HouseBusinessAddress = '0x10A98b89ab1690278A9Fb16f32e339c62d61575b';
+export const ContractAddress = '0xfa725913472589dfdc5f87C657006C5cc6c47912';
+export const StakingAddress = '0xBaEEb2830807B7c9D43D09FbeF12Fcf1FCecef62';
+export const ThirdPartyAddress = '0xc441F6B20c462A6a48A0e34e903585DDA79D5378';
+export const OperatorAddress = '0x547143B340df6a03B08E8A0bB3aC4B97e111d9be';
 
 const config = {
 	// development: {
@@ -57,7 +57,7 @@ export const apiURL = "http://localhost:8080"; // Development server
 export const secretKey = 'defi-business@Sec!*@#';
 
 export const stripePublishKey =
-	process.env.REACT_APP_STRIPE_API_KEY || 'pk_test_51N3Z16DOT8tnmBX5f8D6Aq1gqvvg3M7PZtAgnc2SyjJsfuvegcaswpvcf5aaIXZNaNLQNzl6lGgCN8rMfZisxixd00UAuDlQSW';
+	process.env.REACT_APP_STRIPE_API_KEY || 'pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy';
 
 export const injected = new InjectedConnector({
 	supportedChainIds: [
