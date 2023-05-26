@@ -118,8 +118,7 @@ function HouseDetails(props) {
       if (nft.contributor.buyer) {
         setSpecialBuyer(nft.contributor.buyer);
       }
-      var confirm = await houseBusinessContract.methods.checkAllowedList(nft.houseID, account).call();
-      if (nft.contributor.currentOwner === account || confirm === true) {
+      if (nft.contributor.currentOwner === account) {
         var flag = false;
         for (let i = 0; i < pages.length; i++) {
           if (pages[i].router === _id) {
