@@ -16,11 +16,9 @@ const FileUpload = async (file) => {
   });
 
   const UploadtoIPFS = async (file) => {
-    console.log('file', file)
     const subdomain = 'https://offero.infura-ipfs.io';
     try {
-      const added = await client.add("{ content: file }");
-      console.log('added', added)
+      const added = await client.add({ content: file });
       const URL = `${subdomain}/ipfs/${added.path}`;
       return URL;
     } catch (error) {
