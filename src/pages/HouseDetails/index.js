@@ -502,28 +502,28 @@ function HouseDetails(props) {
 							<Grid className={classes.addHistorySection}>
 								<NewHistory
 									classes={classes}
-									contracts={contracts}
-									cContract={cContract}
-									setCContract={setCContract}
-									loading={loading}
-									history={history}
-									setHistory={setHistory}
-									hID={hID}
-									setHID={setHID}
-									historyTypes={historyTypes}
-									oldHistoryTypeIds={oldHistoryTypeIds}
-									image={image}
-									brandType={brandType}
-									setBrandType={setBrandType}
-									brand={brand}
-									setBrand={setBrand}
-									solorDate={solorDate}
-									setSolorDate={setSolorDate}
-									setChangeDate={setChangeDate}
-									pictureDesc={pictureDesc}
-									setPictureDesc={setPictureDesc}
-									handleImageChange={handleImageChange}
-									handleAddHistory={handleAddHistory}
+                  contracts={contracts}
+                  cContract={cContract}
+                  setCContract={setCContract}
+                  loading={loading}
+                  otherInfo={otherInfo}
+                  setOtherInfo={setOtherInfo}
+                  hID={hID}
+                  setHID={setHID}
+                  historyTypes={historyTypes}
+                  oldHistoryTypeIds={oldHistoryTypeIds}
+                  image={image}
+                  brandType={brandType}
+                  setBrandType={setBrandType}
+                  brand={brand}
+                  setBrand={setBrand}
+                  solorDate={solorDate}
+                  setSolorDate={setSolorDate}
+                  setChangeDate={setChangeDate}
+                  pictureDesc={pictureDesc}
+                  setPictureDesc={setPictureDesc}
+                  handleImageChange={handleImageChange}
+                  handleAddHistory={handleAddHistory}
 								/>
 							</Grid>
 						) : (
