@@ -1,26 +1,22 @@
-import { useEffect, useState } from "react";
 import { useWeb3React } from '@web3-react/core';
+import { useEffect, useState } from "react";
 
 import CancelIcon from "@mui/icons-material/Close";
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from "@mui/icons-material/Save";
 import {
   Box,
+  CircularProgress,
   Grid,
   IconButton,
-  CircularProgress,
-  Switch,
-  Paper,
-  InputBase
+  Switch
 } from "@mui/material";
-import FormLabel from "@mui/material/FormLabel";
 import FormControl from '@mui/material/FormControl';
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from '@mui/material/FormControlLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
+import { BigNumber } from 'ethers';
 
-import { useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useMarketplaceContract } from "hooks/useContractHelpers";
 
 const hHeaders = [
   "History Label",
@@ -56,12 +52,19 @@ const labelsValue = [
 
 const label = { inputProps: { 'aria-label': 'Color switch demo' } };
 
-export default function TypePercent({ classes, labelPercents, getLabelPercent }) {
+export default function TypePercent({ 
+  classes, 
+  labelPercents, 
+  labelValue,
+  getLabelPercent,
+  getLabelValue,
+}) {
 
   const { account } = useWeb3React();
-  const houseBusinessContract = useHouseBusinessContract();
+  const marketplaceContract = useMarketplaceContract();
 
   const [editPercent, setEditPercent] = useState(false);
+  const [editValue, setEditValue] = useState(false);
   const [contract, setContract] = useState(0);
   const [image, setImage] = useState(0);
   const [brand, setBrand] = useState(0);
@@ -89,7 +92,22 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
     setLoading(true);
     let _labelPercents = [contract, image, brand, desc, bType, year, otherInfo];
     try {
-      await houseBusinessContract.methods.setLabelPercents(_labelPercents).send({ from: account });
+      await marketplaceContract.methods.setLabelPercents(_labelPercents).send({ from: account });
+    } catch (err) {
+      console.log('err', err)
+    }
+    setLoading(false);
+    setDisabled(true);
+    setEditPercent(false);
+    getLabelPercent();
+  }
+
+  const saveLabelValue = async () => {
+    setLoading(true);
+    var _value = BigNumber.from(`${Number('0.1') * 10 ** 18}`);
+    var _labelValue = [_value, _value, _value, _value, _value, _value, _value]
+    try {
+      await marketplaceContract.methods.setLabelValue(_labelValue).send({ from: account });
     } catch (err) {
       console.log('err', err)
     }
@@ -100,6 +118,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
   }
 
   useEffect(() => {
+    console.log('labelValue', labelValue)
     setContract(labelPercents[0])
     setImage(labelPercents[1])
     setBrand(labelPercents[2])
@@ -321,6 +340,13 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
               }
             </Grid>
           </Grid>
+        </Grid>
+      </Grid>
+      <Grid item md={12}>
+        <Grid className={classes.addHeader}>
+          <Box component={"h3"}>Set Value of History Labels</Box>
+        </Grid>
+        <Grid container disabled>
           <Grid container className={classes.historyItems}>
             <Grid
               key={`history-header-value`}
@@ -353,12 +379,12 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
               )
             })}
             <Grid item className={classes.grid}>
-              {!editPercent ?
+              {!editValue ?
                 <IconButton
                   aria-label="edit"
                   color="primary"
                   onClick={() => {
-                    setEditPercent(true)
+                    setEditValue(true)
                     setDisabled(false);
                   }}
                 >
@@ -374,7 +400,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
                           <IconButton
                             aria-label="edit"
                             color="primary"
-                            onClick={savePercent}
+                            onClick={saveLabelValue}
                           >
                             <SaveIcon />
                           </IconButton>
@@ -382,7 +408,7 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
                             aria-label="cancel"
                             color="primary"
                             onClick={() => {
-                              setEditPercent(false)
+                              setEditValue(false)
                               setDisabled(true);
                             }}
                           >
@@ -395,63 +421,6 @@ export default function TypePercent({ classes, labelPercents, getLabelPercent })
               }
             </Grid>
           </Grid>
-          <Grid container className={classes.historyItems}>
-            {togggleLabels.map((item, index) => {
-              return (
-                <Grid
-                  item
-                  key={`history-header-${index}`}
-                  sx={{ fontWeight: "500" }}
-                  className={index === 0 ? classes.firstgrid : classes.percentGrid}
-                >
-                  {index == 0 ? item : <Switch {...label} defaultChecked />}
-                </Grid>
-              )
-            })}
-            <Grid item className={classes.grid}>
-              {!editPercent ?
-                <IconButton
-                  aria-label="edit"
-                  color="primary"
-                  onClick={() => {
-                    setEditPercent(true)
-                    setDisabled(false);
-                  }}
-                >
-                  <EditIcon />
-                </IconButton>
-                :
-                (
-                  <>
-                    {
-                      loading === true ?
-                        <CircularProgress /> :
-                        <>
-                          <IconButton
-                            aria-label="edit"
-                            color="primary"
-                            onClick={savePercent}
-                          >
-                            <SaveIcon />
-                          </IconButton>
-                          <IconButton
-                            aria-label="cancel"
-                            color="primary"
-                            onClick={() => {
-                              setEditPercent(false)
-                              setDisabled(true);
-                            }}
-                          >
-                            <CancelIcon />
-                          </IconButton>
-                        </>
-                    }
-                  </>
-                )
-              }
-            </Grid>
-          </Grid>
-
         </Grid>
       </Grid>
     </>

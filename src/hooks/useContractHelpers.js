@@ -3,12 +3,13 @@ import getRpcUrl from 'utils/getRpcUrl';
 
 import ERC20Abi from 'assets/abi/ERC20.json';
 import HouseBusinessAbi from 'assets/abi/HouseBusiness.json';
+import MarketplaceAbi from 'assets/abi/Marketplace.json';
 import HouseDocAbi from 'assets/abi/HouseDoc.json';
 import StakingAbi from 'assets/abi/Staking.json';
 import ThirdPartyAbi from 'assets/abi/ThirdParty.json';
 import OperatorAbi from 'assets/abi/Operator.json';
 
-import { ERC20Address, HouseBusinessAddress, HouseDocAddress, ThirdPartyAddress, StakingAddress, OperatorAddress } from 'mainConfig';
+import { ERC20Address, HouseBusinessAddress, MarketplaceAddress, HouseDocAddress, ThirdPartyAddress, StakingAddress, OperatorAddress } from 'mainConfig';
 
 const RPC_URL = getRpcUrl();
 
@@ -29,6 +30,10 @@ export const useERC20Contract = () => {
 export const useHouseBusinessContract = () => {
   return useContract(HouseBusinessAbi, HouseBusinessAddress);
 };
+
+export const useMarketplaceContract = () => {
+  return useContract(MarketplaceAbi, MarketplaceAddress);
+}
 
 export const useStakingContract = () => {
   return useContract(StakingAbi, StakingAddress);

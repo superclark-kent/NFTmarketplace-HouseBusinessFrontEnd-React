@@ -309,7 +309,6 @@ function Contract(props) {
 
   useEffect(() => {
     if (walletAccount) {
-      // getAllHistoryTypes();
       loadContracts();
     }
   }, [walletAccount]);

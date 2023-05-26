@@ -45,7 +45,7 @@ import Modal from "@mui/material/Modal";
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
 
 import { houseInfo, houseWarning } from "hooks/useToast";
 import { setAccount } from "redux/actions/account";
@@ -230,6 +230,7 @@ function Header(props) {
   const navigate = useNavigate();
 	const web3 = useWeb3();
   const { account, activate, deactivate } = useWeb3React();
+	const marketplaceContract = useMarketplaceContract();
   const houseDocContract = useHouseDocContract();
 	const walletAccount = props.account.account;
 	const classes = useHeaderStyles();
@@ -321,7 +322,7 @@ function Header(props) {
 	};
 
 	const getAllHistoryTypes = async () => {
-		var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
+		var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
     var allHTypes = [];
     for (let i = 0; i < hTypes.length; i++) {
       if (hTypes[i].hLabel === '') continue;
