@@ -3,7 +3,6 @@ import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -22,17 +21,35 @@ import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
 import MoreDetail from './MoreDetail';
 
+import styled from '@emotion/styled';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
+import DocumentIcon from '@mui/icons-material/DocumentScanner';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
+import ContractDetailDialog from 'components/ContractDetailDialog';
+import useNftDetailStyle from 'assets/styles/nftDetailStyle';
+import { DateField } from '@mui/x-date-pickers/DateField';
+
 function Dashboard(props) {
   const nftClasses = useNftStyle()
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const dispatch = useDispatch();
   const { allNFTs } = props.houseNft;
+  const classes = useNftDetailStyle();
   const walletAccount = props.account.account;
+  const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
-  const [viewDatapoint, setViewDatapoint] = useState(false);
+  const [histories, setHistories] = useState([]);
+  const [cContract, setCContract] = useState({});
+  const [showCContract, setShowCContract] = useState(false);
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -135,7 +152,33 @@ function Dashboard(props) {
 
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = () => {
+  const handleClickOpen = async (_id) => {
+    var chistories = await houseBusinessContract.methods.getHistory(_id).call();
+
+    var tempHistory = [];
+    for (let i = 0; i < chistories.length; i++) {
+      var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
+      var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
+      var bytesBrandType = CryptoJS.AES.decrypt(chistories[i].brandType, secretKey);
+      var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
+      var bytesHouseBrand = CryptoJS.AES.decrypt(chistories[i].houseBrand, secretKey);
+      var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
+      var bytesDesc = CryptoJS.AES.decrypt(chistories[i].desc, secretKey);
+      var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+      var bytesImg = CryptoJS.AES.decrypt(chistories[i].houseImg, secretKey);
+      var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
+      var yearField = chistories[i].flag ? chistories[i].yearField * -1 : chistories[i].yearField;
+      tempHistory.push({
+        ...chistories[i],
+        otherInfo: decryptedHistory,
+        brandType: decryptedBrandType,
+        houseBrand: decryptedHouseBrand,
+        desc: decryptedDesc,
+        houseImg: decryptedImg,
+        yearField: yearField
+      });
+    }
+    setHistories(tempHistory);
     setOpen(true);
   };
 
@@ -202,7 +245,7 @@ function Dashboard(props) {
                     <Box
                       component={'a'}
                       className={nftClasses.nftHouseHistory}
-                      onClick={handleClickOpen}
+                      onClick={() => handleClickOpen(item.houseID)}
                     >
                       <CachedIcon />
                       {`View Datapoint`}
@@ -221,13 +264,135 @@ function Dashboard(props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"You don't have permission to view datapoint for this House"}
-        </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you want to view the datapoint, please pay for it
-          </DialogContentText>
+          <Grid>
+            {histories.map((item, index) => {
+              var homeHistory = historyTypes[item.historyTypeId];
+              console.log('homeHistory', homeHistory, item)
+              return (
+                <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
+                  <TextField
+                    className={classes.listhistoryType}
+                    id="history-type"
+                    label="History Type"
+                    value={homeHistory.hLabel}
+                    variant="filled"
+                  >
+                  </TextField>
+                  {homeHistory.imgNeed === true ? (
+                    <Grid className={classes.imgLabel}>
+                      <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
+                        <Grid>
+                          <StyledInput
+                            accept="image/*"
+                            id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
+                            multiple
+                            type="file"
+                            onChange={(e) => {
+                              var uploadedImage = e.target.files[0];
+                              if (uploadedImage) {
+                                setCImage(uploadedImage);
+                              }
+                            }}
+                          />
+                          <IconButton
+                            color="primary"
+                            aria-label="upload picture"
+                            component="span"
+                          >
+                            <Avatar
+                              alt="Image"
+                              src={item.houseImg}
+                            />
+                          </IconButton>
+                        </Grid>
+                      </label>
+                    </Grid>
+                  ) : null}
+                  {homeHistory.descNeed === true ? (
+                    <TextField
+                      id="standard-multiline-static"
+                      label={'Picture Description'}
+                      rows={4}
+                      variant="filled"
+                      className={classes.addHistoryField}
+                      value={item.desc}
+                      onChange={(e) => setCPicDesc(e.target.value)}
+                    />
+                  ) : null}
+                  {homeHistory.brandNeed === true ? (
+                    <TextField
+                      id="standard-multiline-static"
+                      label={'Brand'}
+                      rows={4}
+                      variant="filled"
+                      className={classes.addHistoryField}
+                      value={item.houseBrand}
+                      onChange={(e) => setCBrand(e.target.value)}
+                    />
+                  ) : null}
+                  {homeHistory.brandTypeNeed === true ? (
+                    <TextField
+                      id="standard-multiline-static"
+                      label={'Brand Type'}
+                      rows={4}
+                      variant="filled"
+                      className={classes.addHistoryField}
+                      value={item.brandType}
+                      onChange={(e) => setCBrandType(e.target.value)}
+                    />
+                  ) : null}
+                  {homeHistory.yearNeed === true ? (
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <Grid container justify="space-around">
+                        <DateField
+                          views={['year', 'month', 'day']}
+                          label="Date"
+                          value={new Date(Number(item.yearField))}
+                        />
+                      </Grid>
+                    </LocalizationProvider>
+                  ) : null}
+                  {homeHistory.otherInfo && <TextField
+                    id="standard-multiline-static"
+                    label={'Other information'}
+                    rows={4}
+                    variant="filled"
+                    className={classes.listHistoryField}
+                    value={item.otherInfo}
+                    onChange={(e) => setOtherInfo(e.target.value)}
+                  />}
+                  {item.contractId > 0 ? (
+                    <>
+                      <IconButton
+                        onClick={() => {
+                          const contract = contracts.find((c) => c.contractId == item.contractId);
+                          setCContract(contract);
+                          setShowCContract(true);
+                        }}
+                      >
+                        <DocumentIcon />
+                      </IconButton>
+                      <IconButton onClick={() => disconnectContract(index, item.contractId)}>
+                        <DoDisturbOffIcon />
+                      </IconButton>
+                    </>
+                  ) : ""
+                    // homeHistory.connectContract &&
+                    // <IconButton onClick={() => connectContract(index, item.contractId)}>
+                    //   <AddCircleIcon />
+                    // </IconButton>
+                  }
+                </ListItem>
+              );
+            })}
+            <ContractDetailDialog
+              open={showCContract}
+              onClose={() => setShowCContract(false)}
+              contract={cContract}
+              historyTypes={historyTypes}
+            />
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
@@ -244,6 +409,7 @@ function mapStateToProps(state) {
   return {
     account: state.account,
     houseNft: state.houseNft,
+    historyTypes: state.historyTypes
   };
 }
 
