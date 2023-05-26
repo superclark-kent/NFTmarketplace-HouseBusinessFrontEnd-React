@@ -14,7 +14,7 @@ import CachedIcon from '@mui/icons-material/Cached';
 import { useWeb3React } from '@web3-react/core';
 import useNftStyle from 'assets/styles/nftStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
@@ -31,8 +31,22 @@ import DocumentIcon from '@mui/icons-material/DocumentScanner';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
+import MenuList from '@mui/material/MenuList';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
+import { decryptContract } from 'utils';
+import Switch from '@mui/material/Switch';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import ListItemText from '@mui/material/ListItemText';
+import Paper from '@mui/material/Paper';
+import Divider from '@mui/material/Divider';
+
+const StyledInput = styled('input')({
+  display: 'none',
+});
+
+const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 function Dashboard(props) {
   const nftClasses = useNftStyle()
@@ -44,11 +58,14 @@ function Dashboard(props) {
   const walletAccount = props.account.account;
   const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract()
+  const houseDocContract = useHouseDocContract();
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [histories, setHistories] = useState([]);
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
+  const [contracts, setContracts] = useState([]);
+  const [showDataPoint, setShowDatapoint] = useState(false);
 
   const loadNFTs = async () => {
     var nfts = [];
@@ -151,7 +168,7 @@ function Dashboard(props) {
 
   const [open, setOpen] = useState(false);
 
-  const handleClickOpen = async (_id) => {
+  const handleClickOpen = async (_id, _owner) => {
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
 
     var tempHistory = [];
@@ -177,8 +194,21 @@ function Dashboard(props) {
         yearField: yearField
       });
     }
+    console.log('tempHistory', tempHistory)
     setHistories(tempHistory);
     setOpen(true);
+
+    var allContracts = await houseDocContract.methods.getDocContracts(_owner).call();
+    console.log('allContracts', allContracts)
+    var cArr = [];
+    for (let i = 0; i < allContracts.length; i++) {
+      const contract = decryptContract(allContracts[i]);
+      cArr.push({
+        ...contract,
+        label: `${historyTypes[contract.contractType].hLabel} contract in ${contract.companyName}`,
+      });
+    }
+    setContracts(cArr);
   };
 
   const handleClose = () => {
@@ -244,7 +274,7 @@ function Dashboard(props) {
                     <Box
                       component={'a'}
                       className={nftClasses.nftHouseHistory}
-                      onClick={() => handleClickOpen(item.houseID)}
+                      onClick={() => handleClickOpen(item.houseID, item.contributor.currentOwner)}
                     >
                       <CachedIcon />
                       {`View Datapoint`}
@@ -262,13 +292,36 @@ function Dashboard(props) {
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
+        maxWidth='lg'
       >
-        <DialogContent>
+        <DialogContent xl={6} md={12}>
           <Grid>
+            {/* <ListItem component="div" disablePadding>
+              <Paper sx={{ width: 320, maxWidth: '100%' }}>
+                <MenuList>
+                  <MenuItem style={{ fontWeight: '700' }}>
+                    <ListItemText >History Type</ListItemText>
+                    <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
+                  </MenuItem>
+                  <Divider />
+                  {histories.map((item, index) => {
+                    var homeHistory = historyTypes[item.historyTypeId];
+                    return (
+                      <MenuItem>
+                        <ListItemText>{homeHistory.hLabel}</ListItemText>
+                        <Switch {...label} />
+                      </MenuItem>
+                    );
+                  })}
+                  <Divider />
+                </MenuList>
+                <Button variant="contained">Pay</Button>
+              </Paper>
+            </ListItem> */}
             {histories.map((item, index) => {
               var homeHistory = historyTypes[item.historyTypeId];
               return (
-                <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
+                <ListItem key={index} component="div" disablePadding>
                   <TextField
                     className={classes.listhistoryType}
                     id="history-type"
@@ -278,7 +331,7 @@ function Dashboard(props) {
                     disabled={true}
                   >
                   </TextField>
-                  {homeHistory.imgNeed === true ? (
+                  {homeHistory.imgNeed === true? (
                     <Grid className={classes.imgLabel}>
                       <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
                         <Grid>
@@ -303,7 +356,7 @@ function Dashboard(props) {
                       </label>
                     </Grid>
                   ) : null}
-                  {homeHistory.descNeed === true ? (
+                  {homeHistory.descNeed === true? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Picture Description'}
@@ -314,7 +367,7 @@ function Dashboard(props) {
                       disabled={true}
                     />
                   ) : null}
-                  {homeHistory.brandNeed === true ? (
+                  {homeHistory.brandNeed === true? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Brand'}
@@ -325,7 +378,7 @@ function Dashboard(props) {
                       disabled={true}
                     />
                   ) : null}
-                  {homeHistory.brandTypeNeed === true ? (
+                  {homeHistory.brandTypeNeed === true? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Brand Type'}
@@ -336,7 +389,7 @@ function Dashboard(props) {
                       disabled={true}
                     />
                   ) : null}
-                  {homeHistory.yearNeed === true ? (
+                  {homeHistory.yearNeed === true? (
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
                       <Grid container justify="space-around">
                         <DatePicker
@@ -352,7 +405,7 @@ function Dashboard(props) {
                       </Grid>
                     </LocalizationProvider>
                   ) : null}
-                  {homeHistory.otherInfo && <TextField
+                  {(homeHistory.otherInfo && showDataPoint) && <TextField
                     id="standard-multiline-static"
                     label={'Other information'}
                     rows={4}
@@ -361,26 +414,20 @@ function Dashboard(props) {
                     value={item.otherInfo}
                     disabled={true}
                   />}
-                  {item.contractId > 0 ? (
+                  {(item.contractId > 0 && showDataPoint) ? (
                     <>
                       <IconButton
                         onClick={() => {
                           const contract = contracts.find((c) => c.contractId == item.contractId);
+                          console.log('contract', contract)
                           setCContract(contract);
                           setShowCContract(true);
                         }}
                       >
                         <DocumentIcon />
                       </IconButton>
-                      <IconButton onClick={() => disconnectContract(index, item.contractId)}>
-                        <DoDisturbOffIcon />
-                      </IconButton>
                     </>
                   ) : ""
-                    // homeHistory.connectContract &&
-                    // <IconButton onClick={() => connectContract(index, item.contractId)}>
-                    //   <AddCircleIcon />
-                    // </IconButton>
                   }
                 </ListItem>
               );
@@ -393,14 +440,8 @@ function Dashboard(props) {
             />
           </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
-          <Button onClick={handleClose} autoFocus>
-            Pay
-          </Button>
-        </DialogActions>
       </Dialog>
-    </Grid>
+    </Grid >
   )
 }
 

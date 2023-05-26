@@ -295,6 +295,9 @@ function Header(props) {
 	};
 
   const loadNotifies = async () => {
+		if (account == '' || account == undefined) {
+			return;
+		}
     var notifies = await houseDocContract.methods.getAllNotifies(account).call();
     var arr = [], nArr = [];
     for (let i = 0; i < notifies.length; i++) {
@@ -328,7 +331,8 @@ function Header(props) {
       if (hTypes[i].hLabel === '') continue;
       allHTypes.push({
         ...hTypes[i],
-        value: web3.utils.fromWei(hTypes[i].value)
+        mValue: web3.utils.fromWei(hTypes[i].mValue),
+        eValue: web3.utils.fromWei(hTypes[i].eValue),
       });
     }
 		dispatch(setHistoryTypes(allHTypes));
@@ -348,7 +352,8 @@ function Header(props) {
 	}, [pathname]);
 
 	useEffect(() => {
-		if (walletAccount || account) {
+		console.log('addr', walletAccount, account)
+		if (walletAccount != null || account != undefined) {
 			checkAdmin();
 			loadNotifies();
 		}
