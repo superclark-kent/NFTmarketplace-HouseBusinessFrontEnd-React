@@ -9,6 +9,8 @@ import {
   TextField
 } from "@mui/material";
 
+import { BigNumber } from 'ethers';
+
 import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
@@ -17,7 +19,21 @@ import { useHouseBusinessContract } from "hooks/useContractHelpers";
 import { houseSuccess } from "hooks/useToast";
 import { isEmpty } from "lodash";
 
-export default function NftHistory({ classes, historyTypes }) {
+const hHeaders = [
+  "History Label",
+  "Connect Contract",
+  "Image",
+  "Brand",
+  "Description",
+  "Brand Type",
+  "Year",
+  "Other Info",
+  "Percentage",
+  "Value(MATIC)",
+  "Actions",
+];
+
+export default function HistoryType({ classes, historyTypes, labelPercents }) {
   const houseBusinessContract = useHouseBusinessContract();
   const { account } = useWeb3React();
 
@@ -30,21 +46,9 @@ export default function NftHistory({ classes, historyTypes }) {
   const [newHistory, setNewHistory] = useState("");
   const [Hdata, setHData] = useState([]);
   const [addFlag, setAddFlag] = useState(false);
+  const [percents, setLabelPercents] = useState([])
 
   const label = { inputProps: { "aria-label": "History Checkbox" } };
-
-  const hHeaders = [
-    "History Label",
-    "Connect Contract",
-    "Image",
-    "Brand",
-    "Description",
-    "Brand Type",
-    "Year",
-    "CheckMark",
-    "Percentage",
-    "Actions",
-  ];
 
   const addNewHistoryType = () => {
     var obj = {};
@@ -54,15 +58,50 @@ export default function NftHistory({ classes, historyTypes }) {
     obj["brandNeed"] = false;
     obj["descNeed"] = false;
     obj["brandTypeNeed"] = false;
+    obj["otherInfo"] = false;
     obj["yearNeed"] = false;
-    obj["checkMark"] = false;
     obj["percent"] = 0;
+    obj["value"] = 0;
     setNewItem(obj);
     setNewHistory("");
     setAddFlag(true);
   };
 
-  const handleRemove = async (item, itemIndex) => {
+  const handleSave = async (historyItem, typeID) => {
+    const typeValue = BigNumber.from(`${Number(historyItem.value) * 10 ** 18}`);
+    setLoading(true);
+    try {
+      await houseBusinessContract.methods
+        .addOrEditHistoryType(
+          typeID,
+          historyItem.hLabel,
+          historyItem.connectContract,
+          historyItem.imgNeed,
+          historyItem.brandNeed,
+          historyItem.descNeed,
+          historyItem.brandTypeNeed,
+          historyItem.yearNeed,
+          historyItem.otherInfo,
+          typeValue,
+          addFlag
+        )
+        .send({ from: account });
+
+      let temp = [...Hdata];
+      temp[typeID] = historyItem;
+      setHData(temp);
+      setAllTypes(temp);
+      const eArr = new Array(temp.length).fill(false);
+      setEditArr(eArr);
+      setAddFlag(false);
+      houseSuccess("Saved Success");
+    } catch (err) {
+      console.log('err', err)
+    }
+    setLoading(false);
+  };
+
+  const handleRemove = async (itemIndex) => {
     try {
       const tx = await houseBusinessContract.methods.removeHistoryType(itemIndex).send({ from: account });
       let temp = [...Hdata];
@@ -101,52 +140,6 @@ export default function NftHistory({ classes, historyTypes }) {
     }
   };
 
-  const handleSave = async (historyItem, typeID) => {
-    setLoading(true);
-    try {
-      if (addFlag) {
-        await houseBusinessContract.methods
-          .addHistoryType(
-            typeID,
-            historyItem.hLabel,
-            historyItem.connectContract,
-            historyItem.imgNeed,
-            historyItem.brandNeed,
-            historyItem.descNeed,
-            historyItem.brandTypeNeed,
-            historyItem.yearNeed,
-            historyItem.checkMark
-          )
-          .send({ from: account });
-        } else {
-          await houseBusinessContract.methods
-          .editHistoryType(
-            typeID,
-            historyItem.hLabel,
-            historyItem.connectContract,
-            historyItem.imgNeed,
-            historyItem.brandNeed,
-            historyItem.descNeed,
-            historyItem.brandTypeNeed,
-            historyItem.yearNeed,
-            historyItem.checkMark
-            )
-          .send({ from: account });
-      }
-      let temp = [...Hdata];
-      temp[typeID] = historyItem;
-      setHData(temp);
-      setAllTypes(temp);
-      const eArr = new Array(temp.length).fill(false);
-      setEditArr(eArr);
-      setAddFlag(false);
-      houseSuccess("Saved Success");
-    } catch (err) {
-      console.log('err')
-    }
-    setLoading(false);
-  };
-
   const updateData = () => {
     var hArr = [], eArr = [];
     for (let i = 0; i < Hdata.length; i++) {
@@ -179,6 +172,10 @@ export default function NftHistory({ classes, historyTypes }) {
     if (newItem != null) updateData();
   }, [newItem]);
 
+  useEffect(() => {
+    setLabelPercents(labelPercents);
+  }, [labelPercents])
+
   return (
     <Grid item md={12}>
       <Grid className={classes.addHeader}>
@@ -202,29 +199,16 @@ export default function NftHistory({ classes, historyTypes }) {
       <Grid className={classes.historyTypSection} container disabled>
         <Grid container className={classes.historyHeader}>
           {hHeaders.map((item, index) => {
-            if (index === 0) {
-              return (
-                <Grid
-                  item
-                  key={`history-header-${index}`}
-                  sx={{ fontWeight: "500" }}
-                  className={classes.firstgrid}
-                >
-                  {item}
-                </Grid>
-              );
-            } else {
-              return (
-                <Grid
-                  item
-                  key={`history-header-${index}`}
-                  sx={{ fontWeight: "500" }}
-                  className={classes.grid}
-                >
-                  {item}
-                </Grid>
-              );
-            }
+            return (
+              <Grid
+                item
+                key={`history-header-${index}`}
+                sx={{ fontWeight: "500" }}
+                className={index === 0 ? classes.firstgrid : classes.grid}
+              >
+                {item}
+              </Grid>
+            );
           })}
         </Grid>
         {allTypes.map((item, itemIndex) => {
@@ -341,13 +325,13 @@ export default function NftHistory({ classes, historyTypes }) {
               <Grid item className={classes.grid}>
                 <Checkbox
                   {...label}
-                  checked={item.checkMark}
+                  checked={item.otherInfo}
                   disabled={loading}
                   onChange={(e) =>
                     handleItemChange(
                       item,
                       itemIndex,
-                      "checkMark",
+                      "otherInfo",
                       e.target.checked
                     )
                   }
@@ -357,30 +341,31 @@ export default function NftHistory({ classes, historyTypes }) {
                 <label>
                   {(() => {
                     var percent = 0;
-                    if (item.connectContract) {
-                      percent = percent + 14;
-                    }
-                    if (item.imgNeed) {
-                      percent = percent + 14;
-                    }
-                    if (item.brandNeed) {
-                      percent = percent + 14;
-                    }
-                    if (item.descNeed) {
-                      percent = percent + 14;
-                    }
-                    if (item.brandTypeNeed) {
-                      percent = percent + 14;
-                    }
-                    if (item.yearNeed) {
-                      percent = percent + 14;
-                    }
-                    if (item.checkMark) {
-                      percent = percent + 16;
-                    }
+                    if (item.connectContract) { percent += Number(percents[0]); }
+                    if (item.imgNeed) { percent += Number(percents[1]); }
+                    if (item.brandNeed) { percent += Number(percents[2]); }
+                    if (item.descNeed) { percent += Number(percents[3]); }
+                    if (item.brandTypeNeed) { percent += Number(percents[4]); }
+                    if (item.yearNeed) { percent += Number(percents[5]); }
+                    if (item.otherInfo) { percent += Number(percents[6]); }
                     return `${percent}%`;
                   })()}
                 </label>
+              </Grid>
+              <Grid item className={classes.perLabel}>
+                <TextField
+                  value={item.value}
+                  id="outlined-basic"
+                  variant="outlined"
+                  sx={{ m: '8px' }}
+                  size="small"
+                  className={classes.fullWidth}
+                  type="number"
+                  onChange={(e) => {
+                    if (e.target.value < 0) return;
+                    handleItemChange(item, itemIndex, 'value', e.target.value)
+                  }}
+                />
               </Grid>
               <Grid item className={classes.grid}>
                 {editArr[itemIndex] === true ? (
@@ -410,7 +395,7 @@ export default function NftHistory({ classes, historyTypes }) {
                   <IconButton
                     aria-label="delete"
                     color="primary"
-                    onClick={() => handleRemove(item, itemIndex)}
+                    onClick={() => handleRemove(itemIndex)}
                   >
                     <DeleteIcon />
                   </IconButton>

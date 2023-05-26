@@ -7,7 +7,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useCleanContract, useHouseBusinessContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
@@ -20,8 +20,8 @@ function Contract(props) {
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
   const classes = useContractStyle();
-  const cleanContract = useCleanContract();
   const houseBusinessContract = useHouseBusinessContract();
+  const houseDocContract = useHouseDocContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -47,8 +47,8 @@ function Contract(props) {
   const loadContracts = async () => {
     setLoading(true);
 
-    const allCleanContracts = await cleanContract.methods.getAllDocContracts().call();
-    console.log(allCleanContracts)
+    const allCleanContracts = await houseDocContract.methods.getAllDocContracts().call();
+
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
       if (allCleanContracts[i].owner == walletAccount) {
@@ -115,10 +115,10 @@ function Contract(props) {
 
     if (transactionFlag) {
       if (!account) {
-        const data = cleanContract.methods.signContract(item.contractId, walletAccount).encodeABI();
+        const data = houseDocContract.methods.signContract(item.contractId, walletAccount).encodeABI();
         const transactionObject = {
           data,
-          to: cleanContract.options.address
+          to: houseDocContract.options.address
         };
 
         fetch(`${apiURL}/signTransaction`, {
@@ -140,16 +140,18 @@ function Contract(props) {
           })
           .catch(err => {
             houseError(err);
+            setLoading(false);
           });
       } else {
         try {
-          cleanContract.methods.signContract(item.contractId, account).send({ from: account })
+          await houseDocContract.methods.signContract(item.contractId, account).send({ from: account })
         } catch (err) {
           console.log(err);
           houseError('Something went wrong');
         }
+        loadContracts();
+        setLoading(false);
       }
-
     }
   };
 
@@ -168,10 +170,10 @@ function Contract(props) {
     } else {
       if (!account) {
         setLoading(true);
-        const data = cleanContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
+        const data = houseDocContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
         const transactionObject = {
           data,
-          to: cleanContract.options.address
+          to: houseDocContract.options.address
         };
 
         // Send trx data and sign
@@ -198,7 +200,7 @@ function Contract(props) {
           });
       } else {
         try {
-          await cleanContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+          await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
@@ -232,10 +234,10 @@ function Contract(props) {
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
     var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
-    var sentNotifies = await cleanContract.methods.getAllNotifies(notifyReceiver).call();
+    var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
-      if (item.contractId === sentNotifies[i].ccId) {
+      if (item.contractId === sentNotifies[i].hdID) {
         flag = true;
       }
     }
@@ -248,12 +250,13 @@ function Contract(props) {
     } else {
       if (flag === false) {
         if (!account) {
-          const data = cleanContract.methods
-            .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, walletAccount)
+          const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
+          const data = houseDocContract.methods
+            .sendNotify(notifyReceiver, content, item.contractId, walletAccount)
             .encodeABI();
           const transactionObject = {
             data,
-            to: cleanContract.options.address
+            to: houseDocContract.options.address
           };
           // Send trx data and sign
           fetch(`${apiURL}/signTransaction`, {
@@ -278,8 +281,9 @@ function Contract(props) {
             });
         } else {
           try {
-            await cleanContract.methods
-              .sendNotify(notifyReceiver, _owner === 'creator' ? notifyContent : rNotifyContent, item.contractId, account)
+            const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
+            await houseDocContract.methods
+              .sendNotify(notifyReceiver, content, item.contractId, account)
               .send({ from: account });
             houseSuccess(`Sent notify to ${notifyReceiver} successfully.`);
             loadContracts();
@@ -327,10 +331,10 @@ function Contract(props) {
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
     if (!account) {
-      const data = cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).encodeABI();
+      const data = houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).encodeABI();
       const transactionObject = {
         data,
-        to: cleanContract.options.address
+        to: houseDocContract.options.address
       };
 
       // Send trx data and sign
@@ -357,7 +361,7 @@ function Contract(props) {
         });
     } else {
       try {
-        await cleanContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
+        await houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).send({ from: account });
         temp[k].contractSigner = CSigner;
         setAllContracts(temp);
         houseSuccess('Successed Changing Signer!');
@@ -395,7 +399,6 @@ function Contract(props) {
                     ContractID: <Box component={'b'}>#{item.contractId}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
-                    {console.log(historyTypes, item.contractType)}
                     Contract Type: <Box component={'b'}>{historyTypes[item.contractType].hLabel}</Box>
                   </Grid>
                   <Grid className={classes.agreedPrice} m={1}>
@@ -683,13 +686,14 @@ function Contract(props) {
                       />
                     </Grid>
                     <Grid className={classes.sendNotify}>
-                      <Button
+                      <LoadingButton
+                        loading={loading}
                         variant="contained"
                         disabled={!rNotifyArr[index]}
                         onClick={() => handleSendNotify(item, 'signer')}
                       >
                         Send Notify
-                      </Button>
+                      </LoadingButton>
                     </Grid>
                   </>
                 ) : (
@@ -697,9 +701,13 @@ function Contract(props) {
                 )}
                 <Grid className={classes.sign}>
                   {item.signerApproval === false ? (
-                    <Button variant="contained" onClick={() => handleSign(item)}>
+                    <LoadingButton
+                      loading={loading}
+                      variant="contained"
+                      onClick={() => handleSign(item)}
+                    >
                       Sign Contract
-                    </Button>
+                    </LoadingButton>
                   ) : (
                     <Button variant="contained" disabled={true}>
                       You already signed

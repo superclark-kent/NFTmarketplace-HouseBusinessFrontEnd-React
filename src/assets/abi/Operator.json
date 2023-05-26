@@ -30,18 +30,14 @@
     "type": "event"
   },
   {
-    "stateMutability": "payable",
-    "type": "fallback"
-  },
-  {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "contractAddresses",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
       }
     ],
-    "name": "authorizeContracts",
+    "name": "authorizeContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -81,16 +77,11 @@
         "internalType": "uint256",
         "name": "gasFee",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
       }
     ],
     "name": "callContract",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -104,19 +95,6 @@
     "name": "deposit",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "houseBusinessToken",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -136,24 +114,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "mintAndStore",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -179,12 +139,12 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "contractAddresses",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
       }
     ],
-    "name": "revokeContracts",
+    "name": "revokeContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -221,40 +181,9 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
       }
     ],
     "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawETH",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

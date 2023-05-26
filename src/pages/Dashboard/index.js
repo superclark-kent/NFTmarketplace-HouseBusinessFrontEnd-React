@@ -1,19 +1,20 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { connect, useDispatch } from 'react-redux';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import CachedIcon from '@mui/icons-material/Cached';
 import LoadingButton from "@mui/lab/LoadingButton";
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { Box } from '@mui/system';
 import { useWeb3React } from '@web3-react/core';
 import useNftStyle from 'assets/styles/nftStyle';
-import CryptoJS from "crypto-js";
+import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
-import { houseInfo, houseSuccess, houseError } from 'hooks/useToast';
+import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress, apiURL } from 'mainConfig';
-import MoreDetail from './MoreDetail';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
+import { useEffect, useState } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
+import MoreDetail from './MoreDetail';
 
 function Dashboard(props) {
   const nftClasses = useNftStyle()
@@ -29,20 +30,31 @@ function Dashboard(props) {
   const loadNFTs = async () => {
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
-      .then(gNFTs => {
+      .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-          var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+          var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
           var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
           var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
+          var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
           nfts.push({
             ...gNFTs[i],
-            tokenURI: decryptedData,
+            price: housePrice,
+            tokenURI: decryptedURI,
             tokenName: decryptedName,
             tokenType: decryptedType
           })
+        }
+        if (account) {
+          var otherNFTs = [];
+          for (var i = 0; i < nfts.length; i++) {
+            if (nfts[i].contributor.currentOwner === `${account}`) continue;
+            otherNFTs.push(nfts[i]);
+          }
+          dispatch(setAllHouseNFTs(otherNFTs));
+        } else {
           dispatch(setAllHouseNFTs(nfts));
         }
       })
@@ -71,7 +83,7 @@ function Dashboard(props) {
             user: walletAccount
           }),
         })
-          .then(res => {
+          .then(async (res) => {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
@@ -95,6 +107,14 @@ function Dashboard(props) {
       }
 
       setLoading(false);
+    }
+  }
+
+  const addAllowMe = async (item) => {
+    try {
+      await houseBusinessContract.methods.addAllowList(item.houseID, account).send({from: account})
+    } catch (err) {
+      console.log('err', err)
     }
   }
 

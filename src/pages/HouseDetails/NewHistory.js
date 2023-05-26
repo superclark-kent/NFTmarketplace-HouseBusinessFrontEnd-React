@@ -20,9 +20,10 @@ export default function NewHistory({
   cContract,
   setCContract,
   handleConnectContract,
-  history,
-  setHistory,
+  otherInfo,
+  setOtherInfo,
   historyTypes,
+  oldHistoryTypeIds,
   hID,
   setHID,
   image,
@@ -32,6 +33,7 @@ export default function NewHistory({
   setBrandType,
   solorDate,
   setSolorDate,
+  setChangeDate,
   pictureDesc,
   setPictureDesc,
   handleImageChange,
@@ -43,6 +45,7 @@ export default function NewHistory({
   useEffect(() => {
     setHomeHistory(historyTypes[hID]);
   }, [hID]);
+
 
   return (
     <Grid className={classes.addHistory}>
@@ -60,11 +63,15 @@ export default function NewHistory({
         helperText="Please select your history type"
         variant="filled"
       >
-        {historyTypes.map((historyItem, hIndex) => (
-          <MenuItem key={hIndex} value={hIndex}>
-            {historyItem.hLabel}
-          </MenuItem>
-        ))}
+        {historyTypes.map((historyItem, hIndex) => {
+          return (
+            !oldHistoryTypeIds.includes(`${hIndex}`) &&
+            <MenuItem key={hIndex} value={hIndex}>
+              {historyItem.hLabel}
+            </MenuItem>
+          )
+        }
+        )}
       </TextField>
       {homeHistory ? (
         <>
@@ -106,15 +113,17 @@ export default function NewHistory({
               <Grid container justify="space-around">
                 <DatePicker
                   views={['year', 'month', 'day']}
-                  //views={["day", "month", "year"]}
                   label="Date"
+                  openTo='month'
                   value={solorDate}
+                  default
                   disabled={loading}
                   onChange={(date) => {
+                    setChangeDate(true);
                     setSolorDate(date);
                   }}
                   renderInput={(params) => (
-                    <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
+                    <TextField className={classes.addHistoryField} variant="filled" {...params} helperText={null} />
                   )}
                 />
               </Grid>
@@ -151,18 +160,18 @@ export default function NewHistory({
               onChange={(e) => setPictureDesc(e.target.value)}
             />
           ) : null}
+          {homeHistory.otherInfo && <TextField
+            id="standard-multiline-static"
+            label={'Other Information'}
+            multiline
+            rows={4}
+            value={otherInfo}
+            variant="standard"
+            className={classes.addHistoryField}
+            onChange={(e) => setOtherInfo(e.target.value)}
+          />}
         </>
       ) : null}
-      <TextField
-        id="standard-multiline-static"
-        label={'Other Information'}
-        multiline
-        rows={4}
-        value={history}
-        variant="standard"
-        className={classes.addHistoryField}
-        onChange={(e) => setHistory(e.target.value)}
-      />
       <LoadingButton
         className={classes.nftHouseButton}
         onClick={() => handleAddHistory()}
