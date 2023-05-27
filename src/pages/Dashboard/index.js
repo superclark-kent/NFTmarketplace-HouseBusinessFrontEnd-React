@@ -9,7 +9,7 @@ import { useWeb3React } from '@web3-react/core';
 import useNftStyle from 'assets/styles/nftStyle';
 import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
-import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
+import { houseError, houseInfo, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from 'react';
@@ -56,11 +56,12 @@ function Dashboard(props) {
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
   const [contracts, setContracts] = useState([]);
-  const [showDataPoint, setShowDatapoint] = useState(false);
   const [available, setAvailable] = useState(false);
+  const [dataPoints, setDatapoints] = useState([]);
+  const [selectedId, setSelectedId] = useState(0)
 
   const loadNFTs = async () => {
-    
+
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
       .then(async (gNFTs) => {
@@ -72,6 +73,7 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
+          console.log('housePrice', housePrice)
           nfts.push({
             ...gNFTs[i],
             price: housePrice,
@@ -94,7 +96,7 @@ function Dashboard(props) {
       .catch(err => console.log(err));
   }
 
-  const handleBuyNFT = async (item) => {
+  const handleBuyNFT = async (item, price) => {
     if (!walletAccount) {
       houseInfo("Please connect your wallet!")
     } else {
@@ -131,7 +133,8 @@ function Dashboard(props) {
           });
       } else {
         try {
-          await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account });
+          console.log('price', price)
+          await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account, value: price });
           houseSuccess("You bought successfully!")
           loadNFTs()
         } catch (err) {
@@ -143,34 +146,42 @@ function Dashboard(props) {
     }
   }
 
-  const addAllowMe = async (item) => {
-    try {
-      await houseBusinessContract.methods.addAllowList(item.houseID, account).send({ from: account })
-    } catch (err) {
-      console.log('err', err)
+  const handleChange = (_hID) => {
+    const alreadyId = dataPoints.includes(_hID);
+    var arr = [];
+    if (alreadyId) {
+      arr = dataPoints.slice();   // Use slice() to copy the array
+      arr.splice(dataPoints.indexOf(_hID), 1);
+      setDatapoints(arr);
+    } else {
+      arr = dataPoints.slice();   // Use slice() to copy the array
+      arr.push(_hID);
+      setDatapoints(arr);
     }
   }
 
-  const handleClickMoreDetail = async (item) => {
-    navigate(`../../item/${item.houseID}`)
+  const addAllowUser = async () => {
+    if (dataPoints.length == 0) {
+      houseWarning("Please select the datapoint what you want to see!")
+      return;
+    } else {
+      console.log('dataPoints', dataPoints)
+      const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, dataPoints).call();
+      try {
+        var tx = await houseBusinessContract.methods.addAllowUser(1, [0]).send({ from: account, value: allowFee})
+        console.log('tx', tx)
+      } catch (err) {
+        console.log('err', err)
+      }
+    }
   }
 
   const [open, setOpen] = useState(false);
 
   const handleClickOpen = async (_id, _owner) => {
-
-    try {
-      var tx = await houseBusinessContract.methods.addAllowUser(1, [0]).send({ from: account})
-      console.log('tx', tx)
-    } catch (err) {
-      console.log('err', err)
-    }
-
-
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
-    console.log('chistories', chistories)
 
-    var tempHistory = [];
+    var tempHistory = [], tempHistory1 = [];
     for (let i = 0; i < chistories.length; i++) {
       if (chistories[i].allowedUser.toLowerCase() == account.toLowerCase()) {
         setAvailable(true);
@@ -194,15 +205,17 @@ function Dashboard(props) {
           houseImg: decryptedImg,
           yearField: yearField
         });
+      } else {
+        tempHistory1.push({ ...chistories[i] });
       }
     }
-    console.log('tempHistory', tempHistory, chistories)
+    console.log('tempHistory', tempHistory, tempHistory1)
     setAvailableHistories(tempHistory);
-    setHistories(chistories)
+    setHistories(tempHistory1)
+    setSelectedId(_id)
     setOpen(true);
 
     var allContracts = await houseDocContract.methods.getDocContracts(_owner).call();
-    console.log('allContracts', allContracts)
     var cArr = [];
     for (let i = 0; i < allContracts.length; i++) {
       const contract = decryptContract(allContracts[i]);
@@ -264,7 +277,7 @@ function Dashboard(props) {
                       item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
                         <LoadingButton
                           variant='contained'
-                          onClick={() => handleBuyNFT(item)}
+                          onClick={() => handleBuyNFT(item, item.price)}
                           loadingPosition="end"
                           disabled={loading}
                           className={nftClasses.nftHouseButton}
@@ -424,15 +437,15 @@ function Dashboard(props) {
                   {histories.map((item, index) => {
                     var homeHistory = historyTypes[item.historyTypeId];
                     return (
-                      <MenuItem>
+                      <MenuItem key={index}>
                         <ListItemText>{homeHistory.hLabel}</ListItemText>
-                        <Switch {...label} />
+                        <Switch {...label} onChange={(e) => handleChange(item.hID)} />
                       </MenuItem>
                     );
                   })}
                   <Divider />
                 </MenuList>
-                <Button variant="contained" style={{ width: '100%'}}>Pay</Button>
+                <Button onClick={() => addAllowUser()} variant="contained" style={{ width: '100%' }}>Pay</Button>
               </Paper>
             </ListItem>
 
