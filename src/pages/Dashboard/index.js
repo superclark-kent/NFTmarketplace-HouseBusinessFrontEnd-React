@@ -56,7 +56,6 @@ function Dashboard(props) {
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
   const [contracts, setContracts] = useState([]);
-  const [available, setAvailable] = useState(false);
   const [dataPoints, setDatapoints] = useState([]);
   const [selectedId, setSelectedId] = useState(0)
 
@@ -73,7 +72,6 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
-          console.log('housePrice', housePrice)
           nfts.push({
             ...gNFTs[i],
             price: housePrice,
@@ -133,7 +131,6 @@ function Dashboard(props) {
           });
       } else {
         try {
-          console.log('price', price)
           await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account, value: price });
           houseSuccess("You bought successfully!")
           loadNFTs()
@@ -165,14 +162,14 @@ function Dashboard(props) {
       houseWarning("Please select the datapoint what you want to see!")
       return;
     } else {
-      console.log('dataPoints', dataPoints)
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, dataPoints).call();
       try {
-        var tx = await houseBusinessContract.methods.addAllowUser(1, [0]).send({ from: account, value: allowFee})
-        console.log('tx', tx)
+        await houseBusinessContract.methods.addAllowUser(selectedId, dataPoints).send({ from: account, value: allowFee})
+        handleClickOpen(selectedId, account)
       } catch (err) {
         console.log('err', err)
       }
+      setDatapoints([])
     }
   }
 
@@ -184,7 +181,6 @@ function Dashboard(props) {
     var tempHistory = [], tempHistory1 = [];
     for (let i = 0; i < chistories.length; i++) {
       if (chistories[i].allowedUser.toLowerCase() == account.toLowerCase()) {
-        setAvailable(true);
         var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
         var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
         var bytesBrandType = CryptoJS.AES.decrypt(chistories[i].brandType, secretKey);
@@ -209,7 +205,6 @@ function Dashboard(props) {
         tempHistory1.push({ ...chistories[i] });
       }
     }
-    console.log('tempHistory', tempHistory, tempHistory1)
     setAvailableHistories(tempHistory);
     setHistories(tempHistory1)
     setSelectedId(_id)
@@ -413,7 +408,6 @@ function Dashboard(props) {
                       <IconButton
                         onClick={() => {
                           const contract = contracts.find((c) => c.contractId == item.contractId);
-                          console.log('contract', contract)
                           setCContract(contract);
                           setShowCContract(true);
                         }}
