@@ -114,8 +114,8 @@ function CreateContract(props) {
             const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-            if(!account) {
-              await houseDocContract.methods
+            if (!account) {
+              const data = houseDocContract.methods
                 .hdCreation(
                   encryptedCompanyName,
                   contractType,
@@ -180,17 +180,17 @@ function CreateContract(props) {
                   account
                 ).send({ from: account })
                 houseSuccess("Success");
-                  setCFile(null);
-                  setCFileName("");
-                  setCompanyName("");
-                  setcontractSigner("");
-                  setContractType(contractType);
-                  setDateFrom("");
-                  setDateTo("");
-                  setAgreedPrice("");
-                  setCurrency("MATIC");
-                  setIsContractSinger(false);
-                  navigate("../../contract/main");
+                setCFile(null);
+                setCFileName("");
+                setCompanyName("");
+                setcontractSigner("");
+                setContractType(contractType);
+                setDateFrom("");
+                setDateTo("");
+                setAgreedPrice("");
+                setCurrency("MATIC");
+                setIsContractSinger(false);
+                navigate("../../contract/main");
               } catch (error) {
                 console.log(error);
                 houseError("Something went wrong");

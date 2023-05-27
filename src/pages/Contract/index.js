@@ -7,7 +7,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract, useOperatorContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { secretKey, zeroAddress, apiURL } from 'mainConfig';
@@ -22,6 +22,7 @@ function Contract(props) {
   const classes = useContractStyle();
   const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
+  const OperatorContract = useOperatorContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -48,6 +49,7 @@ function Contract(props) {
     setLoading(true);
 
     const allCleanContracts = await houseDocContract.methods.getAllDocContracts().call();
+    console.log(allCleanContracts)
 
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
@@ -189,6 +191,7 @@ function Contract(props) {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
+                setLoading(false);
               });
             }
             houseSuccess("Contract signer successfully added.");
@@ -200,7 +203,17 @@ function Contract(props) {
           });
       } else {
         try {
-          await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+          // await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
+          const data = houseDocContract.methods
+            .addContractSigner(item.contractId, cSC).encodeABI();
+
+          const transactionObject = {
+            data,
+            to: houseDocContract.options.address
+          }
+
+          const gas = await web3.eth.estimateGas({ ...transactionObject, from: account });
+          await OperatorContract.methods.callContract(transactionObject.to, transactionObject.data, BigInt(gas), account).send({ from: account });
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
@@ -210,7 +223,7 @@ function Contract(props) {
         }
       }
     }
-    // }
+    setLoading(false);
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {

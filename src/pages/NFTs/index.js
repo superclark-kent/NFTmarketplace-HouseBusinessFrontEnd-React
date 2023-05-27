@@ -29,9 +29,10 @@ function Nfts(props) {
   const loadNFTs = async () => {
     if (walletAccount) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
+      console.log(nfts);
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
+        if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
         var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
@@ -99,15 +100,10 @@ function Nfts(props) {
   }
 
   useEffect(() => {
-    if (account || walletAccount) {
+    if (walletAccount) {
       loadNFTs()
     }
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account])
+  }, [walletAccount])
 
   useEffect(() => {
     console.log('house', HouseBusinessAddress)
