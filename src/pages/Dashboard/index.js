@@ -1,7 +1,6 @@
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import LoadingButton from "@mui/lab/LoadingButton";
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import { Box } from '@mui/system';
@@ -14,20 +13,26 @@ import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
 
 import styled from '@emotion/styled';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PaymentIcon from '@mui/icons-material/Payment';
 import { Avatar, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
+import Typography from '@mui/material/Typography';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import { decryptContract } from 'utils';
@@ -39,17 +44,16 @@ const StyledInput = styled('input')({
 const label = { inputProps: { 'aria-label': 'Switch demo' } };
 
 function Dashboard(props) {
-  const nftClasses = useNftStyle()
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const dispatch = useDispatch();
   const { allNFTs } = props.houseNft;
+  const nftClasses = useNftStyle()
   const classes = useNftDetailStyle();
   const walletAccount = props.account.account;
   const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract()
   const houseDocContract = useHouseDocContract();
-  const navigate = useNavigate()
   const [loading, setLoading] = useState(false);
   const [histories, setHistories] = useState([]);
   const [availableHistorie, setAvailableHistories] = useState([])
@@ -58,6 +62,8 @@ function Dashboard(props) {
   const [contracts, setContracts] = useState([]);
   const [dataPoints, setDatapoints] = useState([]);
   const [selectedId, setSelectedId] = useState(0)
+  const [open, setOpen] = useState(false);
+  const [checkHistories, setCheckHistories] = useState({});
 
   const loadNFTs = async () => {
 
@@ -158,27 +164,30 @@ function Dashboard(props) {
   }
 
   const addAllowUser = async () => {
+    console.log('dataPoints', dataPoints)
     if (dataPoints.length == 0) {
       houseWarning("Please select the datapoint what you want to see!")
       return;
     } else {
+      setLoading(true);
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, dataPoints).call();
+      console.log('allowFee', web3.utils.fromWei(allowFee))
       try {
-        await houseBusinessContract.methods.addAllowUser(selectedId, dataPoints).send({ from: account, value: allowFee})
-        handleClickOpen(selectedId, account)
+        await houseBusinessContract.methods.addAllowUser(selectedId, dataPoints).send({ from: account, value: allowFee })
+        getHistories(selectedId, account, false)
       } catch (err) {
         console.log('err', err)
       }
-      setDatapoints([])
+      setLoading(false);
     }
   }
 
-  const [open, setOpen] = useState(false);
+  const handleClose = () => { setOpen(false); };
 
-  const handleClickOpen = async (_id, _owner) => {
+  const getHistories = async (_id, _owner, _flag) => {
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
 
-    var tempHistory = [], tempHistory1 = [];
+    var tempHistory = [], tempHistory1 = [], tempCheck = {};
     for (let i = 0; i < chistories.length; i++) {
       if (chistories[i].allowedUser.toLowerCase() == account.toLowerCase()) {
         var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
@@ -203,10 +212,13 @@ function Dashboard(props) {
         });
       } else {
         tempHistory1.push({ ...chistories[i] });
+        tempCheck = { ...tempCheck, [chistories[i].hID]: false };
       }
     }
+    setCheckHistories(tempCheck)
     setAvailableHistories(tempHistory);
     setHistories(tempHistory1)
+    if (tempHistory1.length > 0 && !_flag) setDatapoints([tempHistory1[0].hID])
     setSelectedId(_id)
     setOpen(true);
 
@@ -220,10 +232,6 @@ function Dashboard(props) {
       });
     }
     setContracts(cArr);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -285,7 +293,7 @@ function Dashboard(props) {
                     <Box
                       component={'a'}
                       className={nftClasses.nftHouseHistory}
-                      onClick={() => handleClickOpen(item.houseID, item.contributor.currentOwner)}
+                      onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true)}
                     >
                       <CachedIcon />
                       {`View Datapoint`}
@@ -307,6 +315,50 @@ function Dashboard(props) {
       >
         <DialogContent xl={6} md={12}>
           <Grid>
+            {histories.length > 0 && <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>{availableHistorie.length ? 'More Datapoint' : 'View Datapoint'}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <ListItem component="div" disablePadding>
+                  <Paper sx={{ width: 320, maxWidth: '100%' }}>
+                    <MenuList>
+                      <MenuItem style={{ fontWeight: '700' }}>
+                        <ListItemText >History Type</ListItemText>
+                        <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
+                      </MenuItem>
+                      <Divider />
+                      {histories.map((item, index) => {
+                        var homeHistory = historyTypes[item.historyTypeId];
+                        return (
+                          <MenuItem key={index}>
+                            <ListItemText>{homeHistory.hLabel}</ListItemText>
+                            <Switch {...label} check={homeHistory == ''} onChange={() => handleChange(item.hID)} name={item.hLabel} />
+                          </MenuItem>
+                        );
+                      })}
+                      <Divider />
+                    </MenuList>
+                    <LoadingButton
+                      size="small"
+                      color="secondary"
+                      style={{ width: '100%' }}
+                      onClick={() => addAllowUser()}
+                      loading={loading}
+                      loadingPosition="start"
+                      startIcon={<PaymentIcon />}
+                      variant="contained"
+                    >
+                      Pay
+                    </LoadingButton>
+                  </Paper>
+                </ListItem>
+              </AccordionDetails>
+            </Accordion>}
             {availableHistorie.map((item, index) => {
               var homeHistory = historyTypes[item.historyTypeId];
               return (
@@ -345,7 +397,7 @@ function Dashboard(props) {
                       </label>
                     </Grid>
                   ) : null}
-                  {homeHistory.descNeed === true ? (
+                  {homeHistory.descNeed === true && item.desc != "" ? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Picture Description'}
@@ -356,7 +408,7 @@ function Dashboard(props) {
                       disabled={true}
                     />
                   ) : null}
-                  {homeHistory.brandNeed === true ? (
+                  {homeHistory.brandNeed === true && item.houseBrand != '' ? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Brand'}
@@ -367,7 +419,7 @@ function Dashboard(props) {
                       disabled={true}
                     />
                   ) : null}
-                  {homeHistory.brandTypeNeed === true ? (
+                  {homeHistory.brandTypeNeed === true && item.brandType != '' ? (
                     <TextField
                       id="standard-multiline-static"
                       label={'Brand Type'}
@@ -394,7 +446,7 @@ function Dashboard(props) {
                       </Grid>
                     </LocalizationProvider>
                   ) : null}
-                  {(homeHistory.otherInfo) && <TextField
+                  {(homeHistory.otherInfo && item.otherInfo != '') && <TextField
                     id="standard-multiline-static"
                     label={'Other information'}
                     rows={4}
@@ -420,28 +472,6 @@ function Dashboard(props) {
                 </ListItem>
               );
             })}
-            <ListItem component="div" disablePadding>
-              <Paper sx={{ width: 320, maxWidth: '100%' }}>
-                <MenuList>
-                  <MenuItem style={{ fontWeight: '700' }}>
-                    <ListItemText >History Type</ListItemText>
-                    <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
-                  </MenuItem>
-                  <Divider />
-                  {histories.map((item, index) => {
-                    var homeHistory = historyTypes[item.historyTypeId];
-                    return (
-                      <MenuItem key={index}>
-                        <ListItemText>{homeHistory.hLabel}</ListItemText>
-                        <Switch {...label} onChange={(e) => handleChange(item.hID)} />
-                      </MenuItem>
-                    );
-                  })}
-                  <Divider />
-                </MenuList>
-                <Button onClick={() => addAllowUser()} variant="contained" style={{ width: '100%' }}>Pay</Button>
-              </Paper>
-            </ListItem>
 
             <ContractDetailDialog
               open={showCContract}
