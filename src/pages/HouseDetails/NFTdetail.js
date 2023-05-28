@@ -162,7 +162,10 @@ export default function NFTdetail({
 
               <Button
                 variant="outlined"
-                onClick={() => handlePayable(!simpleNFT.nftPayable)}
+                onClick={() => {
+                  setLoading(true)
+                  handlePayable(!simpleNFT.nftPayable)
+                }}
                 className={classes.nftHouseButton}
                 startIcon={<BusinessCenterIcon />}
                 disabled={loading}

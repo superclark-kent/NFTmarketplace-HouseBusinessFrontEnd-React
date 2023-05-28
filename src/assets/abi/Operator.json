@@ -107,19 +107,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "houseBusinessToken",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",

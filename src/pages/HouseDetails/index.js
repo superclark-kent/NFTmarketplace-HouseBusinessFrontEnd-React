@@ -375,19 +375,17 @@ function HouseDetails(props) {
 						houseError(err)
 						return;
 					});
-
 			} else {
 				try {
 					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
-
 					houseSuccess("You have successfully set your House price!")
 				} catch (error) {
 					console.log(error);
 					houseError('Something went wrong!');
 				}
 				loadNFT(houseID);
-				setLoading(false);
 			}
+			setLoading(false);
 		}
 	}
 

@@ -168,17 +168,17 @@ function CreateContract(props) {
             } else {
               try {
                 await houseDocContract.methods
-                .hdCreation(
-                  encryptedCompanyName,
-                  contractType,
-                  aSigner,
-                  ipUrl,
-                  sDate,
-                  eDate,
-                  aPrice,
-                  encryptedCurrency,
-                  account
-                ).send({ from: account })
+                  .hdCreation(
+                    encryptedCompanyName,
+                    contractType,
+                    aSigner,
+                    ipUrl,
+                    sDate,
+                    eDate,
+                    aPrice,
+                    encryptedCurrency,
+                    account
+                  ).send({ from: account })
                 houseSuccess("Success");
                 setCFile(null);
                 setCFileName("");
