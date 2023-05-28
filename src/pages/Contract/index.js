@@ -203,17 +203,7 @@ function Contract(props) {
           });
       } else {
         try {
-          // await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
-          const data = houseDocContract.methods
-            .addContractSigner(item.contractId, cSC).encodeABI();
-
-          const transactionObject = {
-            data,
-            to: houseDocContract.options.address
-          }
-
-          const gas = await web3.eth.estimateGas({ ...transactionObject, from: account });
-          await OperatorContract.methods.callContract(transactionObject.to, transactionObject.data, BigInt(gas), account).send({ from: account });
+          await houseDocContract.methods.addContractSigner(item.contractId, cSC).send({ from: account });
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
