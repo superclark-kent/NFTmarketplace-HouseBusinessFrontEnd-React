@@ -236,7 +236,7 @@ function Contract(props) {
 
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
-    var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
+    var notifyReceiver = walletAccount === item.owner ? item.contractSigner : item.owner;
     var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
@@ -252,8 +252,9 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
+        const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
+
         if (!account) {
-          const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
           const data = houseDocContract.methods
             .sendNotify(notifyReceiver, content, item.contractId, walletAccount)
             .encodeABI();
@@ -284,7 +285,6 @@ function Contract(props) {
             });
         } else {
           try {
-            const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
             await houseDocContract.methods
               .sendNotify(notifyReceiver, content, item.contractId, account)
               .send({ from: account });
