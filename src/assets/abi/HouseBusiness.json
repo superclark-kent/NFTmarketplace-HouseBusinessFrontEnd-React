@@ -417,6 +417,11 @@
       },
       {
         "internalType": "bool",
+        "name": "nftViewable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
         "name": "staked",
         "type": "bool"
       },
@@ -693,6 +698,11 @@
           {
             "internalType": "bool",
             "name": "nftPayable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "nftViewable",
             "type": "bool"
           },
           {
@@ -1340,6 +1350,24 @@
       }
     ],
     "name": "setStakingContractAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_viewable",
+        "type": "bool"
+      }
+    ],
+    "name": "setViewable",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

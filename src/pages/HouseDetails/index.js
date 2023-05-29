@@ -55,8 +55,6 @@ function HouseDetails(props) {
   const [disabledArr, setDisabledArr] = useState([]);
   const [histories, setHistories] = useState([]);
 
-	const [history, setHistory] = useState('');
-
 	const [buyerFlag, setBuyerFlag] = useState(false);
 	const [specialBuyer, setSpecialBuyer] = useState('');
 
@@ -385,7 +383,8 @@ function HouseDetails(props) {
 	}
 
 	const handlePayable = async (flag) => {
-		if (web3.utils.fromWei(simpleNFT.price) == 0) {
+		console.log('simple price', web3.utils.fromWei(totalPrice))
+		if (web3.utils.fromWei(totalPrice) == 0) {
 			houseWarning("Please set NFT price to set payable");
 			return;
 		}
@@ -439,6 +438,10 @@ function HouseDetails(props) {
 		setLoading(false);
 	};
 
+	const handleViewable = async (flag) => {
+
+	}
+
 	useEffect(() => {
 		if (walletAccount) {
 			initialConfig();
@@ -480,6 +483,7 @@ function HouseDetails(props) {
 						setSpecialBuyer={setSpecialBuyer}
 						handleBuyerEdit={handleBuyerEdit}
 						handlePayable={handlePayable}
+						handleViewable={handleViewable}
 						changeHousePrice={changeHousePrice}
 					/>
 					<Grid item xl={12} md={12}>

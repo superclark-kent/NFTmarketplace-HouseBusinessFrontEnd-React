@@ -27,7 +27,7 @@ function Nfts(props) {
   const houseBusinessContract = useHouseBusinessContract()
 
   const loadNFTs = async () => {
-    if (walletAccount) {
+    if (account) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
@@ -49,42 +49,54 @@ function Nfts(props) {
   }
 
   const handlePayable = async (item, payable) => {
+    console.log('price', web3.utils.fromWei(item.price))
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
-    try {
-      const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
-      const transactionObject = {
-        data,
-        to: houseBusinessContract.options.address
-      }
+    if (!account) {
+      try {
+        const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address
+        }
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          houseSuccess("Your House NFT can be sold from now.")
-          loadNFTs()
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
         })
-        .catch(err => {
-          houseError(err)
-        });
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            houseSuccess("Your House NFT can be sold from now.")
+            loadNFTs()
+          })
+          .catch(err => {
+            houseError(err)
+          });
 
-    } catch (error) {
-      console.log(error)
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      try {
+        console.log('hhh', item.houseID, zeroAddress, payable, account);
+        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
+        houseSuccess("Your House NFT can be sold from now.")
+        loadNFTs()
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
