@@ -49,7 +49,6 @@ function Nfts(props) {
   }
 
   const handlePayable = async (item, payable) => {
-    console.log('price', web3.utils.fromWei(item.price))
     if (web3.utils.fromWei(item.price) == 0 && payable == true) {
       houseWarning("Please set NFT price to set payable");
       return;
@@ -90,7 +89,6 @@ function Nfts(props) {
       }
     } else {
       try {
-        console.log('hhh', item.houseID, zeroAddress, payable, account);
         await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
         houseSuccess("Your House NFT can be sold from now.")
         loadNFTs()

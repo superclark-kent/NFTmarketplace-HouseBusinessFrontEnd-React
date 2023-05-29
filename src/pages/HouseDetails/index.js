@@ -351,7 +351,7 @@ function HouseDetails(props) {
 						user: walletAccount
 					}),
 				})
-					.then(res => {
+					.then(async (res) => {
 						if (res.status !== 200) {
 							return res.json().then(error => {
 								houseError(`Error: ${error.message}`);
@@ -383,7 +383,8 @@ function HouseDetails(props) {
 	}
 
 	const handlePayable = async (flag) => {
-		console.log('simple price', web3.utils.fromWei(totalPrice))
+		setLoading(true);
+
 		if (web3.utils.fromWei(totalPrice) == 0) {
 			houseWarning("Please set NFT price to set payable");
 			return;
@@ -439,7 +440,50 @@ function HouseDetails(props) {
 	};
 
 	const handleViewable = async (flag) => {
+		setLoading(true);
+		if (!account) {
+			const data = houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).encodeABI();
+			const transactionObject = {
+				to: houseBusinessContract.options.address,
+				data
+			}
 
+			// Send trx data and sign
+			fetch(`${apiURL}/signTransaction`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					transactionObject,
+					user: walletAccount
+				}),
+			})
+				.then(res => {
+					if (res.status !== 200) {
+						return res.json().then(error => {
+							houseError(`Error: ${error.message}`);
+						});
+					}
+
+					houseSuccess('Success!');
+					setSpecialBuyer('');
+					setBuyerFlag(false);
+					loadNFT(simpleNFT.houseID);
+				})
+				.catch(err => {
+					houseError(err)
+					return;
+				});
+		} else {
+			try {
+				await houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).send({ from: account });
+				houseSuccess('Success!');
+				loadNFT(simpleNFT.houseID);
+			} catch (err) {
+				console.log(err);
+				houseError("Something went wrong");
+			}
+		}
+		setLoading(false);
 	}
 
 	useEffect(() => {

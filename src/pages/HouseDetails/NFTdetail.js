@@ -183,7 +183,7 @@ export default function NFTdetail({
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => handleViewable(!simpleNFT.nftPayable)}
+                onClick={() => handleViewable(!simpleNFT.nftViewable)}
                 className={classes.enableButton}
                 startIcon={<PreviewIcon />}
                 disabled={loading}
@@ -194,7 +194,7 @@ export default function NFTdetail({
                     component={"span"}
                     className={classes.nftHouseBuyButton}
                     textTransform={"capitalize"}
-                  >{`${simpleNFT.nftPayable === false
+                  >{`${simpleNFT.nftViewable === false
                     ? "Set Viewable for everyone"
                     : "Set Unviewable"
                     }`}</Box>

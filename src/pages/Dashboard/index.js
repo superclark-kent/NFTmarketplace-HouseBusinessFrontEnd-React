@@ -60,10 +60,11 @@ function Dashboard(props) {
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
   const [contracts, setContracts] = useState([]);
-  const [dataPoints, setDatapoints] = useState([]);
   const [selectedId, setSelectedId] = useState(0)
   const [open, setOpen] = useState(false);
-  const [checkHistories, setCheckHistories] = useState({});
+  const [checkHistories, setCheckHistories] = useState([]);
+  const [expanded, setExpanded] = useState(true);
+  const [viewable, setViewable] = useState(false);
 
   const loadNFTs = async () => {
 
@@ -149,45 +150,42 @@ function Dashboard(props) {
     }
   }
 
-  const handleChange = (_hID) => {
-    const alreadyId = dataPoints.includes(_hID);
-    var arr = [];
-    if (alreadyId) {
-      arr = dataPoints.slice();   // Use slice() to copy the array
-      arr.splice(dataPoints.indexOf(_hID), 1);
-      setDatapoints(arr);
-    } else {
-      arr = dataPoints.slice();   // Use slice() to copy the array
-      arr.push(_hID);
-      setDatapoints(arr);
-    }
+  const handleChange = (_label, _hID, _checked) => {
+    const idx =  checkHistories.findIndex((item) => item.label == _label);
+    const newDatas = [...checkHistories];
+    newDatas[idx] = { ...newDatas[idx], checked: !newDatas[idx].checked}
+    setCheckHistories(newDatas);
   }
 
   const addAllowUser = async () => {
-    console.log('dataPoints', dataPoints)
-    if (dataPoints.length == 0) {
+    const checkedIds = checkHistories.filter((item) => item.checked).map((item) => item.hID);
+    if (!viewable) {
+      houseError("Can't see datapoints now!")
+      return;
+    }
+    if (checkedIds.length == 0) {
       houseWarning("Please select the datapoint what you want to see!")
       return;
     } else {
       setLoading(true);
-      const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, dataPoints).call();
-      console.log('allowFee', web3.utils.fromWei(allowFee))
+      const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
       try {
-        await houseBusinessContract.methods.addAllowUser(selectedId, dataPoints).send({ from: account, value: allowFee })
-        getHistories(selectedId, account, false)
-      } catch (err) {
-        console.log('err', err)
+        const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: account, value: allowFee });
+        getHistories(selectedId, account, false, viewable)
+      } catch (error) {
+        console.error(error.message);
       }
       setLoading(false);
     }
   }
 
   const handleClose = () => { setOpen(false); };
+  const handleExpand = () => { setExpanded(!expanded); };
 
-  const getHistories = async (_id, _owner, _flag) => {
+  const getHistories = async (_id, _owner, _flag, _viewable) => {
+    setViewable(_viewable);
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
-
-    var tempHistory = [], tempHistory1 = [], tempCheck = {};
+    var tempHistory = [], tempHistory1 = [], tempCheck = [];
     for (let i = 0; i < chistories.length; i++) {
       if (chistories[i].allowedUser.toLowerCase() == account.toLowerCase()) {
         var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
@@ -211,14 +209,20 @@ function Dashboard(props) {
           yearField: yearField
         });
       } else {
+        var homeHistory = historyTypes[chistories[i].historyTypeId];
         tempHistory1.push({ ...chistories[i] });
-        tempCheck = { ...tempCheck, [chistories[i].hID]: false };
+        var temp = {
+          "label": homeHistory.hLabel,
+          "hID": chistories[i].hID,
+          "checked": false
+        }
+        tempCheck.push(temp);
       }
     }
+    console.log('tempCheck', tempCheck)
     setCheckHistories(tempCheck)
     setAvailableHistories(tempHistory);
-    setHistories(tempHistory1)
-    if (tempHistory1.length > 0 && !_flag) setDatapoints([tempHistory1[0].hID])
+    setHistories(tempHistory1);
     setSelectedId(_id)
     setOpen(true);
 
@@ -293,7 +297,7 @@ function Dashboard(props) {
                     <Box
                       component={'a'}
                       className={nftClasses.nftHouseHistory}
-                      onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true)}
+                      onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
                     >
                       <CachedIcon />
                       {`View Datapoint`}
@@ -315,7 +319,7 @@ function Dashboard(props) {
       >
         <DialogContent xl={6} md={12}>
           <Grid>
-            {histories.length > 0 && <Accordion>
+            {histories.length > 0 && <Accordion expanded={expanded} onChange={handleExpand}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
@@ -332,15 +336,16 @@ function Dashboard(props) {
                         <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
                       </MenuItem>
                       <Divider />
-                      {histories.map((item, index) => {
-                        var homeHistory = historyTypes[item.historyTypeId];
-                        return (
-                          <MenuItem key={index}>
-                            <ListItemText>{homeHistory.hLabel}</ListItemText>
-                            <Switch {...label} check={homeHistory == ''} onChange={() => handleChange(item.hID)} name={item.hLabel} />
-                          </MenuItem>
-                        );
-                      })}
+                      {
+                        checkHistories.map((item, index) => {
+                          return (
+                            <MenuItem key={index}>
+                              <ListItemText>{item.label}</ListItemText>
+                              <Switch {...label} checked={item.checked} onChange={(e) => handleChange(item.label, item.hID, e.target.checked)} name={item.label} />
+                            </MenuItem>
+                          )
+                        })
+                      }
                       <Divider />
                     </MenuList>
                     <LoadingButton
