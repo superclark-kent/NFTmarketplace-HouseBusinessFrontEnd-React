@@ -80,7 +80,8 @@ function Dashboard(props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             transactionObject,
-            user: walletAccount
+            user: walletAccount,
+            isOperator: true
           }),
         })
           .then(async (res) => {
