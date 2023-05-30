@@ -70,7 +70,7 @@ export default function NFTdetail({
           <TextField
             type="number"
             variant="filled"
-            label="Current Price"
+            label="Selling Price"
             value={housePrice}
             onChange={(e) => setHousePrice(e.target.value)}
             InputProps={{
