@@ -85,24 +85,23 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
+          var price = gNFTs[i].nftPayable ? housePrice : housePrice - gNFTs[i].price
           nfts.push({
             ...gNFTs[i],
-            price: housePrice,
+            price: price.toString(),
+            totalPrice: housePrice,
             tokenURI: decryptedURI,
             tokenName: decryptedName,
             tokenType: decryptedType
           })
         }
+        
         if (account) {
           var otherNFTs = [];
           for (var i = 0; i < nfts.length; i++) {
-            if (nfts[i].contributor.currentOwner === `${account}`) continue;
+            if (nfts[i].contributor.currentOwner.toLowerCase() === account.toLowerCase()) continue;
             otherNFTs.push(nfts[i]);
           }
-          // if (otherNFTs.length == 0) {
-          //   houseInfo("There are no Houses to display on this page")
-          //   return;
-          // }
           dispatch(setAllHouseNFTs(otherNFTs));
         } else {
           dispatch(setAllHouseNFTs(nfts));
@@ -292,7 +291,7 @@ function Dashboard(props) {
                       </Grid>
                       {web3.utils.fromWei(item.price) > 0 &&
                         <Grid className={nftClasses.nftHousePrice}>
-                          <Box component={'span'}>Current Price</Box>
+                          <Box component={'span'}>Current Value</Box>
                           <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                         </Grid>}
                     </Grid>
@@ -455,7 +454,7 @@ function Dashboard(props) {
                         disabled={true}
                       />
                     ) : null}
-                    {homeHistory.yearNeed === true ? (
+                    {homeHistory.yearNeed === true && item.yearField != '1' ? (
                       <LocalizationProvider dateAdapter={AdapterDateFns}>
                         <Grid container justify="space-around" className={classes.addHistoryField} >
                           <DatePicker

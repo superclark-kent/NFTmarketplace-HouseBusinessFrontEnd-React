@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { connect, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Box, Button, Grid } from '@mui/material';
@@ -10,7 +10,7 @@ import CryptoJS from 'crypto-js';
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
-import { houseInfo, houseSuccess, houseWarning } from 'hooks/useToast';
+import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
@@ -37,12 +37,11 @@ function Nfts(props) {
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
         var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-        console.log('==>', nfts[i])
-        var price = nfts[i].price > 0 ? nfts[i].price : housePrice
+        var price = nfts[i].nftPayable ? housePrice : housePrice - nfts[i].price
         otherNFTs.push({
           ...nfts[i],
-          price: price,
-          TotalPrice: housePrice,
+          price: price.toString(),
+          totalPrice: housePrice,
           tokenName: decryptedName,
           tokenURI: decryptedURI
         });
