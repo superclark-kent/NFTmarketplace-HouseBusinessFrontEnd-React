@@ -99,10 +99,10 @@ function Dashboard(props) {
             if (nfts[i].contributor.currentOwner === `${account}`) continue;
             otherNFTs.push(nfts[i]);
           }
-          if (otherNFTs.length == 0) {
-            houseInfo("There are no Houses to display on this page")
-            return;
-          }
+          // if (otherNFTs.length == 0) {
+          //   houseInfo("There are no Houses to display on this page")
+          //   return;
+          // }
           dispatch(setAllHouseNFTs(otherNFTs));
         } else {
           dispatch(setAllHouseNFTs(nfts));
