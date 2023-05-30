@@ -268,6 +268,7 @@ function Dashboard(props) {
         <Grid container spacing={3}>
           {
             (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
+              console.log('item', item)
               return (
                 <Grid
                   item
@@ -297,6 +298,14 @@ function Dashboard(props) {
                         </Grid>}
                     </Grid>
                     <Grid className={nftClasses.nftHouseBottom}>
+                      {item.nftViewable && <Box
+                        component={'a'}
+                        className={nftClasses.vieDatapoint}
+                        onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
+                      >
+                        <CachedIcon />
+                        {`View Datapoint`}
+                      </Box>}
                       {
                         item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
                           <LoadingButton
@@ -310,15 +319,6 @@ function Dashboard(props) {
                             <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
                           </LoadingButton> : <></>
                       }
-                      {/* <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> */}
-                      <Box
-                        component={'a'}
-                        className={nftClasses.nftHouseHistory}
-                        onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
-                      >
-                        <CachedIcon />
-                        {`View Datapoint`}
-                      </Box>
                     </Grid>
                   </Grid>
                 </Grid>
