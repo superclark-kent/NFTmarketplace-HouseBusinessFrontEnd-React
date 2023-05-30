@@ -141,6 +141,7 @@ function Dashboard(props) {
             }
             houseSuccess("You bought successfully!")
             loadNFTs()
+            navigate("../../house/myNfts");
           })
           .catch(err => {
             houseError(err)

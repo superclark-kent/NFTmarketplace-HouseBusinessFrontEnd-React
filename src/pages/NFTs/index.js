@@ -114,11 +114,11 @@ function Nfts(props) {
   }, [account])
 
   useEffect(() => {
-    if (allMyNFTs.length == 0) {
-      console.log('allMyNFTs', allMyNFTs)
-      houseInfo("There are no Houses to display on this page")
-      return;
-    }
+    // if (allMyNFTs.length == 0) {
+    //   console.log('allMyNFTs', allMyNFTs)
+    //   houseInfo("There are no Houses to display on this page")
+    //   return;
+    // }
     console.log('house', HouseBusinessAddress)
   }, [])
 
