@@ -106,6 +106,7 @@ const nftStyle = makeStyles((theme) => ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        cursor: 'pointer'
     }
 }));
 

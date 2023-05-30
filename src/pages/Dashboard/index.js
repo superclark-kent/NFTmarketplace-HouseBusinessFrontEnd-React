@@ -268,7 +268,6 @@ function Dashboard(props) {
         <Grid container spacing={3}>
           {
             (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
-              console.log('item', item)
               return (
                 <Grid
                   item
