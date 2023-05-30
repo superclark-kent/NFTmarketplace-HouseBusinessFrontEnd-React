@@ -37,9 +37,12 @@ function Nfts(props) {
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
         var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
+        console.log('==>', nfts[i])
+        var price = nfts[i].price > 0 ? nfts[i].price : housePrice
         otherNFTs.push({
           ...nfts[i],
-          price: housePrice,
+          price: price,
+          TotalPrice: housePrice,
           tokenName: decryptedName,
           tokenURI: decryptedURI
         });
@@ -114,11 +117,6 @@ function Nfts(props) {
   }, [account])
 
   useEffect(() => {
-    // if (allMyNFTs.length == 0) {
-    //   console.log('allMyNFTs', allMyNFTs)
-    //   houseInfo("There are no Houses to display on this page")
-    //   return;
-    // }
     console.log('house', HouseBusinessAddress)
   }, [])
 

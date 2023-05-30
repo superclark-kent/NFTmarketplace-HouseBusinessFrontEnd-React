@@ -3,7 +3,7 @@ import { Button, Grid, TextField, MenuItem } from '@mui/material';
 import { Box } from '@mui/system';
 import styled from '@emotion/styled';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
@@ -42,10 +42,18 @@ export default function NewHistory({
 }) {
   const [homeHistory, setHomeHistory] = useState(null);
 
+  const formatDate = (date) => {
+    if (date instanceof Date) {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
+    }
+  };
+
   useEffect(() => {
     setHomeHistory(historyTypes[hID]);
   }, [hID]);
-
 
   return (
     <Grid className={classes.addHistory}>
@@ -109,22 +117,26 @@ export default function NewHistory({
             />
           ) : null}
           {homeHistory.yearNeed === true ? (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Grid container justify="space-around">
                 <DatePicker
                   views={['year', 'month', 'day']}
                   label="Date"
-                  openTo='month'
+                  format="MM/DD/YYYY"
+                  clearable
                   value={solorDate}
-                  default
-                  disabled={loading}
                   onChange={(date) => {
                     setChangeDate(true);
                     setSolorDate(date);
                   }}
-                  renderInput={(params) => (
-                    <TextField className={classes.addHistoryField} variant="filled" {...params} helperText={null} />
-                  )}
+                  input={<TextField />}
+                  renderInput={(props) =>
+                    <TextField
+                      {...props}
+                      className={classes.addHistoryField}
+                      variant="filled"
+                      value={solorDate ? formatDate(solorDate) : ''}
+                    />}
                 />
               </Grid>
             </LocalizationProvider>

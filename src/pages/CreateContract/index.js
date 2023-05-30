@@ -30,7 +30,6 @@ const Input = styled("input")({
 
 function CreateContract(props) {
   const { account } = useWeb3React();
-  const dispatch = useDispatch();
   const walletAccount = props.account.account;
   const historyTypes = props.historyTypes.historyTypes;
   const classes = useHouseMintStyle();

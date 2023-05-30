@@ -17,7 +17,6 @@ import decryptfile from 'utils/decrypt';
 function Contract(props) {
   const { account } = useWeb3React();
   const web3 = useWeb3();
-  const dispatch = useDispatch();
   const walletAccount = props.account.account;
   const historyTypes = props.historyTypes.historyTypes;
   const classes = useContractStyle();

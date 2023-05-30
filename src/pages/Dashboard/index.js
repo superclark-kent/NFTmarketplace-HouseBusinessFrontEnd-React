@@ -297,14 +297,18 @@ function Dashboard(props) {
                         </Grid>}
                     </Grid>
                     <Grid className={nftClasses.nftHouseBottom}>
-                      {item.nftViewable && <Box
+                      <Box
                         component={'a'}
                         className={nftClasses.vieDatapoint}
                         onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
                       >
-                        <CachedIcon />
-                        {`View Datapoint`}
-                      </Box>}
+                        {item.nftViewable &&
+                          <>
+                            <CachedIcon />
+                            {`View Datapoint`}
+                          </>
+                        }
+                      </Box>
                       {
                         item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
                           <LoadingButton

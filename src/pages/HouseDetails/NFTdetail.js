@@ -44,6 +44,7 @@ export default function NFTdetail({
       setExtraPrice(web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
     }
+
   }, [simpleNFT, totalPrice]);
 
   return (

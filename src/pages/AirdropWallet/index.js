@@ -56,7 +56,6 @@ function AirdropWallet(props) {
     const navigate = useNavigate();
     const location = useLocation();
     const { walletID } = useParams();
-    const dispatch = useDispatch();
     const walletAccount = props.account.account;
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
