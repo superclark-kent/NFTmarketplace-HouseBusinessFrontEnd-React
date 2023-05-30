@@ -1,16 +1,16 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Box, Button, Grid } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
-import { useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
-import { houseSuccess, houseWarning } from 'hooks/useToast';
+import { houseInfo, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAccount } from "redux/actions/account";
@@ -114,8 +114,14 @@ function Nfts(props) {
   }, [account])
 
   useEffect(() => {
+    if (allMyNFTs.length == 0) {
+      console.log('allMyNFTs', allMyNFTs)
+      houseInfo("There are no Houses to display on this page")
+      return;
+    }
     console.log('house', HouseBusinessAddress)
   }, [])
+
 
   return (
     <Grid>
@@ -171,7 +177,7 @@ function Nfts(props) {
                 </Grid>
               </Grid>
             )
-          }) : ''
+          }) : ""
         }
       </Grid>
     </Grid>

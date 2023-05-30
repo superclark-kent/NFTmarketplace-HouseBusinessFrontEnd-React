@@ -32,6 +32,8 @@ import Typography from '@mui/material/Typography';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import useNftDetailStyle from 'assets/styles/nftDetailStyle';
 import ContractDetailDialog from 'components/ContractDetailDialog';
@@ -65,8 +67,10 @@ function Dashboard(props) {
   const [checkHistories, setCheckHistories] = useState([]);
   const [expanded, setExpanded] = useState(true);
   const [viewable, setViewable] = useState(false);
+  const [openLoading, setLoadingOpen] = useState(false);
 
   const loadNFTs = async () => {
+    setLoadingOpen(true);
 
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
@@ -93,12 +97,17 @@ function Dashboard(props) {
             if (nfts[i].contributor.currentOwner === `${account}`) continue;
             otherNFTs.push(nfts[i]);
           }
+          if (otherNFTs.length == 0) {
+            houseInfo("There are no Houses to display on this page")
+            return;
+          }
           dispatch(setAllHouseNFTs(otherNFTs));
         } else {
           dispatch(setAllHouseNFTs(nfts));
         }
       })
       .catch(err => console.log(err));
+    setLoadingOpen(false);
   }
 
   const handleBuyNFT = async (item, price) => {
@@ -151,9 +160,9 @@ function Dashboard(props) {
   }
 
   const handleChange = (_label, _hID, _checked) => {
-    const idx =  checkHistories.findIndex((item) => item.label == _label);
+    const idx = checkHistories.findIndex((item) => item.label == _label);
     const newDatas = [...checkHistories];
-    newDatas[idx] = { ...newDatas[idx], checked: !newDatas[idx].checked}
+    newDatas[idx] = { ...newDatas[idx], checked: !newDatas[idx].checked }
     setCheckHistories(newDatas);
   }
 
@@ -219,7 +228,6 @@ function Dashboard(props) {
         tempCheck.push(temp);
       }
     }
-    console.log('tempCheck', tempCheck)
     setCheckHistories(tempCheck)
     setAvailableHistories(tempHistory);
     setHistories(tempHistory1);
@@ -245,249 +253,260 @@ function Dashboard(props) {
     }
   }, [walletAccount]);
 
+  const handleCloseLoading = () => { setLoadingOpen(false); };
+
   return (
-    <Grid>
-      <Box component={'h2'}>Dashboard</Box>
-      <Grid container spacing={3}>
-        {
-          (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
-            return (
-              <Grid
-                item
-                xl={3}
-                lg={4}
-                md={6}
-                sm={6}
-                key={item.houseID}
-                className={nftClasses.nftHouseItem}
-              >
-                <Grid className={nftClasses.nftHouseCard}>
-                  <Grid className={nftClasses.nftHouseMedia}>
-                    <img className={nftClasses.nftImg} src={item.tokenURI} />
-                  </Grid>
-                  <Grid>
-                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
-                  </Grid>
-                  <Grid className={nftClasses.nftHouseMetaInfo}>
-                    <Grid className={nftClasses.nftHouseInfo}>
-                      <Box component={'span'}>Owned By</Box>
-                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
+    <>
+      <Grid>
+        <Box component={'h2'}>Dashboard</Box>
+        <Grid container spacing={3}>
+          {
+            (allNFTs && allNFTs.length > 0) ? allNFTs.map((item) => {
+              return (
+                <Grid
+                  item
+                  xl={3}
+                  lg={4}
+                  md={6}
+                  sm={6}
+                  key={item.houseID}
+                  className={nftClasses.nftHouseItem}
+                >
+                  <Grid className={nftClasses.nftHouseCard}>
+                    <Grid className={nftClasses.nftHouseMedia}>
+                      <img className={nftClasses.nftImg} src={item.tokenURI} />
                     </Grid>
-                    {web3.utils.fromWei(item.price) > 0 &&
-                      <Grid className={nftClasses.nftHousePrice}>
-                        <Box component={'span'}>Current Price</Box>
-                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                      </Grid>}
-                  </Grid>
-                  <Grid className={nftClasses.nftHouseBottom}>
-                    {
-                      item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
-                        <LoadingButton
-                          variant='contained'
-                          onClick={() => handleBuyNFT(item, item.price)}
-                          loadingPosition="end"
-                          disabled={loading}
-                          className={nftClasses.nftHouseButton}
-                          endIcon={<BusinessCenterIcon />}
-                        >
-                          <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
-                        </LoadingButton> : <></>
-                    }
-                    {/* <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> */}
-                    <Box
-                      component={'a'}
-                      className={nftClasses.nftHouseHistory}
-                      onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
-                    >
-                      <CachedIcon />
-                      {`View Datapoint`}
-                    </Box>
+                    <Grid>
+                      <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
+                    </Grid>
+                    <Grid className={nftClasses.nftHouseMetaInfo}>
+                      <Grid className={nftClasses.nftHouseInfo}>
+                        <Box component={'span'}>Owned By</Box>
+                        <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
+                      </Grid>
+                      {web3.utils.fromWei(item.price) > 0 &&
+                        <Grid className={nftClasses.nftHousePrice}>
+                          <Box component={'span'}>Current Price</Box>
+                          <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
+                        </Grid>}
+                    </Grid>
+                    <Grid className={nftClasses.nftHouseBottom}>
+                      {
+                        item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                          <LoadingButton
+                            variant='contained'
+                            onClick={() => handleBuyNFT(item, item.price)}
+                            loadingPosition="end"
+                            disabled={loading}
+                            className={nftClasses.nftHouseButton}
+                            endIcon={<BusinessCenterIcon />}
+                          >
+                            <Box component={'span'} className={nftClasses.nftHouseBuyButton} textTransform={'capitalize'} >{`Buy NFT`}</Box>
+                          </LoadingButton> : <></>
+                      }
+                      {/* <MoreDetail account={walletAccount} item={item} nftClasses={nftClasses} handleClickMoreDetail={handleClickMoreDetail} houseBusinessContract={houseBusinessContract} /> */}
+                      <Box
+                        component={'a'}
+                        className={nftClasses.nftHouseHistory}
+                        onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
+                      >
+                        <CachedIcon />
+                        {`View Datapoint`}
+                      </Box>
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-            )
-          }) : ''
-        }
-      </Grid>
+              )
+            }) : ''
+          }
+        </Grid>
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth='lg'
-      >
-        <DialogContent xl={6} md={12}>
-          <Grid>
-            {histories.length > 0 && <Accordion expanded={expanded} onChange={handleExpand}>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>{availableHistorie.length ? 'More Datapoint' : 'View Datapoint'}</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <ListItem component="div" disablePadding>
-                  <Paper sx={{ width: 320, maxWidth: '100%' }}>
-                    <MenuList>
-                      <MenuItem style={{ fontWeight: '700' }}>
-                        <ListItemText >History Type</ListItemText>
-                        <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
-                      </MenuItem>
-                      <Divider />
-                      {
-                        checkHistories.map((item, index) => {
-                          return (
-                            <MenuItem key={index}>
-                              <ListItemText>{item.label}</ListItemText>
-                              <Switch {...label} checked={item.checked} onChange={(e) => handleChange(item.label, item.hID, e.target.checked)} name={item.label} />
-                            </MenuItem>
-                          )
-                        })
-                      }
-                      <Divider />
-                    </MenuList>
-                    <LoadingButton
-                      size="small"
-                      color="secondary"
-                      style={{ width: '100%' }}
-                      onClick={() => addAllowUser()}
-                      loading={loading}
-                      loadingPosition="start"
-                      startIcon={<PaymentIcon />}
-                      variant="contained"
-                    >
-                      Pay
-                    </LoadingButton>
-                  </Paper>
-                </ListItem>
-              </AccordionDetails>
-            </Accordion>}
-            {availableHistorie.map((item, index) => {
-              var homeHistory = historyTypes[item.historyTypeId];
-              return (
-                <ListItem key={index} component="div" disablePadding>
-                  <TextField
-                    className={classes.listhistoryType}
-                    id="history-type"
-                    label="History Type"
-                    value={homeHistory.hLabel}
-                    variant="standard"
-                    disabled={true}
-                  >
-                  </TextField>
-                  {homeHistory.imgNeed === true && item.houseImg != '' ? (
-                    <Grid className={classes.imgLabel}>
-                      <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
-                        <Grid>
-                          <StyledInput
-                            accept="image/*"
-                            id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
-                            multiple
-                            type="file"
-                            disabled={true}
-                          />
-                          <IconButton
-                            color="primary"
-                            aria-label="upload picture"
-                            component="span"
-                          >
-                            <Avatar
-                              alt="Image"
-                              src={item.houseImg}
-                            />
-                          </IconButton>
-                        </Grid>
-                      </label>
-                    </Grid>
-                  ) : null}
-                  {homeHistory.descNeed === true && item.desc != "" ? (
-                    <TextField
-                      id="standard-multiline-static"
-                      label={'Picture Description'}
-                      rows={4}
-                      variant="standard"
-                      className={classes.addHistoryField}
-                      value={item.desc}
-                      disabled={true}
-                    />
-                  ) : null}
-                  {homeHistory.brandNeed === true && item.houseBrand != '' ? (
-                    <TextField
-                      id="standard-multiline-static"
-                      label={'Brand'}
-                      rows={4}
-                      variant="standard"
-                      className={classes.addHistoryField}
-                      value={item.houseBrand}
-                      disabled={true}
-                    />
-                  ) : null}
-                  {homeHistory.brandTypeNeed === true && item.brandType != '' ? (
-                    <TextField
-                      id="standard-multiline-static"
-                      label={'Brand Type'}
-                      rows={4}
-                      variant="standard"
-                      className={classes.addHistoryField}
-                      value={item.brandType}
-                      disabled={true}
-                    />
-                  ) : null}
-                  {homeHistory.yearNeed === true ? (
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <Grid container justify="space-around" className={classes.addHistoryField} >
-                        <DatePicker
-                          views={['year', 'month', 'day']}
-                          label="Date"
-                          value={new Date(Number(item.yearField))}
-                          renderInput={(params) => (
-                            <TextField className={classes.needField} variant="standard" {...params} helperText={null} />
-                          )}
-                          disabled={true}
-                          disableOpenPicker={true}
-                        />
-                      </Grid>
-                    </LocalizationProvider>
-                  ) : null}
-                  {(homeHistory.otherInfo && item.otherInfo != '') && <TextField
-                    id="standard-multiline-static"
-                    label={'Other information'}
-                    rows={4}
-                    variant="standard"
-                    className={classes.listHistoryField}
-                    value={item.otherInfo}
-                    disabled={true}
-                  />}
-                  {(item.contractId > 0) ? (
-                    <>
-                      <IconButton
-                        onClick={() => {
-                          const contract = contracts.find((c) => c.contractId == item.contractId);
-                          setCContract(contract);
-                          setShowCContract(true);
-                        }}
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          maxWidth='lg'
+        >
+          <DialogContent xl={6} md={12}>
+            <Grid>
+              {histories.length > 0 && <Accordion expanded={expanded} onChange={handleExpand}>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>{availableHistorie.length ? 'More Datapoint' : 'View Datapoint'}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <ListItem component="div" disablePadding>
+                    <Paper sx={{ width: 320, maxWidth: '100%' }}>
+                      <MenuList>
+                        <MenuItem style={{ fontWeight: '700' }}>
+                          <ListItemText >History Type</ListItemText>
+                          <ListItemText style={{ textAlign: 'right' }}>View Datapoint</ListItemText>
+                        </MenuItem>
+                        <Divider />
+                        {
+                          checkHistories.map((item, index) => {
+                            return (
+                              <MenuItem key={index}>
+                                <ListItemText>{item.label}</ListItemText>
+                                <Switch {...label} checked={item.checked} onChange={(e) => handleChange(item.label, item.hID, e.target.checked)} name={item.label} />
+                              </MenuItem>
+                            )
+                          })
+                        }
+                        <Divider />
+                      </MenuList>
+                      <LoadingButton
+                        size="small"
+                        color="secondary"
+                        style={{ width: '100%' }}
+                        onClick={() => addAllowUser()}
+                        loading={loading}
+                        loadingPosition="start"
+                        startIcon={<PaymentIcon />}
+                        variant="contained"
                       >
-                        <DocumentIcon />
-                      </IconButton>
-                    </>
-                  ) : ""
-                  }
-                </ListItem>
-              );
-            })}
+                        Pay
+                      </LoadingButton>
+                    </Paper>
+                  </ListItem>
+                </AccordionDetails>
+              </Accordion>}
+              {availableHistorie.map((item, index) => {
+                var homeHistory = historyTypes[item.historyTypeId];
+                return (
+                  <ListItem key={index} component="div" disablePadding>
+                    <TextField
+                      className={classes.listhistoryType}
+                      id="history-type"
+                      label="History Type"
+                      value={homeHistory.hLabel}
+                      variant="standard"
+                      disabled={true}
+                    >
+                    </TextField>
+                    {homeHistory.imgNeed === true && item.houseImg != '' ? (
+                      <Grid className={classes.imgLabel}>
+                        <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
+                          <Grid>
+                            <StyledInput
+                              accept="image/*"
+                              id={`${historyTypes[item.historyTypeId].hLabel}-imag`}
+                              multiple
+                              type="file"
+                              disabled={true}
+                            />
+                            <IconButton
+                              color="primary"
+                              aria-label="upload picture"
+                              component="span"
+                            >
+                              <Avatar
+                                alt="Image"
+                                src={item.houseImg}
+                              />
+                            </IconButton>
+                          </Grid>
+                        </label>
+                      </Grid>
+                    ) : null}
+                    {homeHistory.descNeed === true && item.desc != "" ? (
+                      <TextField
+                        id="standard-multiline-static"
+                        label={'Picture Description'}
+                        rows={4}
+                        variant="standard"
+                        className={classes.addHistoryField}
+                        value={item.desc}
+                        disabled={true}
+                      />
+                    ) : null}
+                    {homeHistory.brandNeed === true && item.houseBrand != '' ? (
+                      <TextField
+                        id="standard-multiline-static"
+                        label={'Brand'}
+                        rows={4}
+                        variant="standard"
+                        className={classes.addHistoryField}
+                        value={item.houseBrand}
+                        disabled={true}
+                      />
+                    ) : null}
+                    {homeHistory.brandTypeNeed === true && item.brandType != '' ? (
+                      <TextField
+                        id="standard-multiline-static"
+                        label={'Brand Type'}
+                        rows={4}
+                        variant="standard"
+                        className={classes.addHistoryField}
+                        value={item.brandType}
+                        disabled={true}
+                      />
+                    ) : null}
+                    {homeHistory.yearNeed === true ? (
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <Grid container justify="space-around" className={classes.addHistoryField} >
+                          <DatePicker
+                            views={['year', 'month', 'day']}
+                            label="Date"
+                            value={new Date(Number(item.yearField))}
+                            renderInput={(params) => (
+                              <TextField className={classes.needField} variant="standard" {...params} helperText={null} />
+                            )}
+                            disabled={true}
+                            disableOpenPicker={true}
+                          />
+                        </Grid>
+                      </LocalizationProvider>
+                    ) : null}
+                    {(homeHistory.otherInfo && item.otherInfo != '') && <TextField
+                      id="standard-multiline-static"
+                      label={'Other information'}
+                      rows={4}
+                      variant="standard"
+                      className={classes.listHistoryField}
+                      value={item.otherInfo}
+                      disabled={true}
+                    />}
+                    {(item.contractId > 0) ? (
+                      <>
+                        <IconButton
+                          onClick={() => {
+                            const contract = contracts.find((c) => c.contractId == item.contractId);
+                            setCContract(contract);
+                            setShowCContract(true);
+                          }}
+                        >
+                          <DocumentIcon />
+                        </IconButton>
+                      </>
+                    ) : ""
+                    }
+                  </ListItem>
+                );
+              })}
 
-            <ContractDetailDialog
-              open={showCContract}
-              onClose={() => setShowCContract(false)}
-              contract={cContract}
-              historyTypes={historyTypes}
-            />
-          </Grid>
-        </DialogContent>
-      </Dialog>
-    </Grid >
+              <ContractDetailDialog
+                open={showCContract}
+                onClose={() => setShowCContract(false)}
+                contract={cContract}
+                historyTypes={historyTypes}
+              />
+            </Grid>
+          </DialogContent>
+        </Dialog>
+      </Grid >
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={openLoading}
+        onClick={handleCloseLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    </>
   )
 }
 
