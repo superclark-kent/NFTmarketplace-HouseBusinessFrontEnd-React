@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import { connect, useDispatch } from 'react-redux';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -11,8 +14,6 @@ import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContract
 import { houseError, houseInfo, houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
-import { useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
 import { setAllHouseNFTs } from 'redux/actions/houseNft';
 
 import styled from '@emotion/styled';
@@ -48,6 +49,7 @@ const label = { inputProps: { 'aria-label': 'Switch demo' } };
 function Dashboard(props) {
   const { account } = useWeb3React()
   const web3 = useWeb3()
+  const navigate = useNavigate()
   const dispatch = useDispatch();
   const { allNFTs } = props.houseNft;
   const nftClasses = useNftStyle()
@@ -115,6 +117,7 @@ function Dashboard(props) {
       houseInfo("Please connect your wallet!")
     } else {
       setLoading(true);
+      setLoadingOpen(true);
       if (!account) {
         const data = houseBusinessContract.methods.buyHouseNft(item.houseID, walletAccount).encodeABI();
         const transactionObject = {
@@ -151,12 +154,14 @@ function Dashboard(props) {
           await houseBusinessContract.methods.buyHouseNft(item.houseID, account).send({ from: account, value: price });
           houseSuccess("You bought successfully!")
           loadNFTs()
+          navigate("../../house/myNfts");
         } catch (err) {
           console.log('err', err)
         }
       }
 
       setLoading(false);
+      setLoadingOpen(false);
     }
   }
 
