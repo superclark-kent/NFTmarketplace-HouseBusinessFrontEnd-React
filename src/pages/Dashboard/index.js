@@ -85,17 +85,17 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
-          var price = gNFTs[i].nftPayable ? housePrice : housePrice - gNFTs[i].price
+          var price = gNFTs[i].nftPayable ? housePrice - gNFTs[i].price : housePrice - gNFTs[i].price
           nfts.push({
             ...gNFTs[i],
             price: price.toString(),
-            totalPrice: housePrice,
+            sellingPrice: gNFTs[i].price,
             tokenURI: decryptedURI,
             tokenName: decryptedName,
             tokenType: decryptedType
           })
         }
-        
+
         if (account) {
           var otherNFTs = [];
           for (var i = 0; i < nfts.length; i++) {
@@ -293,6 +293,9 @@ function Dashboard(props) {
                         <Grid className={nftClasses.nftHousePrice}>
                           <Box component={'span'}>Current Value</Box>
                           <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
+                          {item.nftPayable &&
+                            <Box component={'span'} style={{ fontSize: '12px' }}>Sellig Price: {`${web3.utils.fromWei(`${item.sellingPrice}`)} MATIC`}</Box>
+                          }
                         </Grid>}
                     </Grid>
                     <Grid className={nftClasses.nftHouseBottom}>
