@@ -149,7 +149,7 @@ function Nfts(props) {
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
                     <Grid className={nftClasses.nftHousePrice}>
-                      <Box component={'span'}>Current Price</Box>
+                      <Box component={'span'}>Current Value</Box>
                       <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                     </Grid>
                   </Grid>
