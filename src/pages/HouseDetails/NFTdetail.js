@@ -61,7 +61,7 @@ export default function NFTdetail({
             </Box>
           </Grid>
           <Grid className={classes.dataPoints}>
-            <Box component={"span"}>Data Points Value</Box>
+            <Box component={"span"}>Current Value</Box>
             <Box component={"h4"} className={classes.nftHouseOwner}>
               {extraPrice.toFixed(2)} MATIC
             </Box>
