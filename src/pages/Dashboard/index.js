@@ -101,7 +101,6 @@ function Dashboard(props) {
             if (nfts[i].contributor.currentOwner.toLowerCase() === account.toLowerCase()) continue;
             otherNFTs.push(nfts[i]);
           }
-          console.log('otherNFTs', otherNFTs)
           dispatch(setAllHouseNFTs(otherNFTs));
         } else {
           dispatch(setAllHouseNFTs(nfts));

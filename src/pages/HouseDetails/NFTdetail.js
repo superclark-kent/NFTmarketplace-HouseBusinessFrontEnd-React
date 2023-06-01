@@ -35,13 +35,11 @@ export default function NFTdetail({
 }) {
   const [isBuyerEdit, setIsBuyerEdit] = useState(false);
   const [housePrice, setHousePrice] = useState(0);
-  const [extraPrice, setExtraPrice] = useState(0);
   const web3 = useWeb3();
 
   useEffect(() => {
     if (simpleNFT && totalPrice) {
       setHousePrice(web3.utils.fromWei(simpleNFT.price))
-      setExtraPrice(web3.utils.fromWei(totalPrice))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
     }
 
