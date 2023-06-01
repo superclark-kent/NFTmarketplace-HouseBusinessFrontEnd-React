@@ -294,7 +294,11 @@ function Dashboard(props) {
                           <Box component={'span'}>Current Value</Box>
                           <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                           {item.nftPayable &&
-                            <Box component={'span'} style={{ fontSize: '12px' }}>Sellig Price: {`${web3.utils.fromWei(`${item.sellingPrice}`)} MATIC`}</Box>
+                            <Box component={'span'} style={{ fontSize: '12px' }}>
+                              Sellig Price: {item.sellingPrice > 0 ? 
+                              `${web3.utils.fromWei(`${item.sellingPrice}`)} MATIC`: 
+                              `${web3.utils.fromWei(`${item.price}`)} MATIC`}
+                            </Box>
                           }
                         </Grid>}
                     </Grid>
