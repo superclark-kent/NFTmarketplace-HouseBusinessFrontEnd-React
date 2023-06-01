@@ -32,12 +32,12 @@ function Nfts(props) {
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
         if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
-        var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
+        var housePrice = await houseBusinessContract.methods.getExtraPrice(nfts[i].houseID).call();
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
         var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-        var price = housePrice - nfts[i].price
+        var price = housePrice
         otherNFTs.push({
           ...nfts[i],
           price: price.toString(),

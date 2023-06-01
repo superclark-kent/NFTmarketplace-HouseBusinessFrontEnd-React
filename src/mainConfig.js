@@ -9,12 +9,12 @@ dotenv.config();
 export const POLLING_INTERVAL = 12000;
 
 export const ERC20Address = '0xa8C19667794191A730B3983eB3a8087CfF2b788e';
-export const HouseBusinessAddress = '0x482d5EAbaC2fbe743388F816a6B5C7496B8651AD';
-export const MarketplaceAddress = '0xbFC16cD72bBe5f1dd9B0AC8bc54FF370101aC09c'
-export const HouseDocAddress = '0x39f01f2094Df7796D2c6b9F10a976CFAeFacDc4C';
-export const StakingAddress = '0x84Fe8a21dbcA27053bc97dF956231825B6f0a46b';
-export const ThirdPartyAddress = '0x704d3B33A0893F8926221af2D7D8524AfCe1088f';
-export const OperatorAddress = '0x83eaca9EC763B2CB7EeFcc449520069257F9eeaD';
+export const HouseBusinessAddress = '0x95329369B84E3c81b42db103900B7D655655a16b';
+export const MarketplaceAddress = '0x20DDF72aF61A8A29E190F12209D4302dFaCEA094'
+export const HouseDocAddress = '0xD5Ab5E43b50535Cb6C3E1A1aD3743b9b5Cb0164e';
+export const StakingAddress = '0x45ee6Acdd74e84029BeA41F7E8fdCbeF097a1F11';
+export const ThirdPartyAddress = '0x83CB1aa0505E27a26e4f2d6Dcb6E0025E7FF815c';
+export const OperatorAddress = '0xf9d8DF6FCFE5095fB57bC04Ac26A613ACf1661CA';
 
 const config = {
 	// development: {

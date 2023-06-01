@@ -82,7 +82,7 @@ function Staking(props) {
       var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
       var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
       var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-      var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
+      var housePrice = await houseBusinessContract.methods.getExtraPrice(nfts[i].houseID).call();
 
       otherNFTs.push({
         ...nfts[i],

@@ -84,8 +84,8 @@ function Dashboard(props) {
           var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
-          var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
-          var price = housePrice - gNFTs[i].price
+          var housePrice = await houseBusinessContract.methods.getExtraPrice(gNFTs[i].houseID).call();
+          var price = housePrice
           nfts.push({
             ...gNFTs[i],
             price: price.toString(),
@@ -319,7 +319,7 @@ function Dashboard(props) {
                         item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
                           <LoadingButton
                             variant='contained'
-                            onClick={() => handleBuyNFT(item, item.price)}
+                            onClick={() => handleBuyNFT(item, item.sellingPrice ? item.sellingPrice : item.price)}
                             loadingPosition="end"
                             disabled={loading}
                             className={nftClasses.nftHouseButton}
