@@ -319,7 +319,7 @@ function Dashboard(props) {
                         item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
                           <LoadingButton
                             variant='contained'
-                            onClick={() => handleBuyNFT(item, item.sellingPrice ? item.sellingPrice : item.price)}
+                            onClick={() => handleBuyNFT(item, item.sellingPrice > 0 ? item.sellingPrice : item.price)}
                             loadingPosition="end"
                             disabled={loading}
                             className={nftClasses.nftHouseButton}
@@ -517,7 +517,6 @@ function Dashboard(props) {
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={openLoading}
-        onClick={handleCloseLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
