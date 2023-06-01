@@ -85,7 +85,7 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getHousePrice(gNFTs[i].houseID).call();
-          var price = gNFTs[i].nftPayable ? housePrice - gNFTs[i].price : housePrice - gNFTs[i].price
+          var price = housePrice - gNFTs[i].price
           nfts.push({
             ...gNFTs[i],
             price: price.toString(),

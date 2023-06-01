@@ -37,11 +37,11 @@ function Nfts(props) {
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
         var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-        var price = nfts[i].nftPayable ? housePrice : housePrice - nfts[i].price
+        var price = housePrice - nfts[i].price
         otherNFTs.push({
           ...nfts[i],
           price: price.toString(),
-          totalPrice: housePrice,
+          sellingPrice: nfts[i].price,
           tokenName: decryptedName,
           tokenURI: decryptedURI
         });
