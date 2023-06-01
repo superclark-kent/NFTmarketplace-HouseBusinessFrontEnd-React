@@ -85,10 +85,9 @@ function Dashboard(props) {
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
           var decryptedType = bytesType.toString(CryptoJS.enc.Utf8)
           var housePrice = await houseBusinessContract.methods.getExtraPrice(gNFTs[i].houseID).call();
-          var price = housePrice
           nfts.push({
             ...gNFTs[i],
-            price: price.toString(),
+            price: housePrice.toString(),
             sellingPrice: gNFTs[i].price,
             tokenURI: decryptedURI,
             tokenName: decryptedName,
@@ -102,6 +101,7 @@ function Dashboard(props) {
             if (nfts[i].contributor.currentOwner.toLowerCase() === account.toLowerCase()) continue;
             otherNFTs.push(nfts[i]);
           }
+          console.log('otherNFTs', otherNFTs)
           dispatch(setAllHouseNFTs(otherNFTs));
         } else {
           dispatch(setAllHouseNFTs(nfts));
@@ -156,6 +156,7 @@ function Dashboard(props) {
           navigate("../../house/myNfts");
         } catch (err) {
           console.log('err', err)
+          houseInfo(err.message)
         }
       }
 

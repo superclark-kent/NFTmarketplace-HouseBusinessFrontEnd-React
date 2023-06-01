@@ -41,7 +41,7 @@ export default function NFTdetail({
   useEffect(() => {
     if (simpleNFT && totalPrice) {
       setHousePrice(web3.utils.fromWei(simpleNFT.price))
-      setExtraPrice(web3.utils.fromWei(totalPrice) - web3.utils.fromWei(simpleNFT.price))
+      setExtraPrice(web3.utils.fromWei(totalPrice))
       setIsBuyerEdit(!Boolean(simpleNFT.contributor.buyer));
     }
 
@@ -63,7 +63,7 @@ export default function NFTdetail({
           <Grid className={classes.dataPoints}>
             <Box component={"span"}>Current Value</Box>
             <Box component={"h4"} className={classes.nftHouseOwner}>
-              {extraPrice.toFixed(3)} MATIC
+              {web3.utils.fromWei(totalPrice)} MATIC
             </Box>
           </Grid>
         </Grid>
