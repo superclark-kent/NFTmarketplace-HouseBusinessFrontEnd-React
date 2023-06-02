@@ -70,6 +70,7 @@ function Dashboard(props) {
   const [expanded, setExpanded] = useState(true);
   const [viewable, setViewable] = useState(false);
   const [openLoading, setLoadingOpen] = useState(false);
+  const [holder, setHolder] = useState('');
 
   const loadNFTs = async () => {
     setLoadingOpen(true);
@@ -185,7 +186,7 @@ function Dashboard(props) {
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
       try {
         const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: account, value: allowFee });
-        getHistories(selectedId, account, false, viewable)
+        getHistories(selectedId, holder, false, viewable)
       } catch (error) {
         console.error(error.message);
       }
@@ -258,8 +259,6 @@ function Dashboard(props) {
     }
   }, [walletAccount]);
 
-  const handleCloseLoading = () => { setLoadingOpen(false); };
-
   return (
     <>
       <Grid>
@@ -295,18 +294,22 @@ function Dashboard(props) {
                           <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                           {item.nftPayable &&
                             <Box component={'span'} style={{ fontSize: '12px' }}>
-                              Sellig Price: {item.sellingPrice > 0 ? 
-                              `${web3.utils.fromWei(`${item.sellingPrice}`)} MATIC`: 
-                              `${web3.utils.fromWei(`${item.price}`)} MATIC`}
+                              Sellig Price: {item.sellingPrice > 0 ?
+                                `${web3.utils.fromWei(`${item.sellingPrice}`)} MATIC` :
+                                `${web3.utils.fromWei(`${item.price}`)} MATIC`}
                             </Box>
                           }
-                        </Grid>}
+                        </Grid>
+                      }
                     </Grid>
                     <Grid className={nftClasses.nftHouseBottom}>
                       <Box
                         component={'a'}
                         className={nftClasses.vieDatapoint}
-                        onClick={() => getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable)}
+                        onClick={() => {
+                          setHolder(item.contributor.currentOwner);
+                          getHistories(item.houseID, item.contributor.currentOwner, true, item.nftViewable);
+                        }}
                       >
                         {item.nftViewable &&
                           <>
@@ -389,7 +392,8 @@ function Dashboard(props) {
                     </Paper>
                   </ListItem>
                 </AccordionDetails>
-              </Accordion>}
+              </Accordion>
+              }
               {availableHistorie.map((item, index) => {
                 var homeHistory = historyTypes[item.historyTypeId];
                 return (
@@ -490,9 +494,9 @@ function Dashboard(props) {
                       <>
                         <IconButton
                           onClick={() => {
-                            const contract = contracts.find((c) => c.contractId == item.contractId);
-                            setCContract(contract);
-                            setShowCContract(true);
+                              const contract = contracts.find((c) => c.contractId == item.contractId);
+                              setCContract(contract);
+                              setShowCContract(true);
                           }}
                         >
                           <DocumentIcon />

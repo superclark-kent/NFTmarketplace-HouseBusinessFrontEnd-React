@@ -115,7 +115,6 @@ function Staking(props) {
         tokenName: decryptedName,
       });
     }
-    console.log('====>there---->')
     dispatch(setAllMyNFTs(otherNFTs));
   };
 
