@@ -1,15 +1,16 @@
 import styled from '@emotion/styled';
-import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { useEffect, useState } from 'react';
-
 import CancelIcon from '@mui/icons-material/Cancel';
 import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
+import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useWeb3React } from '@web3-react/core';
 import ContractDetailDialog from 'components/ContractDetailDialog';
 import CryptoJS from 'crypto-js';
@@ -24,6 +25,7 @@ const StyledInput = styled('input')({
 
 export default function Histories({
   classes,
+  simpleNFT,
   houseID,
   histories,
   contracts,
@@ -33,9 +35,11 @@ export default function Histories({
   loadNFT,
   connectContract,
   disconnectContract,
-  walletAccount
+  walletAccount,
+  injected
 }) {
   const { account } = useWeb3React();
+  const navigate = useNavigate();
   const houseBusinessContract = useHouseBusinessContract();
   const [cHistories, setCHistories] = useState([]);
   const [disabledArr, setDisabledArr] = useState([]);
@@ -44,10 +48,20 @@ export default function Histories({
   const [cPicDesc, setCPicDesc] = useState('');
   const [cBrand, setCBrand] = useState('');
   const [cBrandType, setCBrandType] = useState('');
-  const [cYearField, setCYearField] = useState(new Date("1970"));
+  const [cYearField, setCYearField] = useState(null);
   const [otherInfo, setOtherInfo] = useState('');
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
+  const [changeDate, setChangeDate] = useState(false);
+
+  const formatDate = (date) => {
+    if (date instanceof Date) {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const year = date.getFullYear();
+      return `${month}/${day}/${year}`;
+    }
+  };
 
   const handleHistorySave = async (homeHistory, historyIndex, historyTypeId) => {
     setLoading(true);
@@ -60,11 +74,13 @@ export default function Histories({
     var _yearField = Number(historyItem.yearField);
     var flag = false;
 
-    const _year_ =  cYearField.toString().slice(11, 15);
-    if (Number(_year_) < 1900) {
-      houseError("Please choose correct Year");
-      setLoading(false);
-      return;
+    if ( cYearField != null) {
+      const _year_ = cYearField.$y;
+      if (Number(_year_) < 1900) {
+        houseError("Please choose correct Year");
+        setLoading(false);
+        return;
+      }
     }
 
     var changedFlag = false;
@@ -90,9 +106,13 @@ export default function Histories({
       _brandType = cBrandType == "" ? "" : CryptoJS.AES.encrypt(cBrandType, secretKey).toString();
       changedFlag = true;
     }
-    if (_yearField != cYearField.valueOf() && homeHistory.yearNeed) {
-      _yearField = cYearField.valueOf();
-      if (_yearField < 0) flag = true;
+    if (changeDate) {
+      if (cYearField == null) {
+        _yearField = 1;
+      } else {
+        _yearField = cYearField.valueOf();
+        if (_yearField < 0) flag = true;
+      }
       changedFlag = true;
     }
     if (homeHistory.otherInfo) {
@@ -101,8 +121,7 @@ export default function Histories({
     }
 
     if (changedFlag) {
-      if (!account) {
-        console.log('walletAccount', walletAccount)
+      if (!injected) {
         const data = houseBusinessContract.methods
           .editHistory(
             houseID,
@@ -173,7 +192,6 @@ export default function Histories({
     } else {
       houseInfo('There is nothing to change');
     }
-
     setLoading(false);
   };
 
@@ -188,12 +206,16 @@ export default function Histories({
     var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
     var bytesCHistory = CryptoJS.AES.decrypt(histories[historyIndex].otherInfo, secretKey);
     var decryptedOtherInfo = bytesCHistory.toString(CryptoJS.enc.Utf8);
-    var yearField = histories[historyIndex].flag ? histories[historyIndex].yearField * -1 : histories[historyIndex].yearField;
+    if (Number(histories[historyIndex].yearField) != 1) {
+      var yearField = histories[historyIndex].flag ? histories[historyIndex].yearField * -1 : histories[historyIndex].yearField;
+      setCYearField(new Date(Number(yearField)));
+    } else {
+      setCYearField(null);
+    }
     setCImage(decrypteCImage);
     setCPicDesc(decryptePicDesc);
     setCBrand(decrypteBrand);
     setCBrandType(decryptedBrandType);
-    setCYearField(new Date(Number(yearField)));
     setOtherInfo(decryptedOtherInfo);
 
     var dArr = [];
@@ -241,6 +263,18 @@ export default function Histories({
     initialConf();
   }, [histories]);
 
+  useEffect(() => {
+    if (walletAccount == null) {
+      houseError("You don't have permission this NFT");
+      navigate('../../house/app');
+    } else {
+      if (simpleNFT.contributor.currentOwner.toLowerCase() != walletAccount.toLowerCase()) {
+        houseError("You don't have permission this NFT");
+        navigate('../../house/app');
+      }
+    }
+  }, [simpleNFT, walletAccount])
+
   return (
     <Grid>
       {cHistories.map((item, index) => {
@@ -256,7 +290,6 @@ export default function Histories({
               onChange={(e) => setChangingHistoryType(e.target.value)}
               variant="filled"
               disabled={disabledArr[index] || loading}
-            // disabled={true}
             >
               {historyTypes.map((option) => (
                 <MenuItem key={option.hLabel} value={option.hLabel}>
@@ -338,18 +371,28 @@ export default function Histories({
               />
             ) : null}
             {homeHistory.yearNeed === true ? (
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Grid container justify="space-around">
                   <DatePicker
                     views={['year', 'month', 'day']}
                     label="Date"
-                    //format={"DD/MM/YYYY"}
-                    value={disabledArr[index] === true ? new Date(Number(item.yearField)) : cYearField}
-                    onChange={(date) => setCYearField(date)}
+                    format="MM/DD/YYYY"
+                    clearable
+                    value={disabledArr[index] === true ? Number(item.yearField) != 1 ? new Date(Number(item.yearField)) : null : cYearField}
+                    onChange={(date) => {
+                      setCYearField(date);
+                      setChangeDate(true);
+                    }}
                     disabled={disabledArr[index] || loading}
-                    renderInput={(params) => (
-                      <TextField className={classes.needField} variant="filled" {...params} helperText={null} />
-                    )}
+                    input={<TextField />}
+                    renderInput={(props) =>
+                      <TextField
+                        {...props}
+                        className={classes.addHistoryField}
+                        variant="filled"
+                        value={Number(item.yearField) != 1 ? formatDate(new Date(Number(item.yearField))) : ''}
+                      />
+                    }
                   />
                 </Grid>
               </LocalizationProvider>

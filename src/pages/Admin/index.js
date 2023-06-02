@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { connect } from 'react-redux';
 import {
   Box, Button, Divider, Grid, IconButton, InputBase,
   Paper,
@@ -8,7 +9,7 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import {
-  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract
+  useHouseDocContract, useHouseBusinessContract, useStakingContract, useThirdPartyContract, useMarketplaceContract
 } from 'hooks/useContractHelpers';
 
 import AddIcon from '@mui/icons-material/Add';
@@ -66,7 +67,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
-export default function Admin() {
+const Admin = (props) => {
 
   const [person, setPerson] = useState([]);
   const [personName, setPersonName] = useState([]);
@@ -97,12 +98,12 @@ export default function Admin() {
   const web3 = useWeb3();
   const { account } = useWeb3React();
   const navigate = useNavigate();
+  const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract();
+  const marketplaceContract = useMarketplaceContract();
   const houseDocContract = useHouseDocContract();
   const stakingContract = useStakingContract();
   const thirdPartyContract = useThirdPartyContract();
-
-  const [historyTypes, setHistoryTypes] = useState([]);
 
   const [MPrice, setMprice] = useState(0.2);
   const [Hprice, setHprice] = useState(2);
@@ -133,7 +134,7 @@ export default function Admin() {
   const [Pprice, setPprice] = useState('');
   const [Pperiod, setPperiod] = useState(0);
   const [DataLimit, setDataLimit] = useState('');
-  const [labelPercents, setLabelPercents] = useState([])
+  const [labelPercents, setLabelPercents] = useState([]);
 
   const PeriodList = [
     {
@@ -154,8 +155,8 @@ export default function Admin() {
     var minPrice = await houseBusinessContract.methods.minPrice().call();
     var maxPrice = await houseBusinessContract.methods.maxPrice().call();
     var penalty = await stakingContract.methods.penalty().call();
-    var royaltyCreator = await houseBusinessContract.methods.royaltyCreator().call();
-    var royaltyMarket = await houseBusinessContract.methods.royaltyMarket().call();
+    var royaltyCreator = await marketplaceContract.methods.royaltyCreator().call();
+    var royaltyMarket = await marketplaceContract.methods.royaltyMarket().call();
     var allApys = await stakingContract.methods.getAllAPYs().call();
     var _uploadedCount = await houseDocContract.methods.hdCounter().call()
     setMprice(web3.utils.fromWei(minPrice));
@@ -169,7 +170,7 @@ export default function Admin() {
     setApySelect(allApys[0][0]);
     setApyValue(allApys[1][0]);
     setUploadedCount(_uploadedCount);
-    getLabelPercent()
+    getLabelPercent();
     var propertyList = await thirdPartyContract.methods.getProperties().call();
     var tempList = [];
     for (var i = 0; i < propertyList.length; i++) {
@@ -177,18 +178,6 @@ export default function Admin() {
     }
 
     setVisibleProperty(tempList);
-
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
-    var allHTypes = [];
-    for (let i = 0; i < hTypes.length; i++) {
-      if (hTypes[i].hLabel === '') continue;
-      allHTypes.push({
-        ...hTypes[i],
-        value: web3.utils.fromWei(hTypes[i].value)
-      });
-    }
-
-    setHistoryTypes(allHTypes);
   };
 
   const initialConfig2 = async () => {
@@ -206,7 +195,7 @@ export default function Admin() {
   }
 
   const getLabelPercent = async () => {
-    var _labelPercents = await houseBusinessContract.methods.labelPercent().call();
+    var _labelPercents = await marketplaceContract.methods.labelPercent().call();
     setLabelPercents(_labelPercents);
   }
 
@@ -246,7 +235,7 @@ export default function Admin() {
   const handleSetRoyaltyCreator = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyCreator(royaltyCreator).send({ from: account });
       houseSuccess('Creator Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -257,7 +246,7 @@ export default function Admin() {
   const handleSetRoyaltyMarket = async () => {
     setLoading(true);
     try {
-      await houseBusinessContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
+      await marketplaceContract.methods.setRoyaltyMarket(royaltyMarket).send({ from: account });
       houseSuccess('Market Royalty Changed successfully!');
     } catch (error) {
       console.log('error', error.message)
@@ -1055,7 +1044,11 @@ export default function Admin() {
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
-            <TypePercent classes={classes} labelPercents={labelPercents} getLabelPercent={getLabelPercent} />
+            <TypePercent
+              classes={classes}
+              labelPercents={labelPercents}
+              getLabelPercent={getLabelPercent}
+            />
             <Grid item md={12}>
               <Divider sx={{ height: 28, m: 0.5 }} orientation="horizontal" />
             </Grid>
@@ -1104,3 +1097,13 @@ export default function Admin() {
     </Grid>
   );
 }
+
+
+function mapStateToProps(state) {
+  return {
+    account: state.account,
+    historyTypes: state.historyTypes
+  };
+}
+
+export default connect(mapStateToProps)(Admin);

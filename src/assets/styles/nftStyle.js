@@ -97,6 +97,17 @@ const nftStyle = makeStyles((theme) => ({
         cursor: 'pointer',
         textDecoration: 'underline',
     },
+    vieDatapoint: {
+        backgroundColor: 'transparent !important',
+        fontWeight: 'bold',
+        boxSizing: 'border-box !important',
+        padding: '11px 2px !important',
+        transition: 'all 0.3s ease !important',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        cursor: 'pointer'
+    }
 }));
 
 export default nftStyle;

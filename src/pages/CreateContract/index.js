@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { connect } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { connect, useDispatch } from 'react-redux';
+import Web3 from "web3";
 import styled from "@emotion/styled";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -14,15 +15,13 @@ import {
 } from "@mui/material";
 import { useWeb3React } from "@web3-react/core";
 import CryptoJS from "crypto-js";
-import { BigNumber } from "ethers";
-import Web3 from "web3";
 
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import { useHouseBusinessContract, useHouseDocContract } from "hooks/useContractHelpers";
+import { useHouseDocContract } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { secretKey, zeroAddress, apiURL } from "mainConfig";
-import FileUpload from "utils/ipfs";
+import { apiURL, secretKey, zeroAddress } from "mainConfig";
 import encryptfile from "utils/encrypt";
+import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
   display: "none",
@@ -30,10 +29,10 @@ const Input = styled("input")({
 
 function CreateContract(props) {
   const { account } = useWeb3React();
-  const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
+  const historyTypes = props.historyTypes.historyTypes;
   const classes = useHouseMintStyle();
-  const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
   const navigate = useNavigate();
   // Contract
@@ -114,7 +113,7 @@ function CreateContract(props) {
             const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-            if (!account) {
+            if(!injected) {
               const data = houseDocContract.methods
                 .hdCreation(
                   encryptedCompanyName,
@@ -168,17 +167,17 @@ function CreateContract(props) {
             } else {
               try {
                 await houseDocContract.methods
-                  .hdCreation(
-                    encryptedCompanyName,
-                    contractType,
-                    aSigner,
-                    ipUrl,
-                    sDate,
-                    eDate,
-                    aPrice,
-                    encryptedCurrency,
-                    account
-                  ).send({ from: account })
+                .hdCreation(
+                  encryptedCompanyName,
+                  contractType,
+                  aSigner,
+                  ipUrl,
+                  sDate,
+                  eDate,
+                  aPrice,
+                  encryptedCurrency,
+                  walletAccount
+                ).send({ from: walletAccount })
                 houseSuccess("Success");
                 setCFile(null);
                 setCFileName("");
@@ -224,9 +223,8 @@ function CreateContract(props) {
   }
 
   useEffect(async () => {
-    var hTypes = await houseBusinessContract.methods.getAllHistoryTypes().call();
     let arr = [];
-    hTypes.map((item, idx) => {
+    historyTypes.map((item, idx) => {
       arr.push({
         idx: idx,
         value: item.hLabel,
@@ -235,7 +233,7 @@ function CreateContract(props) {
       })
     })
     setContracTypes(arr);
-  }, [])
+  }, [historyTypes])
 
   return (
     <Stack
@@ -469,6 +467,7 @@ function CreateContract(props) {
 function mapStateToProps(state) {
   return {
     account: state.account,
+    historyTypes: state.historyTypes
   };
 }
 

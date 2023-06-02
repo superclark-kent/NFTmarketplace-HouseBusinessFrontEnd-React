@@ -2,7 +2,7 @@
 import {
     ALLHOUSENFTS,
     ALLMYNFTS
-} from '../../constants'
+} from 'redux/constants'
 
 export const setAllHouseNFTs = (nfts) => {
     return dispatch => {

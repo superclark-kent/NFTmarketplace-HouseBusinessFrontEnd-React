@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
-import dotenv from "dotenv";
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import Web3 from "web3";
+import { connect, useSelector } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
+import dotenv from "dotenv";
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import Web3 from "web3";
 dotenv.config();
 import { useCookies } from "react-cookie";
 
 import {
-	Box, Button, Divider, Grid, IconButton, InputBase,
-	Paper, styled, TextField, Alert
+    Alert,
+    Box, Button,
+    Grid,
+    Paper,
+    TextField,
+    styled
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
 import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
@@ -18,11 +22,10 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
 import {
-	useOperatorContract,
-	useERC20Contract,
-	useWeb3Content
+    useERC20Contract,
+    useOperatorContract,
+    useWeb3Content
 } from "hooks/useContractHelpers";
 import { setAccount } from 'redux/actions/account';
 
@@ -55,18 +58,17 @@ function AirdropWallet(props) {
 	const ERC20TokenContract = useERC20Contract();
 	const [cookies, setCookie] = useCookies(["connected", "notifies", "walletAccount"]);
 
-	const navigate = useNavigate();
-	const location = useLocation();
-	const dispatch = useDispatch();
-	const walletAccount = props.account.account;
-	const { walletID } = useParams();
-	const [message, setMessage] = useState(null);
-	const [creditBalance, setCreditBalance] = useState(0);
-	const [amountToDeposit, setAmountToDeposit] = useState('');
-	const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
-	const [paymentAmount, setPaymentAmount] = useState(1000);
-	const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
-	const [clientSecret, setClientSecret] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const walletAccount = props.account.account;
+    const injected = props.account.injected;
+    const [message, setMessage] = useState(null);
+    const [creditBalance, setCreditBalance] = useState(0);
+    const [amountToDeposit, setAmountToDeposit] = useState('');
+    const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
+    const [paymentAmount, setPaymentAmount] = useState(1000);
+    const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
+    const [clientSecret, setClientSecret] = useState("");
 
 	useEffect(() => {
 		if (walletAccount) {

@@ -7,16 +7,7 @@ import { setupNetwork } from "utils/web3React";
 import { houseInfo } from "hooks/useToast";
 
 const App = () => {
-  const {
-    connector,
-    library,
-    chainId,
-    account,
-    activate,
-    deactivate,
-    active,
-    error,
-  } = useWeb3React();
+  const { connector } = useWeb3React();
 
   // handle logic to recognize the connector currently being activated
   const [activatingConnector, setActivatingConnector] = useState();

@@ -75,6 +75,18 @@ const useNftDetailStyle = makeStyles((theme) => ({
     transition: "all 0.3s ease !important",
     width: "100%",
   },
+  enableButton: {
+    fontWeight: "bold",
+    color: "#1976d2 !important",
+    backgroundColor: "transparent !important",
+    border: "2px solid #5142FC !important",
+    fontWeight: "bold",
+    boxSizing: "border-box !important",
+    padding: "11px 35px !important",
+    borderRadius: "30px !important",
+    transition: "all 0.3s ease !important",
+    width: "50% !important",
+  },
   changePriceBtn: {
     width: '60%',
     color: "#1976d2 !important",
@@ -106,6 +118,7 @@ const useNftDetailStyle = makeStyles((theme) => ({
     width: "100%",
     marginTop: "16px !important",
     marginBottom: "16px !important",
+    marginLeft: "10px !important"
   },
   listHistoryField: {
     width: "50%",

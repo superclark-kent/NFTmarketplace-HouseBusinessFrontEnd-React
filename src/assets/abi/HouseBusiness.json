@@ -317,16 +317,16 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_allowed",
-        "type": "address"
+        "internalType": "uint256[]",
+        "name": "_hIds",
+        "type": "uint256[]"
       }
     ],
-    "name": "addAllowList",
+    "name": "addAllowUser",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
@@ -406,69 +406,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_historyIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_label",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "_connectContract",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_image",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_brand",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_description",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_brandType",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_year",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_otherInfo",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "flag",
-        "type": "bool"
-      }
-    ],
-    "name": "addOrEditHistoryType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -512,6 +449,11 @@
       },
       {
         "internalType": "bool",
+        "name": "nftViewable",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
         "name": "staked",
         "type": "bool"
       },
@@ -546,43 +488,6 @@
         "internalType": "struct HouseBusiness.Contributor",
         "name": "contributor",
         "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "allowFee",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "allowedList",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -680,30 +585,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "allowed",
-        "type": "address"
-      }
-    ],
-    "name": "checkAllowedList",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "collectionName",
     "outputs": [
@@ -733,7 +614,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
@@ -812,66 +693,6 @@
   },
   {
     "inputs": [],
-    "name": "getAllHistoryTypes",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "hLabel",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "connectContract",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "imgNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "descNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "brandTypeNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "yearNeed",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "otherInfo",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256",
-            "name": "value",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct HouseBusiness.HistoryType[]",
-        "name": "",
-        "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getAllHouses",
     "outputs": [
       {
@@ -909,6 +730,11 @@
           {
             "internalType": "bool",
             "name": "nftPayable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "nftViewable",
             "type": "bool"
           },
           {
@@ -961,6 +787,30 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_hIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "getAllowFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       }
@@ -971,6 +821,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getExtraPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1042,30 +911,16 @@
             "internalType": "bool",
             "name": "flag",
             "type": "bool"
+          },
+          {
+            "internalType": "address",
+            "name": "allowedUser",
+            "type": "address"
           }
         ],
         "internalType": "struct HouseBusiness.History[]",
         "name": "",
         "type": "tuple[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_houseId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getHousePrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1085,19 +940,6 @@
         "name": "",
         "type": "uint256"
       },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "hTypeCounter",
-    "outputs": [
       {
         "internalType": "uint256",
         "name": "",
@@ -1189,6 +1031,11 @@
         "internalType": "bool",
         "name": "flag",
         "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "allowedUser",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1213,49 +1060,6 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "labelPercent",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "connectContract",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "image",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "brand",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "desc",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "brandType",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "year",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "otherInfo",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1392,37 +1196,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_allowed",
-        "type": "address"
-      }
-    ],
-    "name": "removeAllowList",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_hIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "removeHistoryType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "_newMember",
         "type": "address"
@@ -1431,32 +1204,6 @@
     "name": "removeMember",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyCreator",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "royaltyMarket",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1513,19 +1260,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_allowFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "setAllowFee",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -1571,7 +1305,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
@@ -1588,49 +1322,12 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "connectContract",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "image",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "brand",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "desc",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "brandType",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "year",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "otherInfo",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct HouseBusiness.LabelPercent",
-        "name": "newLabelPercent",
-        "type": "tuple"
+        "internalType": "address",
+        "name": "_marketplace",
+        "type": "address"
       }
     ],
-    "name": "setLabelPercents",
+    "name": "setMarketplaceAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1670,7 +1367,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_houseId",
         "type": "uint256"
       },
       {
@@ -1692,38 +1389,30 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_royalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "setRoyaltyCreator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_royalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "setRoyaltyMarket",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "_address",
         "type": "address"
       }
     ],
     "name": "setStakingContractAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_viewable",
+        "type": "bool"
+      }
+    ],
+    "name": "setViewable",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -7,16 +7,16 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { useWeb3React } from "@web3-react/core";
-import CryptoJS from 'crypto-js';
 import useHouseMintStyle from "assets/styles/houseMintStyle";
-import { useHouseBusinessContract, useWeb3Content } from "hooks/useContractHelpers";
+import CryptoJS from 'crypto-js';
+import { useHouseBusinessContract } from "hooks/useContractHelpers";
 import { houseError, houseInfo, houseSuccess } from "hooks/useToast";
-import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import FileUpload from "utils/ipfs";
 import { setAccount } from "redux/actions/account";
+import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
 	display: "none",
@@ -52,7 +52,7 @@ function Mint(props) {
   const classes = useHouseMintStyle();
   const houseBusinessContract = useHouseBusinessContract();
 	const walletAccount = props.account.account;
-	const web3 = useWeb3Content()
+  const injected = props.account.injected;
 
 	// House NFT
 	const [image, setImage] = useState(null);
@@ -84,7 +84,7 @@ function Mint(props) {
       houseError("Please choose correct Year");
       return;
     }
-    if (!account && !walletAccount) {
+    if (!injected) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
@@ -109,7 +109,7 @@ function Mint(props) {
             const encryptedipfsUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedName = CryptoJS.AES.encrypt(houseName, secretKey).toString();
             const encryptedType = CryptoJS.AES.encrypt(houseType, secretKey).toString();
-            if (!account) {
+            if (!injected) {
               // Create transaction data
               const data = houseBusinessContract.methods
                 .mintHouse(walletAccount, encryptedName, encryptedipfsUrl, encryptedType, Math.abs(year), flag)

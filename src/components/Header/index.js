@@ -45,10 +45,11 @@ import Modal from "@mui/material/Modal";
 // Import assets
 import useHeaderStyles from "assets/styles/headerStyle";
 
-import { useHouseDocContract, useHouseBusinessContract } from "hooks/useContractHelpers";
+import { useHouseDocContract, useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
 
 import { houseInfo, houseWarning } from "hooks/useToast";
-import { setAccount } from "redux/actions/account";
+import { setAccount, setInjected } from "redux/actions/account";
+import { setHistoryTypes } from "redux/actions/historyTypes";
 import CryptoJS from 'crypto-js';
 
 import Coinbase from "assets/images/Coinbase.png";
@@ -58,7 +59,7 @@ import WalletConnectAvatar from "assets/images/WalletConnect.png";
 import defaultAvatar from "assets/images/avatar.png";
 import { connectorsByName, secretKey } from "mainConfig";
 import { useCookies } from "react-cookie";
-
+import { useWeb3 } from 'hooks/useWeb3';
 
 const style = {
 	position: "absolute",
@@ -225,11 +226,14 @@ function ElevationScroll(props) {
 }
 
 function Header(props) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { account, activate, deactivate, library } = useWeb3React();
-  const houseDocContract = useHouseDocContract();
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
+	const web3 = useWeb3();
+	const { account, activate, deactivate } = useWeb3React();
+	const marketplaceContract = useMarketplaceContract();
+	const houseDocContract = useHouseDocContract();
 	const walletAccount = props.account.account;
+	const injected = props.account.injected;
 	const classes = useHeaderStyles();
 	const houseBusinessContract = useHouseBusinessContract();
 
@@ -282,6 +286,7 @@ function Header(props) {
 		deactivate();
 		setCookie("connected", false, { path: "/" });
 		dispatch(setAccount(null));
+		dispatch(setInjected(false));
 	};
 
 	const checkAdmin = async () => {
@@ -291,68 +296,55 @@ function Header(props) {
 		setIsMember(isMember);
 	};
 
-  const loadNotifies = async () => {
+	const loadNotifies = async () => {
+		if (walletAccount == '' || walletAccount == undefined) {
+			return;
+		}
 		var notifies = await houseDocContract.methods.getAllNotifies(walletAccount).call();
-		console.log(notifies);
-    var arr = [], nArr = [];
-    for (let i = 0; i < notifies.length; i++) {
-      if (notifies[i].status === false) {
+		var arr = [], nArr = [];
+		for (let i = 0; i < notifies.length; i++) {
+			if (notifies[i].status === false) {
 				var bytesNotify = CryptoJS.AES.decrypt(notifies[i].notifyContent, secretKey);
 				var decryptedNotify = bytesNotify.toString(CryptoJS.enc.Utf8);
-        arr.push({
+				arr.push({
 					...notifies[i],
 					notifyContent: decryptedNotify
 				});
-      }
-      if (!cookies.notifies) {
-        nArr.push(notifies[i]);
-      } else if (
-        cookies.notifies.findIndex(
-          (item) => item[3] === notifies[i].notifySentTime
-        ) === -1 &&
-        notifies[i].status === false
-      ) {
-        nArr.push(notifies[i]);
-      }
-    }
+			}
+			if (!cookies.notifies) {
+				nArr.push(notifies[i]);
+			} else if (
+				cookies.notifies.findIndex(
+					(item) => item[3] === notifies[i].notifySentTime
+				) === -1 &&
+				notifies[i].status === false
+			) {
+				nArr.push(notifies[i]);
+			}
+		}
 		setNotifies(arr);
 		setBadgeLeng(nArr.length);
 	};
 
-	useEffect(() => {
-		if (cookies.connected === "true") {
-			setTimeout(() => {
-				dispatch(setAccount(cookies.walletAccount));
-			}, 0);
+	const getAllHistoryTypes = async () => {
+		var hTypes = await marketplaceContract.methods.getAllHistoryTypes().call();
+		var allHTypes = [];
+		for (let i = 0; i < hTypes.length; i++) {
+			if (hTypes[i].hLabel === '') continue;
+			allHTypes.push({
+				...hTypes[i],
+				mValue: web3.utils.fromWei(hTypes[i].mValue),
+				eValue: web3.utils.fromWei(hTypes[i].eValue),
+			});
 		}
-
-		if (pathname !== "/house/app") {
-			if (!walletAccount && cookies.connected !== "true") {
-				houseInfo("Please connect your wallet");
-				navigate("../../house/app");
-			}
-		}
-
-		if (walletAccount) {
-			checkAdmin();
-			loadNotifies();
-		}
-	}, [walletAccount, pathname]);
-
-	useEffect(() => {
-		if (account) {
-			dispatch(setAccount(account));
-			setCookie("connected", true, { path: "/" });
-			setCookie("walletAccount", account, { path: "/" });
-		} else {
-			dispatch(setAccount(null));
-		}
-	}, [account]);
+		dispatch(setHistoryTypes(allHTypes));
+	}
 
 	const handleOpen = () => {
 		if (typeof window.ethereum === 'undefined') {
 			setIsWalletInstalled(false);
 		} else {
+			handleConnectWallet(connectorsByName.injected, 'injected');
 			setIsWalletInstalled(true);
 		}
 		setOpen(true);
@@ -392,9 +384,54 @@ function Header(props) {
 			setCookie("walletAccount", airdropWalletID, { path: "/" });
 
 			dispatch(setAccount(airdropWalletID));
+			dispatch(setInjected(false));
 			handleClose();
 		}
 	}
+
+	useEffect(() => {
+		if (cookies.connected === true) {
+			dispatch(setAccount(cookies.walletAccount));
+			dispatch(setInjected(true));
+		}
+
+		if (pathname != "/house/app") {
+			if (!walletAccount && cookies.connected !== true) {
+				houseInfo("Please connect your wallet");
+				navigate("../../house/app");
+			}
+		}
+	}, [pathname]);
+
+	useEffect(() => {
+		console.log('addr', walletAccount)
+		if (walletAccount != null || walletAccount != undefined) {
+			checkAdmin();
+			loadNotifies();
+		}
+	}, [walletAccount])
+
+	useEffect(() => {
+		if (account) {
+			dispatch(setAccount(account));
+			setCookie("connected", true, { path: "/" });
+			setCookie("walletAccount", account, { path: "/" });
+			dispatch(setInjected(true));
+		} else {
+			dispatch(setAccount(null));
+			dispatch(setInjected(false));
+		}
+	}, [account]);
+
+	useEffect(() => {
+		if (typeof window.ethereum === 'undefined') {
+			setIsWalletInstalled(false);
+		} else {
+			handleConnectWallet(connectorsByName.injected, 'injected');
+			setIsWalletInstalled(true);
+		}
+		getAllHistoryTypes();
+	}, [])
 
 	return (
 		<div>
@@ -813,6 +850,7 @@ function Header(props) {
 function mapStateToProps(state) {
 	return {
 		account: state.account,
+		historyTypes: state.historyTypes
 	};
 }
 
