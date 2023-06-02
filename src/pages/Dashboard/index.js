@@ -51,7 +51,7 @@ function Dashboard(props) {
   const web3 = useWeb3()
   const navigate = useNavigate()
   const dispatch = useDispatch();
-  const walletAccount = props.account.account;
+  var walletAccount = props.account.account;
   const injected = props.account.injected;
   const { allNFTs } = props.houseNft;
   const nftClasses = useNftStyle()
@@ -203,29 +203,28 @@ function Dashboard(props) {
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
     var tempHistory = [], tempHistory1 = [], tempCheck = [];
     for (let i = 0; i < chistories.length; i++) {
-      if (walletAccount != null) {
-        if (chistories[i].allowedUser.toLowerCase() == walletAccount.toLowerCase()) {
-          var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
-          var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
-          var bytesBrandType = CryptoJS.AES.decrypt(chistories[i].brandType, secretKey);
-          var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
-          var bytesHouseBrand = CryptoJS.AES.decrypt(chistories[i].houseBrand, secretKey);
-          var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
-          var bytesDesc = CryptoJS.AES.decrypt(chistories[i].desc, secretKey);
-          var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
-          var bytesImg = CryptoJS.AES.decrypt(chistories[i].houseImg, secretKey);
-          var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
-          var yearField = chistories[i].flag ? chistories[i].yearField * -1 : chistories[i].yearField;
-          tempHistory.push({
-            ...chistories[i],
-            otherInfo: decryptedHistory,
-            brandType: decryptedBrandType,
-            houseBrand: decryptedHouseBrand,
-            desc: decryptedDesc,
-            houseImg: decryptedImg,
-            yearField: yearField
-          });
-        }
+      if (walletAccount != null) walletAccount = '';
+      if (chistories[i].allowedUser.toLowerCase() == walletAccount.toLowerCase()) {
+        var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
+        var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
+        var bytesBrandType = CryptoJS.AES.decrypt(chistories[i].brandType, secretKey);
+        var decryptedBrandType = bytesBrandType.toString(CryptoJS.enc.Utf8);
+        var bytesHouseBrand = CryptoJS.AES.decrypt(chistories[i].houseBrand, secretKey);
+        var decryptedHouseBrand = bytesHouseBrand.toString(CryptoJS.enc.Utf8);
+        var bytesDesc = CryptoJS.AES.decrypt(chistories[i].desc, secretKey);
+        var decryptedDesc = bytesDesc.toString(CryptoJS.enc.Utf8);
+        var bytesImg = CryptoJS.AES.decrypt(chistories[i].houseImg, secretKey);
+        var decryptedImg = bytesImg.toString(CryptoJS.enc.Utf8);
+        var yearField = chistories[i].flag ? chistories[i].yearField * -1 : chistories[i].yearField;
+        tempHistory.push({
+          ...chistories[i],
+          otherInfo: decryptedHistory,
+          brandType: decryptedBrandType,
+          houseBrand: decryptedHouseBrand,
+          desc: decryptedDesc,
+          houseImg: decryptedImg,
+          yearField: yearField
+        });
       } else {
         var homeHistory = historyTypes[chistories[i].historyTypeId];
         tempHistory1.push({ ...chistories[i] });
