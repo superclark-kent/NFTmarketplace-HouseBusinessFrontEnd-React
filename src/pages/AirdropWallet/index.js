@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import dotenv from "dotenv";
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import Web3 from "web3";
+import { connect } from 'react-redux';
 import { useWeb3React } from '@web3-react/core';
+import dotenv from "dotenv";
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import Web3 from "web3";
 dotenv.config();
 
 import {
-    Box, Button, Divider, Grid, IconButton, InputBase,
-    Paper, styled, TextField, Alert
+    Alert,
+    Box, Button,
+    Grid,
+    Paper,
+    TextField,
+    styled
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
 import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
@@ -17,12 +21,12 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
 
-import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
 import {
-    useOperatorContract,
     useERC20Contract,
+    useOperatorContract,
     useWeb3Content
 } from "hooks/useContractHelpers";
+import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
 
 const stripePromise = loadStripe(stripePublishKey);
 
@@ -49,14 +53,13 @@ const Item = styled(Paper)(({ theme }) => ({
 
 function AirdropWallet(props) {
     const { account } = useWeb3React();
-    const web3 = useWeb3Content();
     const OperatorContract = useOperatorContract();
     const ERC20TokenContract = useERC20Contract();
 
     const navigate = useNavigate();
     const location = useLocation();
-    const { walletID } = useParams();
     const walletAccount = props.account.account;
+    const injected = props.account.injected;
     const [message, setMessage] = useState(null);
     const [creditBalance, setCreditBalance] = useState(0);
     const [amountToDeposit, setAmountToDeposit] = useState('');

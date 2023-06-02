@@ -41,6 +41,7 @@ function HouseDetails(props) {
 	const { account } = useWeb3React();
 	const web3 = useWeb3();
 	const walletAccount = props.account.account;
+	const injected = props.account.injected;
 	const historyTypes = props.historyTypes.historyTypes;
 	const { houseNftID } = useParams();
 
@@ -85,12 +86,12 @@ function HouseDetails(props) {
 	};
 
 	const loadNFT = async (_id) => {
-		if (account) {
+		if (walletAccount) {
 			var allContracts = await houseDocContract.methods.getAllDocContracts().call();
 			var _housePrice = await houseBusinessContract.methods.getExtraPrice(_id).call();
 			var cArr = [];
 			for (let i = 0; i < allContracts.length; i++) {
-				if ((allContracts[i].owner).toLowerCase() == account.toLowerCase()) {
+				if ((allContracts[i].owner).toLowerCase() == walletAccount.toLowerCase()) {
 					const contract = decryptContract(allContracts[i]);
 					cArr.push({
 						...contract,
@@ -115,7 +116,7 @@ function HouseDetails(props) {
 				if (nft.contributor.buyer) {
 					setSpecialBuyer(nft.contributor.buyer);
 				}
-				if (nft.contributor.currentOwner === account) {
+				if (nft.contributor.currentOwner === walletAccount) {
 					var flag = false;
 					for (let i = 0; i < pages.length; i++) {
 						if (pages[i].router === _id) {
@@ -215,7 +216,7 @@ function HouseDetails(props) {
 						_yearField,
 						flag
 					)
-					.send({ from: account })
+					.send({ from: walletAccount })
 				houseSuccess('You added the history successfully!');
 			} catch (err) {
 				console.log('error', err.message)
@@ -243,7 +244,7 @@ function HouseDetails(props) {
 		const houseID = simpleNFT.houseID;
 		setLoading(true);
 		try {
-			await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
+			await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: walletAccount });
 			houseSuccess('You disconnected contract sucessfully!');
 			loadNFT(houseID);
 			setLoading(false);
@@ -277,7 +278,7 @@ function HouseDetails(props) {
 			return;
 		}
 
-		if (!account) {
+		if (!injected) {
 			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, specialBuyer, true).encodeABI();
 
 			const transactionObject = {
@@ -335,7 +336,7 @@ function HouseDetails(props) {
 				return;
 			}
 			const _housePrice = BigNumber.from(`${Number(housePrice) * 10 ** 18}`);
-			if (!account) {
+			if (!injected) {
 				const data = houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).encodeABI();
 
 				const transactionObject = {
@@ -370,7 +371,7 @@ function HouseDetails(props) {
 
 			} else {
 				try {
-					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
+					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: walletAccount });
 
 					houseSuccess("You have successfully set your House price!")
 				} catch (error) {
@@ -393,7 +394,7 @@ function HouseDetails(props) {
 
 		const buyer = (buyerFlag === true) ? specialBuyer : zeroAddress;
 
-		if (!account) {
+		if (!injected) {
 			const data = houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
@@ -427,7 +428,7 @@ function HouseDetails(props) {
 				});
 		} else {
 			try {
-				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).send({ from: account });
+				await houseBusinessContract.methods.setPayable(simpleNFT.houseID, buyer, flag).send({ from: walletAccount });
 				houseSuccess('Success!');
 				setSpecialBuyer('');
 				setBuyerFlag(false);
@@ -442,7 +443,7 @@ function HouseDetails(props) {
 
 	const handleViewable = async (flag) => {
 		setLoading(true);
-		if (!account) {
+		if (!injected) {
 			const data = houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
@@ -476,7 +477,7 @@ function HouseDetails(props) {
 				});
 		} else {
 			try {
-				await houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).send({ from: account });
+				await houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).send({ from: walletAccount });
 				houseSuccess('Success!');
 				loadNFT(simpleNFT.houseID);
 			} catch (err) {
@@ -545,6 +546,7 @@ function HouseDetails(props) {
 							houseID={simpleNFT.houseID}
 							loadNFT={loadNFT}
 							walletAccount={walletAccount}
+							injected={injected}
 							disconnectContract={handleDisconnectContract}
 						/>
 						{simpleNFT.contributor.currentOwner === `${walletAccount}` ? (

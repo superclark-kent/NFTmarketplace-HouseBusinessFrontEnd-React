@@ -13,7 +13,6 @@ import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
-import { setAccount } from "redux/actions/account";
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 
 function Nfts(props) {
@@ -21,17 +20,19 @@ function Nfts(props) {
   const nftClasses = useNftStyle()
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
+  console.log('walletAccount', walletAccount)
   const { allMyNFTs } = props.houseNft
   const { account } = useWeb3React()
   const web3 = useWeb3()
   const houseBusinessContract = useHouseBusinessContract()
 
   const loadNFTs = async () => {
-    if (account) {
+    if (walletAccount) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
+        if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
         var housePrice = await houseBusinessContract.methods.getExtraPrice(nfts[i].houseID).call();
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
@@ -54,7 +55,7 @@ function Nfts(props) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
-    if (!account) {
+    if (!injected) {
       try {
         const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
         const transactionObject = {
@@ -90,7 +91,7 @@ function Nfts(props) {
       }
     } else {
       try {
-        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account })
+        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: walletAccount })
         houseSuccess("Your House NFT can be sold from now.")
         loadNFTs()
       } catch (error) {
@@ -103,18 +104,17 @@ function Nfts(props) {
     navigate(`../../item/${item.houseID}`)
   }
 
-  useEffect(() => {
-    if (account || walletAccount) {
-      loadNFTs()
-    }
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account])
+  // useEffect(() => {
+  //   console.log('nft', walletAccount, walletAccount)
+  //   if (account) {
+  //     dispatch(setAccount(account));
+  //   } else {
+  //     dispatch(setAccount(null));
+  //   }
+  // }, [account, walletAccount])
 
   useEffect(() => {
+    loadNFTs()
     console.log('house', HouseBusinessAddress)
   }, [])
 

@@ -27,6 +27,7 @@ function Staking(props) {
   const classes = useStakingStyle();
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
   const { allMyNFTs } = props.houseNft
 
   const houseBusinessContract = useHouseBusinessContract();
@@ -127,7 +128,7 @@ function Staking(props) {
 
   const handleStaking = async (item, index) => {
     try {
-      if (!account) {
+      if (!injected) {
         let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
         let transactionObject = {
           data,

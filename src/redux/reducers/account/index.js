@@ -1,8 +1,9 @@
 // Import Constants
-import { SET_ACCOUNT } from "redux/constants";
+import { SET_ACCOUNT, SET_INJECTED } from "redux/constants";
 
 const initialState = {
   account: null,
+  injected: true,
 };
 
 const accountReducer = (state = initialState, action) => {
@@ -12,6 +13,11 @@ const accountReducer = (state = initialState, action) => {
         ...state,
         account: action.payload,
       };
+    case SET_INJECTED:
+      return {
+        ...state,
+        injected: action.payload
+      }
     default:
       return state;
   }

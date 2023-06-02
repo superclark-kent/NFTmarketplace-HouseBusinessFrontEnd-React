@@ -51,10 +51,11 @@ function Dashboard(props) {
   const web3 = useWeb3()
   const navigate = useNavigate()
   const dispatch = useDispatch();
+  const walletAccount = props.account.account;
+  const injected = props.account.injected;
   const { allNFTs } = props.houseNft;
   const nftClasses = useNftStyle()
   const classes = useNftDetailStyle();
-  const walletAccount = props.account.account;
   const historyTypes = props.historyTypes.historyTypes;
   const houseBusinessContract = useHouseBusinessContract()
   const houseDocContract = useHouseDocContract();
@@ -96,10 +97,10 @@ function Dashboard(props) {
           })
         }
 
-        if (account) {
+        if (walletAccount) {
           var otherNFTs = [];
           for (var i = 0; i < nfts.length; i++) {
-            if (nfts[i].contributor.currentOwner.toLowerCase() === account.toLowerCase()) continue;
+            if (nfts[i].contributor.currentOwner.toLowerCase() === walletAccount.toLowerCase()) continue;
             otherNFTs.push(nfts[i]);
           }
           dispatch(setAllHouseNFTs(otherNFTs));
@@ -117,7 +118,7 @@ function Dashboard(props) {
     } else {
       setLoading(true);
       setLoadingOpen(true);
-      if (!account) {
+      if (!injected) {
         const data = houseBusinessContract.methods.buyHouseNft(item.houseID, walletAccount).encodeABI();
         const transactionObject = {
           data,
@@ -185,7 +186,7 @@ function Dashboard(props) {
       setLoading(true);
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
       try {
-        const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: account, value: allowFee });
+        const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
         getHistories(selectedId, holder, false, viewable)
       } catch (error) {
         console.error(error.message);
@@ -254,9 +255,7 @@ function Dashboard(props) {
 
   useEffect(() => {
     console.log('useEffect triggered with walletAccount:', walletAccount);
-    if (walletAccount) {
-      loadNFTs();
-    }
+    loadNFTs();
   }, [walletAccount]);
 
   return (
@@ -494,9 +493,9 @@ function Dashboard(props) {
                       <>
                         <IconButton
                           onClick={() => {
-                              const contract = contracts.find((c) => c.contractId == item.contractId);
-                              setCContract(contract);
-                              setShowCContract(true);
+                            const contract = contracts.find((c) => c.contractId == item.contractId);
+                            setCContract(contract);
+                            setShowCContract(true);
                           }}
                         >
                           <DocumentIcon />

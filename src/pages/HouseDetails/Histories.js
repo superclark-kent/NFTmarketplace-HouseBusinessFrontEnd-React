@@ -35,7 +35,8 @@ export default function Histories({
   loadNFT,
   connectContract,
   disconnectContract,
-  walletAccount
+  walletAccount,
+  injected
 }) {
   const { account } = useWeb3React();
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ export default function Histories({
     }
 
     if (changedFlag) {
-      if (!account) {
+      if (!injected) {
         const data = houseBusinessContract.methods
           .editHistory(
             houseID,
@@ -263,9 +264,14 @@ export default function Histories({
   }, [histories]);
 
   useEffect(() => {
-    if (simpleNFT.contributor.currentOwner.toLowerCase() != account.toLowerCase()) {
+    if (account == null) {
       houseError("You don't have permission this NFT");
       navigate('../../house/app');
+    } else {
+      if (simpleNFT.contributor.currentOwner.toLowerCase() != account.toLowerCase()) {
+        houseError("You don't have permission this NFT");
+        navigate('../../house/app');
+      }
     }
   }, [simpleNFT, account])
 
