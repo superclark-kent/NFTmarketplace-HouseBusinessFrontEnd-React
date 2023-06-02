@@ -27,6 +27,7 @@ function Staking(props) {
   const classes = useStakingStyle();
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
   const { allMyNFTs } = props.houseNft
 
   const houseBusinessContract = useHouseBusinessContract();
@@ -82,7 +83,7 @@ function Staking(props) {
       var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
       var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
       var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
-      var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
+      var housePrice = await houseBusinessContract.methods.getExtraPrice(nfts[i].houseID).call();
 
       otherNFTs.push({
         ...nfts[i],
@@ -115,7 +116,6 @@ function Staking(props) {
         tokenName: decryptedName,
       });
     }
-
     dispatch(setAllMyNFTs(otherNFTs));
   };
 
@@ -128,7 +128,7 @@ function Staking(props) {
 
   const handleStaking = async (item, index) => {
     try {
-      if (!account) {
+      if (!injected) {
         let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
         let transactionObject = {
           data,

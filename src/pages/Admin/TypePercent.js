@@ -8,13 +8,11 @@ import {
   Box,
   CircularProgress,
   Grid,
-  IconButton,
-  Switch
+  IconButton
 } from "@mui/material";
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import { BigNumber } from 'ethers';
 
 import { useMarketplaceContract } from "hooks/useContractHelpers";
 
@@ -30,28 +28,6 @@ const hHeaders = [
   "Actions",
 ];
 
-const togggleLabels = [
-  "Enable/Disable",
-  "Contract",
-  "Image",
-  "Brand",
-  "Description",
-  "Brand Type",
-  "Year",
-  "OtherInfo"
-];
-const labelsValue = [
-  0.1,
-  0.2,
-  0.1,
-  0.1,
-  0.2,
-  0.3,
-  0.1
-];
-
-const label = { inputProps: { 'aria-label': 'Color switch demo' } };
-
 export default function TypePercent({ 
   classes, 
   labelPercents, 
@@ -62,7 +38,6 @@ export default function TypePercent({
   const marketplaceContract = useMarketplaceContract();
 
   const [editPercent, setEditPercent] = useState(false);
-  const [editValue, setEditValue] = useState(false);
   const [contract, setContract] = useState(0);
   const [image, setImage] = useState(0);
   const [brand, setBrand] = useState(0);

@@ -15,7 +15,7 @@ import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import { useWeb3React } from "@web3-react/core";
-import { useHouseBusinessContract, useMarketplaceContract } from "hooks/useContractHelpers";
+import { useMarketplaceContract } from "hooks/useContractHelpers";
 import { houseSuccess } from "hooks/useToast";
 import { isEmpty } from "lodash";
 
@@ -35,7 +35,6 @@ const hHeaders = [
 ];
 
 export default function HistoryType({ classes, historyTypes, labelPercents }) {
-  const houseBusinessContract = useHouseBusinessContract();
   const marketplaceContract = useMarketplaceContract();
   const { account } = useWeb3React();
 

@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import CloseIcon from '@mui/icons-material/Close';
-import { connect, useDispatch } from 'react-redux';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -10,18 +11,16 @@ import CryptoJS from 'crypto-js';
 import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
-import { secretKey, zeroAddress, apiURL } from 'mainConfig';
-import { useEffect, useState } from 'react';
+import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import decryptfile from 'utils/decrypt';
 
 function Contract(props) {
   const { account } = useWeb3React();
   const web3 = useWeb3();
-  const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
   const historyTypes = props.historyTypes.historyTypes;
   const classes = useContractStyle();
-  const houseBusinessContract = useHouseBusinessContract();
   const houseDocContract = useHouseDocContract();
 
   const [cSC, setCSC] = useState('');
@@ -37,7 +36,6 @@ function Contract(props) {
 
   const [editFlag, setEditFlag] = useState(-1);
   const [CSigner, setCSigner] = useState('');
-  const [newSgnerLoading, setNewSgnerLoading] = useState(false);
 
   const decryptFileFromUrl = async (url) => {
     const __decryptedFile = await decryptfile(url);
@@ -114,7 +112,7 @@ function Contract(props) {
     }
 
     if (transactionFlag) {
-      if (!account) {
+      if (!injected) {
         const data = houseDocContract.methods.signContract(item.contractId, walletAccount).encodeABI();
         const transactionObject = {
           data,
@@ -168,7 +166,7 @@ function Contract(props) {
     if (cSC === '') {
       houseError('Contract Signer is empty');
     } else {
-      if (!account) {
+      if (!injected) {
         setLoading(true);
         const data = houseDocContract.methods.addContractSigner(item.contractId, cSC).encodeABI();
         const transactionObject = {
@@ -249,7 +247,7 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
-        if (!account) {
+        if (!injected) {
           const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
           const data = houseDocContract.methods
             .sendNotify(notifyReceiver, content, item.contractId, walletAccount)
@@ -320,7 +318,7 @@ function Contract(props) {
 
   const SaveNewSigner = async (k) => {
     let temp = [...allContracts];
-    if (!account) {
+    if (!injected) {
       const data = houseDocContract.methods.addContractSigner(temp[k].contractId, CSigner).encodeABI();
       const transactionObject = {
         data,
@@ -422,7 +420,7 @@ function Contract(props) {
                               justifyContent: 'space-between',
                               alignItems: 'center',
                             }}
-                            disabled={newSgnerLoading}
+                            disabled={false}
                           >
                             <Paper
                               component="form"

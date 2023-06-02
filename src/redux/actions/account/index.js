@@ -1,5 +1,5 @@
 // Import Constants
-import { SET_ACCOUNT } from "redux/constants";
+import { SET_ACCOUNT, SET_INJECTED } from "redux/constants";
 
 export const setAccount = (account) => {
   return {
@@ -7,3 +7,10 @@ export const setAccount = (account) => {
     payload: account,
   };
 };
+
+export const setInjected = (metamask) => {
+  return {
+    type: SET_INJECTED,
+    payload: metamask
+  }
+}

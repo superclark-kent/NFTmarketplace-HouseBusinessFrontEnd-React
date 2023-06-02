@@ -1,11 +1,11 @@
+import { useEffect } from 'react';
+import { connect, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import CachedIcon from '@mui/icons-material/Cached';
 import { Box, Button, Grid } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import CryptoJS from 'crypto-js';
-import { useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
@@ -13,7 +13,6 @@ import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseSuccess, houseWarning } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
-import { setAccount } from "redux/actions/account";
 import { setAllMyNFTs } from 'redux/actions/houseNft';
 
 function Nfts(props) {
@@ -21,6 +20,8 @@ function Nfts(props) {
   const nftClasses = useNftStyle()
   const dispatch = useDispatch();
   const walletAccount = props.account.account;
+  const injected = props.account.injected;
+  console.log('walletAccount', walletAccount)
   const { allMyNFTs } = props.houseNft
   const { account } = useWeb3React()
   const web3 = useWeb3()
@@ -31,15 +32,16 @@ function Nfts(props) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
-        if ((nfts[i].contributor.currentOwner).toLowerCase() !== account.toLowerCase()) continue;
-        var housePrice = await houseBusinessContract.methods.getHousePrice(nfts[i].houseID).call();
+        if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
+        var housePrice = await houseBusinessContract.methods.getExtraPrice(nfts[i].houseID).call();
         var bytes = CryptoJS.AES.decrypt(nfts[i].tokenURI, secretKey);
         var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
         var bytesName = CryptoJS.AES.decrypt(nfts[i].tokenName, secretKey);
         var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
         otherNFTs.push({
           ...nfts[i],
-          price: housePrice,
+          price: housePrice.toString(),
+          sellingPrice: nfts[i].price,
           tokenName: decryptedName,
           tokenURI: decryptedURI
         });
@@ -53,38 +55,48 @@ function Nfts(props) {
       houseWarning("Please set NFT price to set payable");
       return;
     }
-    try {
-      const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
-      const transactionObject = {
-        data,
-        to: houseBusinessContract.options.address
-      }
+    if (!injected) {
+      try {
+        const data = houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address
+        }
 
-      // Send trx data and sign
-      fetch(`${apiURL}/signTransaction`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          transactionObject,
-          user: walletAccount
-        }),
-      })
-        .then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          houseSuccess("Your House NFT can be sold from now.")
-          loadNFTs()
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount
+          }),
         })
-        .catch(err => {
-          houseError(err)
-        });
+          .then(res => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            houseSuccess("Your House NFT can be sold from now.")
+            loadNFTs()
+          })
+          .catch(err => {
+            houseError(err)
+          });
 
-    } catch (error) {
-      console.log(error)
+      } catch (error) {
+        console.log(error)
+      }
+    } else {
+      try {
+        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: walletAccount })
+        houseSuccess("Your House NFT can be sold from now.")
+        loadNFTs()
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -92,20 +104,20 @@ function Nfts(props) {
     navigate(`../../item/${item.houseID}`)
   }
 
-  useEffect(() => {
-    if (account || walletAccount) {
-      loadNFTs()
-    }
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account])
+  // useEffect(() => {
+  //   console.log('nft', walletAccount, walletAccount)
+  //   if (account) {
+  //     dispatch(setAccount(account));
+  //   } else {
+  //     dispatch(setAccount(null));
+  //   }
+  // }, [account, walletAccount])
 
   useEffect(() => {
+    loadNFTs()
     console.log('house', HouseBusinessAddress)
   }, [])
+
 
   return (
     <Grid>
@@ -136,7 +148,7 @@ function Nfts(props) {
                       <Box component={'h4'} className={nftClasses.nftHouseOwner}>{item.contributor.currentOwner}</Box>
                     </Grid>
                     <Grid className={nftClasses.nftHousePrice}>
-                      <Box component={'span'}>Current Price</Box>
+                      <Box component={'span'}>Current Value</Box>
                       <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                     </Grid>
                   </Grid>
@@ -161,7 +173,7 @@ function Nfts(props) {
                 </Grid>
               </Grid>
             )
-          }) : ''
+          }) : ""
         }
       </Grid>
     </Grid>

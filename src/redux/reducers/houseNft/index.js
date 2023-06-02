@@ -14,8 +14,8 @@ import {
 
 // Initial States
 const initialState = {
-    allMyNFTs: [],
     allNFTs: [],
+    allMyNFTs: [],
 }
 
 const houseReducer = (state = initialState, action) => {
