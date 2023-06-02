@@ -234,7 +234,6 @@ function Header(props) {
 	const houseDocContract = useHouseDocContract();
 	const walletAccount = props.account.account;
 	const injected = props.account.injected;
-	console.log('here', walletAccount, injected)
 	const classes = useHeaderStyles();
 	const houseBusinessContract = useHouseBusinessContract();
 
