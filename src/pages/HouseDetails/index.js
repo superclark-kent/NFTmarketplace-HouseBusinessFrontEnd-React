@@ -199,14 +199,14 @@ function HouseDetails(props) {
 		try {
 			var encryptedHouseImage = CryptoJS.AES.encrypt(_houseImg, secretKey).toString();
 			var encryptedBrand = CryptoJS.AES.encrypt(_brand, secretKey).toString();
-			var encryptedOtherInfo = CryptoJS.AES.encrypt(_history, secretKey).toString();
+			var encryptedOtherInfo = CryptoJS.AES.encrypt(_otherInfo, secretKey).toString();
 			var encryptedDesc = CryptoJS.AES.encrypt(_desc, secretKey).toString();
 			var encryptedBrandType = CryptoJS.AES.encrypt(_brandType, secretKey).toString();
 
 			if (!account) {
 				const data = houseBusinessContract.methods
 					.addHistory(
-						Number(_houseID),
+						Number(_houseId),
 						Number(cContract),
 						hID,
 						encryptedHouseImage,
@@ -244,7 +244,7 @@ function HouseDetails(props) {
 						houseError(err.message)
 					});
 
-				loadNFT(_houseID);
+				loadNFT(_houseId);
 				setHID('0');
 				setHistory('');
 				setImage('');
@@ -256,7 +256,7 @@ function HouseDetails(props) {
 				try {
 					await houseBusinessContract.methods
 						.addHistory(
-							Number(_houseID),
+							Number(_houseId),
 							Number(cContract),
 							hID,
 							encryptedHouseImage,
@@ -294,7 +294,7 @@ function HouseDetails(props) {
 	const handleDisconnectContract = async (hIndex, contractId) => {
 		const houseID = simpleNFT.houseID;
 		setLoading(true);
-		if (!account) {
+		if (!injected) {
 			const data = houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).encodeABI();
 			const transactionObject = {
 				to: houseBusinessContract.options.address,
