@@ -96,7 +96,8 @@ function Staking(props) {
 
     console.log('otherNFTs', otherNFTs);
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
+    // var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
+    var stakednfts = [];
 
     console.log('stakednfts', stakednfts);
     for (let i = 0; i < stakednfts.length; i++) {
@@ -131,6 +132,7 @@ function Staking(props) {
 
   const handleStaking = async (item, index) => {
     if (!injected) {
+      console.log(walletAccount)
       let data = houseBusinessContract.methods.approveDelegator(stakingContract.options.address, item.houseID).encodeABI();
       let transactionObject = {
         data,
@@ -157,7 +159,7 @@ function Staking(props) {
           data = stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).encodeABI();
           let transactionObject = {
             data,
-            to: houseBusinessContract.options.address
+            to: stakingContract.options.address
           }
 
           // Send trx data and sign
@@ -194,187 +196,217 @@ function Staking(props) {
         console.log(error);
       }
     };
+  }
 
-    const handleClaimRewards = async () => {
-      if (!account) {
-        const data = stakingContract.methods.claimRewards(walletAccount).encodeABI();
-        const transactionObject = {
-          data,
-          to: stakingContract.options.address
-        };
+  const handleClaimRewards = async () => {
+    if (!account) {
+      const data = stakingContract.methods.claimRewards(walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: stakingContract.options.address
+      };
 
-        // Send trx data and sign
-        fetch(`${apiURL}/signTransaction`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactionObject,
-            user: walletAccount
-          }),
-        }).then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          houseSuccess('You claimed rewards successfully.');
-          loadNFTs();
-        }).catch(err => {
-          houseError(err)
-        });
-      } else {
-        try {
-          await stakingContract.methods.claimRewards(walletAccount).send({ from: account });
-        } catch (error) {
-          console.log(error);
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      }).then(res => {
+        if (res.status !== 200) {
+          return res.json().then(error => {
+            houseError(`Error: ${error.message}`);
+            setLoading(false);
+          });
         }
-      }
-    };
-
-    const handleUnstaking = async (item) => {
-      if (!item) {
-        item = cItem;
-      }
-
-      setLoading(true);
-
-      if (!account) {
-        const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
-        const transactionObject = {
-          data,
-          to: stakingContract.options.address
-        };
-
-        // Send trx data and sign
-        fetch(`${apiURL}/signTransaction`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactionObject,
-            user: walletAccount
-          }),
-        }).then(res => {
-          if (res.status !== 200) {
-            return res.json().then(error => {
-              houseError(`Error: ${error.message}`);
-              setLoading(false);
-            });
-          }
-          houseSuccess('You unstaked house NFT successfully.');
-          loadNFTs();
-        }).catch(err => {
-          houseError(err)
-        });
-      } else {
-        try {
-          await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account })
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    };
-
-    const handleStakingTypeChange = (index, value) => {
-      var stakingTps = [...allStakingtypes],
-        stakingAs = [...stakingAPYs],
-        stakingVals = [...stakingVals];
-      var cStakingDt = stakingTps[stakingTps.findIndex((item) => item.value === value)];
-
-      stakingAs[index] = cStakingDt.apylabel;
-      stakingVals[index] = cStakingDt.value;
-
-      setStakingAPYs(stakingAs);
-      setStakingVals(stakingVals);
-    };
-
-    const generateDate = (time) => {
-      var dt = new Date(Number(time));
-      var yr = dt.getFullYear();
-      var mt = dt.getMonth() + 1 < 10 ? `0${dt.getMonth() + 1}` : dt.getMonth() + 1;
-      var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
-      return `${dy}-${mt}-${yr}`;
-    };
-
-    useEffect(() => {
-      if (account || walletAccount) {
-        initialConfig();
-        getTotalRewards();
-      }
-    }, [account, walletAccount]);
-
-    useEffect(() => {
-      if (allStakingtypes.length > 0) {
+        houseSuccess('You claimed rewards successfully.');
         loadNFTs();
+      }).catch(err => {
+        houseError(err)
+      });
+    } else {
+      try {
+        await stakingContract.methods.claimRewards(walletAccount).send({ from: account });
+      } catch (error) {
+        console.log(error);
       }
-    }, [allStakingtypes]);
+    }
+  };
 
-    return (
-      <Grid>
-        <Box component={'h2'}>Stake NFT</Box>
-        <Box component={'h3'}>
-          <Grid>{`Total Claim Amount: ${web3.utils.fromWei(`${totalClaimAmount}`)} HBT`}</Grid>
-          <Grid>
-            <Button
-              variant="outlined"
-              onClick={() => handleClaimRewards()}
-              className={classes.nftHouseButton}
-              startIcon={<LockIcon />}
-              disabled={totalClaimAmount === 0}
-            >
-              <Box
-                component={'span'}
-                className={classes.nftHouseBuyButton}
-                textTransform={'capitalize'}
-              >{`Claim Rewards`}</Box>
-            </Button>
-          </Grid>
-        </Box>
-        <Grid container spacing={3}>
-          {allMyNFTs.length > 0
-            ? allMyNFTs.map((item, index) => {
-              return (
-                <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
-                  <Grid className={nftClasses.nftHouseCard}>
-                    <Grid className={nftClasses.nftHouseStakingMedia}>
-                      <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+  const handleUnstaking = async (item) => {
+    if (!item) {
+      item = cItem;
+    }
+
+    setLoading(true);
+
+    if (!account) {
+      const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
+      const transactionObject = {
+        data,
+        to: stakingContract.options.address
+      };
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      }).then(res => {
+        if (res.status !== 200) {
+          return res.json().then(error => {
+            houseError(`Error: ${error.message}`);
+            setLoading(false);
+          });
+        }
+        houseSuccess('You unstaked house NFT successfully.');
+        loadNFTs();
+      }).catch(err => {
+        houseError(err)
+      });
+    } else {
+      try {
+        await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account })
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const handleStakingTypeChange = (index, value) => {
+    var stakingTps = [...allStakingtypes],
+      stakingAs = [...stakingAPYs],
+      stakingVals = [...stakingVals];
+    var cStakingDt = stakingTps[stakingTps.findIndex((item) => item.value === value)];
+
+    stakingAs[index] = cStakingDt.apylabel;
+    stakingVals[index] = cStakingDt.value;
+
+    setStakingAPYs(stakingAs);
+    setStakingVals(stakingVals);
+  };
+
+  const generateDate = (time) => {
+    var dt = new Date(Number(time));
+    var yr = dt.getFullYear();
+    var mt = dt.getMonth() + 1 < 10 ? `0${dt.getMonth() + 1}` : dt.getMonth() + 1;
+    var dy = dt.getDate() < 10 ? `0${dt.getDate()}` : dt.getDate();
+    return `${dy}-${mt}-${yr}`;
+  };
+
+  useEffect(() => {
+    if (account || walletAccount) {
+      initialConfig();
+      getTotalRewards();
+    }
+  }, [account, walletAccount]);
+
+  useEffect(() => {
+    if (allStakingtypes.length > 0) {
+      loadNFTs();
+    }
+  }, [allStakingtypes]);
+
+  return (
+    <Grid>
+      <Box component={'h2'}>Stake NFT</Box>
+      <Box component={'h3'}>
+        <Grid>{`Total Claim Amount: ${web3.utils.fromWei(`${totalClaimAmount}`)} HBT`}</Grid>
+        <Grid>
+          <Button
+            variant="outlined"
+            onClick={() => handleClaimRewards()}
+            className={classes.nftHouseButton}
+            startIcon={<LockIcon />}
+            disabled={totalClaimAmount === 0}
+          >
+            <Box
+              component={'span'}
+              className={classes.nftHouseBuyButton}
+              textTransform={'capitalize'}
+            >{`Claim Rewards`}</Box>
+          </Button>
+        </Grid>
+      </Box>
+      <Grid container spacing={3}>
+        {allMyNFTs.length > 0
+          ? allMyNFTs.map((item, index) => {
+            return (
+              <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
+                <Grid className={nftClasses.nftHouseCard}>
+                  <Grid className={nftClasses.nftHouseStakingMedia}>
+                    <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+                  </Grid>
+                  <Grid>
+                    <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
+                  </Grid>
+                  <Grid className={nftClasses.nftHouseMetaInfo}>
+                    <Grid className={nftClasses.nftHouseInfo}>
+                      <Box component={'span'}>Owned By</Box>
+                      <Box component={'h4'} className={nftClasses.nftHouseOwner}>
+                        {item.contributor.currentOwner}
+                      </Box>
                     </Grid>
-                    <Grid>
-                      <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
+                    <Grid className={nftClasses.nftHousePrice}>
+                      <Box component={'span'}>Current Price</Box>
+                      <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
                     </Grid>
-                    <Grid className={nftClasses.nftHouseMetaInfo}>
-                      <Grid className={nftClasses.nftHouseInfo}>
-                        <Box component={'span'}>Owned By</Box>
-                        <Box component={'h4'} className={nftClasses.nftHouseOwner}>
-                          {item.contributor.currentOwner}
-                        </Box>
+                  </Grid>
+                  {item.staked === false ? (
+                    <Grid className={classes.stakingBottom}>
+                      <TextField
+                        id="outlined-select-stakingtype-native"
+                        select
+                        value={stakingVals[index]}
+                        onChange={(e) => handleStakingTypeChange(index, e.target.value)}
+                        SelectProps={{
+                          native: true,
+                        }}
+                      >
+                        {allStakingtypes.map((option) => (
+                          <option key={option.value} value={option.value} className={classes.stakingType}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </TextField>
+                      <Grid>{stakingAPYs[index]}</Grid>
+                      <Button
+                        variant="outlined"
+                        onClick={() => handleStaking(item, index)}
+                        className={classes.nftHouseButton}
+                        startIcon={<LockIcon />}
+                      >
+                        <Box
+                          component={'span'}
+                          className={classes.nftHouseBuyButton}
+                          textTransform={'capitalize'}
+                        >{`Stake`}</Box>
+                      </Button>
+                    </Grid>
+                  ) : (
+                    <>
+                      <Grid className={classes.stakingDates}>
+                        <Grid>From : {generateDate(item.startedDate)}</Grid>
+                        <Grid>To : {generateDate(item.endDate)}</Grid>
                       </Grid>
-                      <Grid className={nftClasses.nftHousePrice}>
-                        <Box component={'span'}>Current Price</Box>
-                        <Box component={'h4'}>{`${web3.utils.fromWei(item.price)} MATIC`}</Box>
-                      </Grid>
-                    </Grid>
-                    {item.staked === false ? (
                       <Grid className={classes.stakingBottom}>
-                        <TextField
-                          id="outlined-select-stakingtype-native"
-                          select
-                          value={stakingVals[index]}
-                          onChange={(e) => handleStakingTypeChange(index, e.target.value)}
-                          SelectProps={{
-                            native: true,
-                          }}
-                        >
-                          {allStakingtypes.map((option) => (
-                            <option key={option.value} value={option.value} className={classes.stakingType}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </TextField>
-                        <Grid>{stakingAPYs[index]}</Grid>
                         <Button
                           variant="outlined"
-                          onClick={() => handleStaking(item, index)}
+                          onClick={async () => {
+                            var flag = await stakingContract.methods.stakingFinished(item.houseID, walletAccount).call();
+                            if (flag === false) {
+                              setCItem(item);
+                              handleConfirmOpen();
+                            } else {
+                              setCItem(null);
+                              handleUnstaking(item);
+                            }
+                          }}
                           className={classes.nftHouseButton}
                           startIcon={<LockIcon />}
                         >
@@ -382,70 +414,40 @@ function Staking(props) {
                             component={'span'}
                             className={classes.nftHouseBuyButton}
                             textTransform={'capitalize'}
-                          >{`Stake`}</Box>
+                          >{`Unstake`}</Box>
                         </Button>
                       </Grid>
-                    ) : (
-                      <>
-                        <Grid className={classes.stakingDates}>
-                          <Grid>From : {generateDate(item.startedDate)}</Grid>
-                          <Grid>To : {generateDate(item.endDate)}</Grid>
-                        </Grid>
-                        <Grid className={classes.stakingBottom}>
-                          <Button
-                            variant="outlined"
-                            onClick={async () => {
-                              var flag = await stakingContract.methods.stakingFinished(item.houseID, walletAccount).call();
-                              if (flag === false) {
-                                setCItem(item);
-                                handleConfirmOpen();
-                              } else {
-                                setCItem(null);
-                                handleUnstaking(item);
-                              }
-                            }}
-                            className={classes.nftHouseButton}
-                            startIcon={<LockIcon />}
-                          >
-                            <Box
-                              component={'span'}
-                              className={classes.nftHouseBuyButton}
-                              textTransform={'capitalize'}
-                            >{`Unstake`}</Box>
-                          </Button>
-                        </Grid>
-                      </>
-                    )}
-                  </Grid>
+                    </>
+                  )}
                 </Grid>
-              );
-            })
-            : ''}
-        </Grid>
-        <Dialog
-          open={open}
-          onClose={handleConfirmClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{'Are you sure?'}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              You unstake before end date, this will result in a lower yield.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <LoadingButton onClick={handleConfirmClose} loading={loading} variant="contained">
-              Disagree
-            </LoadingButton>
-            <LoadingButton onClick={() => handleUnstaking(null)} loading={loading} variant="contained">
-              Agree
-            </LoadingButton>
-          </DialogActions>
-        </Dialog>
+              </Grid>
+            );
+          })
+          : ''}
       </Grid>
-    );
-  }
+      <Dialog
+        open={open}
+        onClose={handleConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{'Are you sure?'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            You unstake before end date, this will result in a lower yield.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <LoadingButton onClick={handleConfirmClose} loading={loading} variant="contained">
+            Disagree
+          </LoadingButton>
+          <LoadingButton onClick={() => handleUnstaking(null)} loading={loading} variant="contained">
+            Agree
+          </LoadingButton>
+        </DialogActions>
+      </Dialog>
+    </Grid>
+  );
 }
 
 function mapStateToProps(state) {
