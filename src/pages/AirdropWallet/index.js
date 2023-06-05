@@ -8,12 +8,12 @@ dotenv.config();
 import { useCookies } from "react-cookie";
 
 import {
-    Alert,
-    Box, Button,
-    Grid,
-    Paper,
-    TextField,
-    styled
+	Alert,
+	Box, Button,
+	Grid,
+	Paper,
+	TextField,
+	styled
 } from '@mui/material';
 import Modal from "@mui/material/Modal";
 import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToast";
@@ -21,13 +21,13 @@ import { houseError, houseInfo, houseSuccess, houseWarning } from "hooks/useToas
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from 'components/CheckoutForm';
+import { OperatorAddress, apiURL, stripePublishKey } from 'mainConfig';
 
 import {
-    useERC20Contract,
-    useOperatorContract,
-    useWeb3Content
+	useERC20Contract,
+	useOperatorContract,
+	useWeb3Content
 } from "hooks/useContractHelpers";
-import { setAccount } from 'redux/actions/account';
 
 const stripePromise = loadStripe(stripePublishKey);
 
@@ -58,17 +58,17 @@ function AirdropWallet(props) {
 	const ERC20TokenContract = useERC20Contract();
 	const [cookies, setCookie] = useCookies(["connected", "notifies", "walletAccount"]);
 
-    const navigate = useNavigate();
-    const location = useLocation();
-    const walletAccount = props.account.account;
-    const injected = props.account.injected;
-    const [message, setMessage] = useState(null);
-    const [creditBalance, setCreditBalance] = useState(0);
-    const [amountToDeposit, setAmountToDeposit] = useState('');
-    const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
-    const [paymentAmount, setPaymentAmount] = useState(1000);
-    const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
-    const [clientSecret, setClientSecret] = useState("");
+	const navigate = useNavigate();
+	const location = useLocation();
+	const walletAccount = props.account.account;
+	const injected = props.account.injected;
+	const [message, setMessage] = useState(null);
+	const [creditBalance, setCreditBalance] = useState(0);
+	const [amountToDeposit, setAmountToDeposit] = useState('');
+	const [operatorAddressOpen, setOperatorAddressOpen] = useState(false);
+	const [paymentAmount, setPaymentAmount] = useState(1000);
+	const [checkoutFormOpen, setCheckoutFormOpen] = useState(false);
+	const [clientSecret, setClientSecret] = useState("");
 
 	useEffect(() => {
 		if (walletAccount) {
@@ -156,8 +156,12 @@ function AirdropWallet(props) {
 				isOperator: true
 			}),
 		})
-			.then(res => res.json())
-			.then(data => {
+			.then(res => {
+				if (res.status !== 200) {
+					return res.json().then(error => {
+						houseError(`Error: ${error.message}`);
+					});
+				}
 				houseSuccess(`Congratulations, you received ${paymentAmount / 100} $HBT token airdrop.`);
 				getCreditBalance();
 			})

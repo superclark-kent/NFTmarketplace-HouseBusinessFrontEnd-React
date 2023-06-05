@@ -97,16 +97,16 @@ function Dashboard(props) {
           })
         }
 
-        if (walletAccount) {
-          var otherNFTs = [];
-          for (var i = 0; i < nfts.length; i++) {
-            if (nfts[i].contributor.currentOwner.toLowerCase() === walletAccount.toLowerCase()) continue;
-            otherNFTs.push(nfts[i]);
-          }
-          dispatch(setAllHouseNFTs(otherNFTs));
-        } else {
+        // if (walletAccount) {
+        //   var otherNFTs = [];
+        //   for (var i = 0; i < nfts.length; i++) {
+        //     if (nfts[i].contributor.currentOwner.toLowerCase() === walletAccount.toLowerCase()) continue;
+        //     otherNFTs.push(nfts[i]);
+        //   }
+        //   dispatch(setAllHouseNFTs(otherNFTs));
+        // } else {
           dispatch(setAllHouseNFTs(nfts));
-        }
+        // }
       })
       .catch(err => console.log(err));
     setLoadingOpen(false);

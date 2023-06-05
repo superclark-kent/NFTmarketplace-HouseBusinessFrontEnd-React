@@ -15,7 +15,6 @@ import { apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { useEffect, useState } from "react";
 import { connect, useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { setAccount } from "redux/actions/account";
 import FileUpload from "utils/ipfs";
 
 const Input = styled("input")({
@@ -63,14 +62,6 @@ function Mint(props) {
   const [solarDate, setSolarDate] = useState(new Date("1970"));
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (account) {
-      dispatch(setAccount(account));
-    } else {
-      dispatch(setAccount(null));
-    }
-  }, [account]);
-
 	const handleImageChange = async (e) => {
 		var uploadedImage = e.target.files[0];
 		setImage(uploadedImage);
@@ -84,7 +75,7 @@ function Mint(props) {
       houseError("Please choose correct Year");
       return;
     }
-    if (!injected) {
+    if (!walletAccount) {
       houseInfo("Please connect your wallet.");
     } else {
       if (
