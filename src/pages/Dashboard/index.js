@@ -105,7 +105,7 @@ function Dashboard(props) {
         //   }
         //   dispatch(setAllHouseNFTs(otherNFTs));
         // } else {
-          dispatch(setAllHouseNFTs(nfts));
+        dispatch(setAllHouseNFTs(nfts));
         // }
       })
       .catch(err => console.log(err));
@@ -186,11 +186,44 @@ function Dashboard(props) {
     } else {
       setLoading(true);
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
-      try {
-        const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
-        getHistories(selectedId, holder, false, viewable)
-      } catch (error) {
-        console.error(error.message);
+      if (!injected) {
+        console.log(walletAccount);
+        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address,
+          value: allowFee
+        }
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount,
+            isOperator: true
+          }),
+        })
+          .then(async (res) => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            getHistories(selectedId, holder, false, viewable)
+          })
+          .catch(err => {
+            houseError(err)
+          });
+
+      } else {
+        try {
+          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
+          getHistories(selectedId, holder, false, viewable)
+        } catch (error) {
+          console.error(error.message);
+        }
       }
       setLoading(false);
     }
