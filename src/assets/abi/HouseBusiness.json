@@ -324,6 +324,11 @@
         "internalType": "uint256[]",
         "name": "_hIds",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
       }
     ],
     "name": "addAllowUser",
@@ -921,6 +926,25 @@
         "internalType": "struct HouseBusiness.History[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTokenPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",

@@ -89,20 +89,19 @@ function Staking(props) {
         ...nfts[i],
         price: housePrice,
         staked: false,
-        tokenURI: decryptedURI,
+        // tokenURI: decryptedURI,
         tokenName: decryptedName
       });
     }
 
     console.log('otherNFTs', otherNFTs);
     var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    // var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
-    var stakednfts = [];
+    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
 
     console.log('stakednfts', stakednfts);
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
-      var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].houseID)[0];
+      var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].tokenId)[0];
 
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
@@ -116,7 +115,7 @@ function Staking(props) {
         ...stakedNFT,
         startedDate: startedDate,
         endDate: endDate,
-        tokenURI: decryptedURI,
+        // tokenURI: decryptedURI,
         tokenName: decryptedName,
       });
     }
@@ -340,7 +339,7 @@ function Staking(props) {
               <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
                 <Grid className={nftClasses.nftHouseCard}>
                   <Grid className={nftClasses.nftHouseStakingMedia}>
-                    <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+                    {/* <img className={nftClasses.nftStakingImg} src={item.tokenURI} /> */}
                   </Grid>
                   <Grid>
                     <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>

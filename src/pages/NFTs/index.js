@@ -10,7 +10,7 @@ import CryptoJS from 'crypto-js';
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
-import { houseSuccess, houseWarning } from 'hooks/useToast';
+import { houseSuccess, houseWarning, houseError } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAllMyNFTs } from 'redux/actions/houseNft';

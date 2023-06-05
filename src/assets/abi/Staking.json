@@ -246,7 +246,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_staker",
+        "type": "address"
+      }
+    ],
     "name": "getAllMyStakedNFTs",
     "outputs": [
       {
