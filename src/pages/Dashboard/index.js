@@ -123,7 +123,7 @@ function Dashboard(props) {
         const transactionObject = {
           data,
           to: houseBusinessContract.options.address,
-          value: item.price
+          value: price
         }
 
         // Send trx data and sign
@@ -353,7 +353,7 @@ function Dashboard(props) {
                         }
                       </Box>
                       {
-                        item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                        item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true && item.staked === false ?
                           <LoadingButton
                             variant='contained'
                             onClick={() => handleBuyNFT(item, item.sellingPrice > 0 ? item.sellingPrice : item.price)}
