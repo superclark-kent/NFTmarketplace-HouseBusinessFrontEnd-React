@@ -1,9 +1,10 @@
 import { create as ipfsHttpClient } from 'ipfs-http-client';
+import dotenv from "dotenv";
+dotenv.config();
 
-const projectId = "2F4fMl63JKTNXBaEVSLkEP84uCy";
-const projectSecret = "d3502f20a0c429845938a95a1a6cc677";
+const projectId = process.env.REACT_APP_INFURA_API_ENDPOINT;
+const projectSecret = process.env.REACT_APP_INFURA_API_SECRET;
 const auth = 'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64');
-
 
 const FileUpload = async (file) => {
   const client = await ipfsHttpClient({

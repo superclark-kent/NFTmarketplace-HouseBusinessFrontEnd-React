@@ -30,14 +30,18 @@
     "type": "event"
   },
   {
+    "stateMutability": "payable",
+    "type": "fallback"
+  },
+  {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "contractAddress",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "contractAddresses",
+        "type": "address[]"
       }
     ],
-    "name": "authorizeContract",
+    "name": "authorizeContracts",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -77,11 +81,16 @@
         "internalType": "uint256",
         "name": "gasFee",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
     "name": "callContract",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -117,6 +126,24 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mintAndStore",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -139,12 +166,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "contractAddress",
-        "type": "address"
+        "internalType": "address[]",
+        "name": "contractAddresses",
+        "type": "address[]"
       }
     ],
-    "name": "revokeContract",
+    "name": "revokeContracts",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -181,9 +208,40 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
     "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

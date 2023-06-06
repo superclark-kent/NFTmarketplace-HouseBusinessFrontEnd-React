@@ -264,16 +264,16 @@ export default function Histories({
   }, [histories]);
 
   useEffect(() => {
-    if (account == null) {
+    if (walletAccount == null) {
       houseError("You don't have permission this NFT");
       navigate('../../house/app');
     } else {
-      if (simpleNFT.contributor.currentOwner.toLowerCase() != account.toLowerCase()) {
+      if (simpleNFT.contributor.currentOwner.toLowerCase() != walletAccount.toLowerCase()) {
         houseError("You don't have permission this NFT");
         navigate('../../house/app');
       }
     }
-  }, [simpleNFT, account])
+  }, [simpleNFT, walletAccount])
 
   return (
     <Grid>

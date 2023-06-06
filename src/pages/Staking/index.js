@@ -89,16 +89,19 @@ function Staking(props) {
         ...nfts[i],
         price: housePrice,
         staked: false,
-        tokenURI: decryptedURI,
+        // tokenURI: decryptedURI,
         tokenName: decryptedName
       });
     }
-    var allnfts = await houseBusinessContract.methods.getAllHouses().call();
-    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs().call();
 
+    console.log('otherNFTs', otherNFTs);
+    var allnfts = await houseBusinessContract.methods.getAllHouses().call();
+    var stakednfts = await stakingContract.methods.getAllMyStakedNFTs(walletAccount).call();
+
+    console.log('stakednfts', stakednfts);
     for (let i = 0; i < stakednfts.length; i++) {
       if (stakednfts[i].stakingStatus === false) continue;
-      var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].houseID)[0];
+      var stakedNFT = allnfts.filter((item) => item.houseID === stakednfts[i].tokenId)[0];
 
       var startedDate = Number(`${stakednfts[i].startedDate}000`);
       var endDate = Number(`${stakednfts[i].endDate}000`);
@@ -112,7 +115,7 @@ function Staking(props) {
         ...stakedNFT,
         startedDate: startedDate,
         endDate: endDate,
-        tokenURI: decryptedURI,
+        // tokenURI: decryptedURI,
         tokenName: decryptedName,
       });
     }
@@ -127,24 +130,46 @@ function Staking(props) {
   };
 
   const handleStaking = async (item, index) => {
-    try {
-      if (!injected) {
-        let data = houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).encodeABI();
-        let transactionObject = {
-          data,
-          to: houseBusinessContract.options.address
-        }
+    if (!injected) {
+      console.log(walletAccount)
+      let data = houseBusinessContract.methods.approveDelegator(stakingContract.options.address, item.houseID).encodeABI();
+      let transactionObject = {
+        data,
+        to: houseBusinessContract.options.address
+      }
 
-        // Send trx data and sign
-        fetch(`${apiURL}/signTransaction`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transactionObject,
-            user: walletAccount
-          }),
-        })
-          .then(res => {
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      })
+        .then(res => {
+          if (res.status !== 200) {
+            return res.json().then(error => {
+              houseError(`Error: ${error.message}`);
+              setLoading(false);
+            });
+          }
+
+          data = stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).encodeABI();
+          let transactionObject = {
+            data,
+            to: stakingContract.options.address
+          }
+
+          // Send trx data and sign
+          fetch(`${apiURL}/signTransaction`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              transactionObject,
+              user: walletAccount
+            }),
+          }).then(res => {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
@@ -154,25 +179,26 @@ function Staking(props) {
             houseSuccess('You staked house NFT successfully.');
             loadNFTs();
           }).catch(err => {
-            houseError('err', err)
+            houseError(err)
           });
-      } else {
-        // try {
-        //   await houseBusinessContract.methods.approveDelegator(StakingAddress, item.houseID).send({ from: account })
-        //   houseSuccess('You staked house NFT successfully.');
-        //   loadNFTs();
-        // } catch (err) {
-        //   console.log('err', err)
-        //   houseError(err)
-        // }
+        })
+        .catch(err => {
+          houseError(err)
+        });
+    } else {
+      try {
+        await houseBusinessContract.methods.approveDelegator(stakingContract.options.address, item.houseID).send({ from: account });
+        await stakingContract.methods.stake(item.houseID, stakingVals[index], walletAccount).send({ from: account });
+        houseSuccess('You staked house NFT successfully.');
+        loadNFTs();
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    };
+  }
 
   const handleClaimRewards = async () => {
-    try {
+    if (!account) {
       const data = stakingContract.methods.claimRewards(walletAccount).encodeABI();
       const transactionObject = {
         data,
@@ -199,8 +225,12 @@ function Staking(props) {
       }).catch(err => {
         houseError(err)
       });
-    } catch (error) {
-      console.log(error);
+    } else {
+      try {
+        await stakingContract.methods.claimRewards(walletAccount).send({ from: account });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -208,14 +238,42 @@ function Staking(props) {
     if (!item) {
       item = cItem;
     }
-    console.log(cItem);
-    try {
-      setLoading(true);
+
+    setLoading(true);
+
+    if (!account) {
       const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
-      houseSuccess('You unstaked house NFT successfully.');
-      loadNFTs();
-    } catch (error) {
-      console.log(error);
+      const transactionObject = {
+        data,
+        to: stakingContract.options.address
+      };
+
+      // Send trx data and sign
+      fetch(`${apiURL}/signTransaction`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionObject,
+          user: walletAccount
+        }),
+      }).then(res => {
+        if (res.status !== 200) {
+          return res.json().then(error => {
+            houseError(`Error: ${error.message}`);
+            setLoading(false);
+          });
+        }
+        houseSuccess('You unstaked house NFT successfully.');
+        loadNFTs();
+      }).catch(err => {
+        houseError(err)
+      });
+    } else {
+      try {
+        await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account })
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -281,7 +339,7 @@ function Staking(props) {
               <Grid item xl={3} lg={4} md={6} sm={6} key={index} className={nftClasses.nftHouseItem}>
                 <Grid className={nftClasses.nftHouseCard}>
                   <Grid className={nftClasses.nftHouseStakingMedia}>
-                    <img className={nftClasses.nftStakingImg} src={item.tokenURI} />
+                    {/* <img className={nftClasses.nftStakingImg} src={item.tokenURI} /> */}
                   </Grid>
                   <Grid>
                     <Box component={'h3'} className={nftClasses.nftHouseTitle}>{item.tokenName}</Box>
@@ -339,7 +397,7 @@ function Staking(props) {
                         <Button
                           variant="outlined"
                           onClick={async () => {
-                            var flag = await stakingContract.methods.stakingFinished(item.houseID).call();
+                            var flag = await stakingContract.methods.stakingFinished(item.houseID, walletAccount).call();
                             if (flag === false) {
                               setCItem(item);
                               handleConfirmOpen();

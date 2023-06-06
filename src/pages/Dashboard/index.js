@@ -97,16 +97,16 @@ function Dashboard(props) {
           })
         }
 
-        if (walletAccount) {
-          var otherNFTs = [];
-          for (var i = 0; i < nfts.length; i++) {
-            if (nfts[i].contributor.currentOwner.toLowerCase() === walletAccount.toLowerCase()) continue;
-            otherNFTs.push(nfts[i]);
-          }
-          dispatch(setAllHouseNFTs(otherNFTs));
-        } else {
-          dispatch(setAllHouseNFTs(nfts));
-        }
+        // if (walletAccount) {
+        //   var otherNFTs = [];
+        //   for (var i = 0; i < nfts.length; i++) {
+        //     if (nfts[i].contributor.currentOwner.toLowerCase() === walletAccount.toLowerCase()) continue;
+        //     otherNFTs.push(nfts[i]);
+        //   }
+        //   dispatch(setAllHouseNFTs(otherNFTs));
+        // } else {
+        dispatch(setAllHouseNFTs(nfts));
+        // }
       })
       .catch(err => console.log(err));
     setLoadingOpen(false);
@@ -123,7 +123,7 @@ function Dashboard(props) {
         const transactionObject = {
           data,
           to: houseBusinessContract.options.address,
-          value: item.price
+          value: price
         }
 
         // Send trx data and sign
@@ -132,7 +132,8 @@ function Dashboard(props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             transactionObject,
-            user: walletAccount
+            user: walletAccount,
+            isOperator: true
           }),
         })
           .then(async (res) => {
@@ -185,11 +186,44 @@ function Dashboard(props) {
     } else {
       setLoading(true);
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
-      try {
-        const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
-        getHistories(selectedId, holder, false, viewable)
-      } catch (error) {
-        console.error(error.message);
+      if (!injected) {
+        console.log(walletAccount);
+        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).encodeABI();
+        const transactionObject = {
+          data,
+          to: houseBusinessContract.options.address,
+          value: allowFee
+        }
+        // Send trx data and sign
+        fetch(`${apiURL}/signTransaction`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transactionObject,
+            user: walletAccount,
+            isOperator: true
+          }),
+        })
+          .then(async (res) => {
+            if (res.status !== 200) {
+              return res.json().then(error => {
+                houseError(`Error: ${error.message}`);
+                setLoading(false);
+              });
+            }
+            getHistories(selectedId, holder, false, viewable)
+          })
+          .catch(err => {
+            houseError(err)
+          });
+
+      } else {
+        try {
+          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
+          getHistories(selectedId, holder, false, viewable)
+        } catch (error) {
+          console.error(error.message);
+        }
       }
       setLoading(false);
     }
@@ -319,7 +353,7 @@ function Dashboard(props) {
                         }
                       </Box>
                       {
-                        item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true ?
+                        item.contributor.currentOwner !== walletAccount && (item.contributor.buyer === zeroAddress || item.contributor.buyer === walletAccount) && item.nftPayable === true && item.staked === false ?
                           <LoadingButton
                             variant='contained'
                             onClick={() => handleBuyNFT(item, item.sellingPrice > 0 ? item.sellingPrice : item.price)}

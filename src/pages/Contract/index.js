@@ -8,7 +8,7 @@ import { Box, Button, Checkbox, FormControlLabel, Grid, IconButton, InputBase, P
 import { useWeb3React } from '@web3-react/core';
 import useContractStyle from 'assets/styles/contractStyle';
 import CryptoJS from 'crypto-js';
-import { useHouseBusinessContract, useHouseDocContract } from 'hooks/useContractHelpers';
+import { useHouseBusinessContract, useHouseDocContract, useOperatorContract } from 'hooks/useContractHelpers';
 import { houseError, houseSuccess } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { apiURL, secretKey, zeroAddress } from 'mainConfig';
@@ -22,6 +22,7 @@ function Contract(props) {
   const historyTypes = props.historyTypes.historyTypes;
   const classes = useContractStyle();
   const houseDocContract = useHouseDocContract();
+  const OperatorContract = useOperatorContract();
 
   const [cSC, setCSC] = useState('');
   const [allContracts, setAllContracts] = useState([]);
@@ -46,6 +47,7 @@ function Contract(props) {
     setLoading(true);
 
     const allCleanContracts = await houseDocContract.methods.getAllDocContracts().call();
+    console.log(allCleanContracts)
 
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
@@ -187,6 +189,7 @@ function Contract(props) {
             if (res.status !== 200) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
+                setLoading(false);
               });
             }
             houseSuccess("Contract signer successfully added.");
@@ -208,7 +211,7 @@ function Contract(props) {
         }
       }
     }
-    // }
+    setLoading(false);
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {
@@ -231,7 +234,7 @@ function Contract(props) {
 
   const handleSendNotify = async (item, _owner) => {
     setLoading(true);
-    var notifyReceiver = account === item.owner ? item.contractSigner : item.owner;
+    var notifyReceiver = walletAccount === item.owner ? item.contractSigner : item.owner;
     var sentNotifies = await houseDocContract.methods.getAllNotifies(notifyReceiver).call();
     var flag = false;
     for (let i = 0; i < sentNotifies.length; i++) {
@@ -247,8 +250,9 @@ function Contract(props) {
       setLoading(false);
     } else {
       if (flag === false) {
+        const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
+
         if (!injected) {
-          const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
           const data = houseDocContract.methods
             .sendNotify(notifyReceiver, content, item.contractId, walletAccount)
             .encodeABI();
@@ -279,7 +283,6 @@ function Contract(props) {
             });
         } else {
           try {
-            const content = _owner === 'creator' ? CryptoJS.AES.encrypt(notifyContent, secretKey).toString() : CryptoJS.AES.encrypt(rNotifyContent, secretKey).toString()
             await houseDocContract.methods
               .sendNotify(notifyReceiver, content, item.contractId, account)
               .send({ from: account });

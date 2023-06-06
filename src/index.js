@@ -23,7 +23,7 @@ ReactDOM.render(
       <BrowserRouter>
         <ToastContainer />
         <CookiesProvider>
-        <WalletInstallModal/>
+        {/* <WalletInstallModal/> */}
           <App />
         </CookiesProvider>
       </BrowserRouter>

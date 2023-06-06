@@ -1,5 +1,5 @@
 import { Fragment, cloneElement, useEffect, useState } from "react";
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { useWeb3React } from "@web3-react/core";
@@ -287,6 +287,7 @@ function Header(props) {
 		setCookie("connected", false, { path: "/" });
 		dispatch(setAccount(null));
 		dispatch(setInjected(false));
+		console.log(cookies)
 	};
 
 	const checkAdmin = async () => {
@@ -386,25 +387,25 @@ function Header(props) {
 			dispatch(setAccount(airdropWalletID));
 			dispatch(setInjected(false));
 			handleClose();
+			console.log('cookies', cookies);
 		}
 	}
 
 	useEffect(() => {
-		if (cookies.connected === true) {
+		if (cookies.connected === "true") {
 			dispatch(setAccount(cookies.walletAccount));
-			dispatch(setInjected(true));
+			// dispatch(setInjected(true));
 		}
 
 		if (pathname != "/house/app") {
-			if (!walletAccount && cookies.connected !== true) {
+			if (!walletAccount && cookies.connected !== "true") {
 				houseInfo("Please connect your wallet");
 				navigate("../../house/app");
 			}
 		}
-	}, [pathname]);
+	}, [pathname, walletAccount]);
 
 	useEffect(() => {
-		console.log('addr', walletAccount)
 		if (walletAccount != null || walletAccount != undefined) {
 			checkAdmin();
 			loadNotifies();
@@ -414,9 +415,10 @@ function Header(props) {
 	useEffect(() => {
 		if (account) {
 			dispatch(setAccount(account));
+			setCookie("connected", true, { path: "/" });
+			setCookie("walletAccount", account, { path: "/" });
 			dispatch(setInjected(true));
 		} else {
-			dispatch(setAccount(null));
 			dispatch(setInjected(false));
 		}
 	}, [account]);

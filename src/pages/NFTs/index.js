@@ -10,7 +10,7 @@ import CryptoJS from 'crypto-js';
 import useNftStyle from 'assets/styles/nftStyle';
 import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 
-import { houseSuccess, houseWarning } from 'hooks/useToast';
+import { houseSuccess, houseWarning, houseError } from 'hooks/useToast';
 import { useWeb3 } from 'hooks/useWeb3';
 import { HouseBusinessAddress, apiURL, secretKey, zeroAddress } from 'mainConfig';
 import { setAllMyNFTs } from 'redux/actions/houseNft';
@@ -30,6 +30,7 @@ function Nfts(props) {
   const loadNFTs = async () => {
     if (walletAccount) {
       var nfts = await houseBusinessContract.methods.getAllHouses().call();
+      console.log(nfts);
       var otherNFTs = [];
       for (var i = 0; i < nfts.length; i++) {
         if ((nfts[i].contributor.currentOwner).toLowerCase() !== walletAccount.toLowerCase()) continue;
@@ -85,13 +86,13 @@ function Nfts(props) {
           .catch(err => {
             houseError(err)
           });
-
       } catch (error) {
         console.log(error)
       }
-    } else {
+    }
+    else {
       try {
-        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: walletAccount })
+        await houseBusinessContract.methods.setPayable(item.houseID, zeroAddress, payable).send({ from: account });
         houseSuccess("Your House NFT can be sold from now.")
         loadNFTs()
       } catch (error) {
@@ -104,14 +105,11 @@ function Nfts(props) {
     navigate(`../../item/${item.houseID}`)
   }
 
-  // useEffect(() => {
-  //   console.log('nft', walletAccount, walletAccount)
-  //   if (account) {
-  //     dispatch(setAccount(account));
-  //   } else {
-  //     dispatch(setAccount(null));
-  //   }
-  // }, [account, walletAccount])
+  useEffect(() => {
+    if (account || walletAccount) {
+      loadNFTs()
+    }
+  }, [account])
 
   useEffect(() => {
     loadNFTs()
@@ -179,7 +177,6 @@ function Nfts(props) {
     </Grid>
   )
 }
-
 
 function mapStateToProps(state) {
   return {
