@@ -8,6 +8,14 @@ dotenv.config();
 
 export const POLLING_INTERVAL = 12000;
 
+export const ERC20Address = '0x6a92D526b158aB254D03c910a124EA247C660D7a';
+export const HouseBusinessAddress = '0xeC5AD0bdFdA5FA6188578bC21A84B37E15C149E4';
+export const MarketplaceAddress = '0x6795BDA1885Dc852eF0e5766775b19D0a114c4f4'
+export const HouseDocAddress = '0x17019852FE78092372D7aaFF263eE9a830a8b662';
+export const StakingAddress = '0xb22224b1975DF124e80B8d8719C9c7BcD412A868';
+export const ThirdPartyAddress = '0x81D5D798Af7F36b353d574781C9c972F1B149530';
+export const OperatorAddress = '0xE36f633eB8Fd1C93399535F517Da5Ffe7aBf0809';
+/*
 export const ERC20Address = '0xbE73C7ab8d4f31b87CD9E14a8760689e093782ED';
 export const HouseBusinessAddress = '0xB11fF49650e613d034995e0891b7C1aF062E6736';
 export const MarketplaceAddress = '0xD5cf8bcF84Ead1A66D7FfeAa96F8c797d28517C4'
@@ -15,7 +23,7 @@ export const HouseDocAddress = '0x0425B2E375784F7e8C6b1d7928cCA1D4E32e7151';
 export const StakingAddress = '0x18C1e7B5C3F8D6A34e2534720D90f1A0FEc877Ef';
 export const ThirdPartyAddress = '0xBaf954ee9FaD1A9D82EC6F0FE25776b685b2657d';
 export const OperatorAddress = '0xBC085A460Be99dacb6EFAB9638BDF70bE47284ff';
-
+*/
 const config = {
 	// development: {
 	//   CHAIN_NAME: 'Goerli Testnet',
