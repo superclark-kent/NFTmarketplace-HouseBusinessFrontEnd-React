@@ -50,13 +50,12 @@ const config = {
 };
 
 export const networkConfig = config['development'];
-export const apiURL = "http://localhost:8080"; // Development server
-// export const apiURL = "https://off-backend.azurewebsites.net"; // Production server
+// export const apiURL = "http://localhost:8080"; // Development server
+export const apiURL = "https://off-backend.azurewebsites.net"; // Production server
 
-export const secretKey = 'defi-business@Sec!*@#';
+export const secretKey = process.env.REACT_APP_ENCRYPTION_SECRET;
 
-export const stripePublishKey =
-	process.env.REACT_APP_STRIPE_API_KEY || 'pk_test_51NASr5DlH3rUeTvspdEFX05R8hZVZMj7GUZ1NKP3NvdhaSPbNX7vpOJybsKRUnB4z5oytvL98F6gA0e6K1uZ6Pwu00MJa941iy';
+export const stripePublishKey = process.env.REACT_APP_STRIPE_API_KEY
 
 export const injected = new InjectedConnector({
 	supportedChainIds: [
