@@ -53,7 +53,12 @@ function Contract(props) {
     for (let i = 0; i < allCleanContracts.length; i++) {
       if (allCleanContracts[i].owner == walletAccount) {
         var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
-        var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        var decryptedData = '';
+        try {
+          decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          console.log(error);
+        }
         var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
         var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
         var bytesCurrency = CryptoJS.AES.decrypt(allCleanContracts[i].currency, secretKey);
