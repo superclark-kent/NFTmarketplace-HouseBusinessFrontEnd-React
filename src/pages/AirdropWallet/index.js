@@ -180,8 +180,15 @@ function AirdropWallet(props) {
 			setMessage('Invalid amount');
 			return;
 		}
-
+		
+		// check the amount
 		const amountInWei = Web3.utils.toWei(`${amountToDeposit}`, 'ether');
+		const accountBalance = await ERC20TokenContract.methods.balanceOf(account).call();
+		console.log(accountBalance, amountInWei);
+		if (accountBalance < amountToDeposit) {
+			setMessage('Sorry, you don\'t have enough balance to deposit');
+			return;
+		}
 
 		// Approve the token amount
 		await ERC20TokenContract.methods.approve(OperatorAddress, amountInWei).send({ from: account });
