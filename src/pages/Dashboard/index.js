@@ -78,10 +78,15 @@ function Dashboard(props) {
 
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
-      .then(async (gNFTs) => {
+    .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-          var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+          var decryptedURI = '';
+          try {
+            decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+          } catch (error) {
+            console.log(error);
+          }
           var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
           var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
