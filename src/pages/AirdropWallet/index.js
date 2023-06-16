@@ -184,7 +184,6 @@ function AirdropWallet(props) {
 		// check the amount
 		const amountInWei = Web3.utils.toWei(`${amountToDeposit}`, 'ether');
 		const accountBalance = await ERC20TokenContract.methods.balanceOf(account).call();
-		console.log(accountBalance, amountInWei);
 		if (accountBalance < amountToDeposit) {
 			setMessage('Sorry, you don\'t have enough balance to deposit');
 			return;

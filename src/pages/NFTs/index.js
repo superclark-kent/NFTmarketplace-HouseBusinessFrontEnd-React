@@ -109,7 +109,7 @@ function Nfts(props) {
     if (account || walletAccount) {
       loadNFTs()
     }
-  }, [account])
+  }, [walletAccount])
 
   useEffect(() => {
     loadNFTs()
