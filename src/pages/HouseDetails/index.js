@@ -498,10 +498,12 @@ function HouseDetails(props) {
 					houseSuccess('Success!');
 					setSpecialBuyer('');
 					setBuyerFlag(false);
+					setLoading(false);
 					loadNFT(simpleNFT.houseID);
 				})
 				.catch(err => {
 					houseError(err)
+					setLoading(false);
 					return;
 				});
 		} else {
@@ -515,8 +517,8 @@ function HouseDetails(props) {
 				console.log(err);
 				houseError("Something went wrong");
 			}
+			setLoading(false);
 		}
-		setLoading(false);
 	};
 
 	const handleViewable = async (flag) => {

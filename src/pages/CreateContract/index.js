@@ -113,7 +113,7 @@ function CreateContract(props) {
             const ipUrl = CryptoJS.AES.encrypt(ipfsUrl, secretKey).toString();
             const encryptedCompanyName = CryptoJS.AES.encrypt(companyName, secretKey).toString();
             const encryptedCurrency = CryptoJS.AES.encrypt(currency, secretKey).toString();
-            if(!injected) {
+            if (!injected) {
               const data = houseDocContract.methods
                 .hdCreation(
                   encryptedCompanyName,
@@ -160,24 +160,26 @@ function CreateContract(props) {
                   setCurrency("MATIC");
                   setIsContractSinger(false);
                   navigate("../../contract/main");
+                  setLoading(false);
                 })
                 .catch(err => {
                   houseError(err)
+                  setLoading(false);
                 });
             } else {
               try {
                 await houseDocContract.methods
-                .hdCreation(
-                  encryptedCompanyName,
-                  contractType,
-                  aSigner,
-                  ipUrl,
-                  sDate,
-                  eDate,
-                  aPrice,
-                  encryptedCurrency,
-                  walletAccount
-                ).send({ from: walletAccount })
+                  .hdCreation(
+                    encryptedCompanyName,
+                    contractType,
+                    aSigner,
+                    ipUrl,
+                    sDate,
+                    eDate,
+                    aPrice,
+                    encryptedCurrency,
+                    walletAccount
+                  ).send({ from: walletAccount })
                 houseSuccess("Success");
                 setCFile(null);
                 setCFileName("");
@@ -194,16 +196,18 @@ function CreateContract(props) {
                 console.log(error);
                 houseError("Something went wrong");
               }
+              setLoading(false);
             }
           }
         } else {
           houseError("Contract Signer address is invalid");
+          setLoading(false);
         }
       }
     } else {
       houseError("Please upload contract file.");
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const ValueUp = () => {
