@@ -78,7 +78,7 @@ function Dashboard(props) {
 
     var nfts = [];
     houseBusinessContract.methods.getAllHouses().call()
-    .then(async (gNFTs) => {
+      .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
           var decryptedURI = '';
@@ -146,14 +146,19 @@ function Dashboard(props) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
                 setLoading(false);
+                setLoadingOpen(false);
               });
             }
             houseSuccess("You bought successfully!")
             loadNFTs()
             navigate("../../house/myNfts");
+            setLoading(false);
+            setLoadingOpen(false);
           })
           .catch(err => {
             houseError(err)
+            setLoading(false);
+            setLoadingOpen(false);
           });
       } else {
         try {
@@ -161,14 +166,15 @@ function Dashboard(props) {
           houseSuccess("You bought successfully!")
           loadNFTs()
           navigate("../../house/myNfts");
+          setLoading(false);
+          setLoadingOpen(false);
         } catch (err) {
           console.log('err', err)
           houseInfo(err.message)
+          setLoading(false);
+          setLoadingOpen(false);
         }
       }
-
-      setLoading(false);
-      setLoadingOpen(false);
     }
   }
 
@@ -216,21 +222,24 @@ function Dashboard(props) {
                 setLoading(false);
               });
             }
+            setLoading(false);
             getHistories(selectedId, holder, false, viewable)
           })
           .catch(err => {
+            setLoading(false);
             houseError(err)
           });
 
       } else {
         try {
           const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
+          setLoading(false);
           getHistories(selectedId, holder, false, viewable)
         } catch (error) {
+          setLoading(false);
           console.error(error.message);
         }
       }
-      setLoading(false);
     }
   }
 

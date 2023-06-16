@@ -200,9 +200,11 @@ function Contract(props) {
             houseSuccess("Contract signer successfully added.");
             loadContracts();
             setTimeout(loadContracts, 3000);
+            setLoading(false);
           })
           .catch(err => {
             houseError(err)
+            setLoading(false);
           });
       } else {
         try {
@@ -210,13 +212,14 @@ function Contract(props) {
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
+          setLoading(false);
         } catch (err) {
           console.log(err);
           houseError('Something went wrong');
+          setLoading(false);
         }
       }
     }
-    setLoading(false);
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {
