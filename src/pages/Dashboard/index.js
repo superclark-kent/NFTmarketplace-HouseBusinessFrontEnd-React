@@ -199,7 +199,7 @@ function Dashboard(props) {
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
       if (!injected) {
         console.log(walletAccount);
-        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).encodeABI();
+        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds, walletAccount).encodeABI();
         const transactionObject = {
           data,
           to: houseBusinessContract.options.address,
@@ -232,7 +232,7 @@ function Dashboard(props) {
 
       } else {
         try {
-          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
+          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds, walletAccount).send({ from: walletAccount, value: allowFee });
           setLoading(false);
           getHistories(selectedId, holder, false, viewable)
         } catch (error) {
