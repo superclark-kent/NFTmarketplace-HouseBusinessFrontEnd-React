@@ -238,9 +238,11 @@ function HouseDetails(props) {
 								setLoading(false);
 							});
 						}
+						setLoading(false);
 						houseSuccess('You added the history successfully!');
 					})
 					.catch(err => {
+						setLoading(false);
 						houseError(err.message)
 					});
 
@@ -280,9 +282,9 @@ function HouseDetails(props) {
 					setLoading(false);
 				} catch (err) {
 					houseError('Something Went wrong!');
+					setLoading(false);
 					console.log('err', err)
 				}
-				setLoading(false);
 			}
 		} catch (err) {
 			houseError('Something Went wrong!');
@@ -316,22 +318,25 @@ function HouseDetails(props) {
 						});
 					}
 					houseSuccess('You disconnected contract sucessfully!');
+					setLoading(false)
 					loadNFT(houseID);
 				})
 				.catch(err => {
+					setLoading(false)
 					houseError(err)
 				});
 		} else {
 			try {
 				await houseBusinessContract.methods.disconnectContract(houseID, hIndex, contractId).send({ from: account });
 				houseSuccess('You disconnected contract sucessfully!');
+				setLoading(false)
 				loadNFT(houseID);
 			} catch (error) {
 				houseError('Something went wrong!');
+				setLoading(false)
 				console.error(error);
 			}
 		}
-		setLoading(false)
 	};
 
 	const handleImageChange = async (e) => {
@@ -441,9 +446,11 @@ function HouseDetails(props) {
 						}
 
 						houseSuccess("You have successfully set your House price!")
+						setLoading(false);
 						loadNFT(houseID);
 					})
 					.catch(err => {
+						setLoading(false);
 						houseError(err)
 						return;
 					});
@@ -451,14 +458,15 @@ function HouseDetails(props) {
 				try {
 					await houseBusinessContract.methods.changeHousePrice(Number(houseID), _housePrice).send({ from: account });
 
+					setLoading(false);
 					houseSuccess("You have successfully set your House price!")
 				} catch (error) {
 					console.log(error);
+					setLoading(false);
 					houseError('Something went wrong!');
 				}
 				loadNFT(houseID);
 			}
-			setLoading(false);
 		}
 	}
 
@@ -498,10 +506,12 @@ function HouseDetails(props) {
 					houseSuccess('Success!');
 					setSpecialBuyer('');
 					setBuyerFlag(false);
+					setLoading(false);
 					loadNFT(simpleNFT.houseID);
 				})
 				.catch(err => {
 					houseError(err)
+					setLoading(false);
 					return;
 				});
 		} else {
@@ -510,13 +520,14 @@ function HouseDetails(props) {
 				houseSuccess('Success!');
 				setSpecialBuyer('');
 				setBuyerFlag(false);
+				setLoading(false);
 				loadNFT(simpleNFT.houseID);
 			} catch (err) {
 				console.log(err);
+				setLoading(false);
 				houseError("Something went wrong");
 			}
 		}
-		setLoading(false);
 	};
 
 	const handleViewable = async (flag) => {
@@ -547,23 +558,26 @@ function HouseDetails(props) {
 					houseSuccess('Success!');
 					setSpecialBuyer('');
 					setBuyerFlag(false);
+					setLoading(false);
 					loadNFT(simpleNFT.houseID);
 				})
 				.catch(err => {
 					houseError(err)
+					setLoading(false);
 					return;
 				});
 		} else {
 			try {
 				await houseBusinessContract.methods.setViewable(simpleNFT.houseID, flag).send({ from: walletAccount });
 				houseSuccess('Success!');
+				setLoading(false);
 				loadNFT(simpleNFT.houseID);
 			} catch (err) {
 				console.log(err);
+				setLoading(false);
 				houseError("Something went wrong");
 			}
 		}
-		setLoading(false);
 	}
 
 	useEffect(() => {

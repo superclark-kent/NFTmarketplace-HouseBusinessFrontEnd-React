@@ -52,12 +52,47 @@ function Contract(props) {
     var allCons = [], allOCons = [];
     for (let i = 0; i < allCleanContracts.length; i++) {
       if (allCleanContracts[i].owner == walletAccount) {
-        var bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
-        var decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-        var bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
-        var decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
-        var bytesCurrency = CryptoJS.AES.decrypt(allCleanContracts[i].currency, secretKey);
-        var decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+        var bytes = '';
+        try {
+          bytes = CryptoJS.AES.decrypt(allCleanContracts[i].contractURI, secretKey);
+        } catch (error) {
+          console.log(error);
+        }
+
+        var decryptedData = '';
+        try {
+          decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          console.log(error);
+        }
+
+        var bytesCompany = '';
+        try {
+          bytesCompany = CryptoJS.AES.decrypt(allCleanContracts[i].companyName, secretKey);
+        } catch (error) {
+          console.log(error);
+        }
+
+        var decryptedCompany = '';
+        try {
+          decryptedCompany = bytesCompany.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          console.log(error);
+        }
+
+        var bytesCurrency = '';
+        try {
+          bytesCurrency = CryptoJS.AES.decrypt(allCleanContracts[i].currency, secretKey);
+        } catch (error) {
+          console.log(error);
+        }
+
+        var decryptedCurrency = '';
+        try {
+          decryptedCurrency = bytesCurrency.toString(CryptoJS.enc.Utf8);
+        } catch (error) {
+          console.log(error);
+        }
         var contractURI = await decryptFileFromUrl(decryptedData);
         allCons.push({
           ...allCleanContracts[i],
@@ -195,9 +230,11 @@ function Contract(props) {
             houseSuccess("Contract signer successfully added.");
             loadContracts();
             setTimeout(loadContracts, 3000);
+            setLoading(false);
           })
           .catch(err => {
             houseError(err)
+            setLoading(false);
           });
       } else {
         try {
@@ -205,13 +242,14 @@ function Contract(props) {
           houseSuccess("Contract signer successfully added.");
           loadContracts();
           setTimeout(loadContracts, 3000);
+          setLoading(false);
         } catch (err) {
           console.log(err);
           houseError('Something went wrong');
+          setLoading(false);
         }
       }
     }
-    setLoading(false);
   };
 
   const setNotifyAdd = (notifyIndex, checked) => {

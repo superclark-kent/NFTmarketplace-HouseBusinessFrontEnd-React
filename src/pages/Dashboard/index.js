@@ -81,7 +81,12 @@ function Dashboard(props) {
       .then(async (gNFTs) => {
         for (let i = 0; i < gNFTs.length; i++) {
           var bytes = CryptoJS.AES.decrypt(gNFTs[i].tokenURI, secretKey);
-          var decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+          var decryptedURI = '';
+          try {
+            decryptedURI = bytes.toString(CryptoJS.enc.Utf8);
+          } catch (error) {
+            console.log(error);
+          }
           var bytesName = CryptoJS.AES.decrypt(gNFTs[i].tokenName, secretKey);
           var decryptedName = bytesName.toString(CryptoJS.enc.Utf8);
           var bytesType = CryptoJS.AES.decrypt(gNFTs[i].tokenType, secretKey);
@@ -141,14 +146,19 @@ function Dashboard(props) {
               return res.json().then(error => {
                 houseError(`Error: ${error.message}`);
                 setLoading(false);
+                setLoadingOpen(false);
               });
             }
             houseSuccess("You bought successfully!")
             loadNFTs()
             navigate("../../house/myNfts");
+            setLoading(false);
+            setLoadingOpen(false);
           })
           .catch(err => {
             houseError(err)
+            setLoading(false);
+            setLoadingOpen(false);
           });
       } else {
         try {
@@ -156,14 +166,15 @@ function Dashboard(props) {
           houseSuccess("You bought successfully!")
           loadNFTs()
           navigate("../../house/myNfts");
+          setLoading(false);
+          setLoadingOpen(false);
         } catch (err) {
           console.log('err', err)
           houseInfo(err.message)
+          setLoading(false);
+          setLoadingOpen(false);
         }
       }
-
-      setLoading(false);
-      setLoadingOpen(false);
     }
   }
 
@@ -188,7 +199,7 @@ function Dashboard(props) {
       const allowFee = await houseBusinessContract.methods.getAllowFee(selectedId, checkedIds).call();
       if (!injected) {
         console.log(walletAccount);
-        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).encodeABI();
+        const data = houseBusinessContract.methods.addAllowUser(selectedId, checkedIds, walletAccount).encodeABI();
         const transactionObject = {
           data,
           to: houseBusinessContract.options.address,
@@ -211,21 +222,24 @@ function Dashboard(props) {
                 setLoading(false);
               });
             }
+            setLoading(false);
             getHistories(selectedId, holder, false, viewable)
           })
           .catch(err => {
+            setLoading(false);
             houseError(err)
           });
 
       } else {
         try {
-          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds).send({ from: walletAccount, value: allowFee });
+          const tx = await houseBusinessContract.methods.addAllowUser(selectedId, checkedIds, walletAccount).send({ from: walletAccount, value: allowFee });
+          setLoading(false);
           getHistories(selectedId, holder, false, viewable)
         } catch (error) {
+          setLoading(false);
           console.error(error.message);
         }
       }
-      setLoading(false);
     }
   }
 
