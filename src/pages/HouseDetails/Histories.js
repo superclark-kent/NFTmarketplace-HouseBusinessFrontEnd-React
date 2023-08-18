@@ -64,39 +64,39 @@ export default function Histories({
   const [descArea, setDesArea] = useState( Array(10).fill(false) );
 
   function addImageArea(index){
-    const updatedImageArea = [...imageArea]; 
+    var updatedImageArea = [...imageArea]; 
     updatedImageArea[index] = true; 
     setImageArea(updatedImageArea);
   }
 
   function addBrandArea(index){
-    const updatedArea = [...brandArea]; 
-    updatedArea[index] = true; 
-    setBrandArea(updatedArea)
+    var aupdatedArea = [...brandArea]; 
+    aupdatedArea[index] = true; 
+    setBrandArea(aupdatedArea)
   }
 
   function addBrandTypeArea(index){
-    const updatedArea = [...brandTypeArea]; 
-    updatedArea[index] = true; 
-    setBrandTypeArea(updatedArea)
+    var bupdatedArea = [...brandTypeArea]; 
+    bupdatedArea[index] = true; 
+    setBrandTypeArea(bupdatedArea)
   }
 
   function addYearArea(index){
-    const updatedArea = [...yearArea]; 
-    updatedArea[index] = true; 
-    setYearArea(updatedArea)
+    var cupdatedArea = [...yearArea]; 
+    cupdatedArea[index] = true; 
+    setYearArea(cupdatedArea)
   }
 
   function addOtherArea(index){
-    const updatedArea = [...otherArea]; 
-    updatedArea[index] = true; 
-    setOtherArea(updatedArea)
+    var dupdatedArea = [...otherArea]; 
+    dupdatedArea[index] = true; 
+    setOtherArea(dupdatedArea)
   }
 
   function addDescArea(index){
-    const updatedArea = [...descArea]; 
-    updatedArea[index] = true; 
-    setDesArea(updatedArea)
+    var eupdatedArea = [...descArea]; 
+    eupdatedArea[index] = true; 
+    setDesArea(eupdatedArea)
   }
 
   const handleOpenMenu = (event) => {
@@ -283,6 +283,8 @@ export default function Histories({
   };
 
   const initialConf = () => {
+
+
     var dArr = [];
     var tempHistory = [];
     for (let i = 0; i < histories.length; i++) {
@@ -327,6 +329,17 @@ export default function Histories({
       }
     }
   }, [simpleNFT, walletAccount])
+
+  const initValue = Array(10).fill(false);
+
+  const setAllAreasToFalse = () => {
+    setImageArea(initValue);
+    setBrandArea(initValue);
+    setBrandTypeArea(initValue);
+    setYearArea(initValue);
+    setOtherArea(initValue);
+    setDesArea(initValue);
+  };
 
   return (
     <Grid>
@@ -411,7 +424,7 @@ export default function Histories({
                 onChange={(e) => setCBrand(e.target.value)}
               />
             ) : null}
-            {homeHistory.brandTypeNeed === true && (item.brandType || brandTypeArea[index]) ? (
+            {homeHistory.brandTypeNeed === true && (item.brandType || brandTypeArea[index ]) ? (
               <TextField
                 id="standard-multiline-static"
                 label={'Brand Type'}
@@ -496,7 +509,7 @@ export default function Histories({
                     <IconButton onClick={() => handleHistorySave(homeHistory, index, item.historyTypeId)}>
                       <SaveAsIcon />
                     </IconButton>
-                    <IconButton onClick={() => initialConf()}>
+                    <IconButton onClick={() => {initialConf(); setAllAreasToFalse();}}>
                       <CancelIcon />
                     </IconButton>
                     <IconButton onClick={handleOpenMenu}>
@@ -518,7 +531,7 @@ export default function Histories({
                       {homeHistory.imgNeed  && !imageArea[index] && !item.houseImg && <MenuItem onClick={() => {handleCloseMenu(); addImageArea(index);}}>Add Image</MenuItem>}
                       {homeHistory.brandNeed && !brandArea[index] && !item.houseBrand && <MenuItem onClick={() => {handleCloseMenu(); addBrandArea(index);}}>Add Brand</MenuItem>}
                       {homeHistory.brandTypeNeed && !brandTypeArea[index] && !item.brandType && <MenuItem onClick={() => {handleCloseMenu(); addBrandTypeArea(index);}}>Add Brand type</MenuItem>}
-                      {homeHistory.yearNeed && !yearArea[index] && !item.year && <MenuItem onClick={() => {handleCloseMenu(); addYearArea(index);}}>Add Date</MenuItem>}
+                      {homeHistory.yearNeed && !yearArea[index] && Number(item.yearField) == 1 && <MenuItem onClick={() => {handleCloseMenu(); addYearArea(index);}}>Add Date</MenuItem>}
                       {homeHistory.otherInfo && !otherArea[index] && !item.otherInfo && <MenuItem onClick={() => {handleCloseMenu(); addOtherArea(index);}}>Add Other information</MenuItem>}
                       {homeHistory.descNeed && !descArea[index] && !item.desc && <MenuItem onClick={() => {handleCloseMenu(); addDescArea(index);}}>Add Description</MenuItem>}
                     </Menu>
