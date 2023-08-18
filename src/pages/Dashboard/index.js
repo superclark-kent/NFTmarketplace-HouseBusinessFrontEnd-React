@@ -251,7 +251,7 @@ function Dashboard(props) {
     var chistories = await houseBusinessContract.methods.getHistory(_id).call();
     var tempHistory = [], tempHistory1 = [], tempCheck = [];
     for (let i = 0; i < chistories.length; i++) {
-      if (walletAccount != null) walletAccount = '';
+      if (walletAccount == null) walletAccount = '';
       if (chistories[i].allowedUser.toLowerCase() == walletAccount.toLowerCase()) {
         var bytesOtherInfo = CryptoJS.AES.decrypt(chistories[i].otherInfo, secretKey);
         var decryptedHistory = bytesOtherInfo.toString(CryptoJS.enc.Utf8);
