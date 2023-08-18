@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DoDisturbOffIcon from '@mui/icons-material/DoDisturbOff';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DocumentIcon from '@mui/icons-material/DocumentScanner';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
-import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField } from '@mui/material';
+import { Avatar, CircularProgress, Grid, IconButton, ListItem, MenuItem, TextField, Menu } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -53,6 +54,58 @@ export default function Histories({
   const [cContract, setCContract] = useState({});
   const [showCContract, setShowCContract] = useState(false);
   const [changeDate, setChangeDate] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const [imageArea, setImageArea] = useState( Array(10).fill(false) );
+  const [brandArea, setBrandArea] = useState( Array(10).fill(false) );
+  const [brandTypeArea, setBrandTypeArea] = useState( Array(10).fill(false) );
+  const [yearArea, setYearArea] = useState( Array(10).fill(false) );
+  const [otherArea, setOtherArea] = useState( Array(10).fill(false) );
+  const [descArea, setDesArea] = useState( Array(10).fill(false) );
+
+  function addImageArea(index){
+    const updatedImageArea = [...imageArea]; 
+    updatedImageArea[index] = true; 
+    setImageArea(updatedImageArea);
+  }
+
+  function addBrandArea(index){
+    const updatedArea = [...brandArea]; 
+    updatedArea[index] = true; 
+    setBrandArea(updatedArea)
+  }
+
+  function addBrandTypeArea(index){
+    const updatedArea = [...brandTypeArea]; 
+    updatedArea[index] = true; 
+    setBrandTypeArea(updatedArea)
+  }
+
+  function addYearArea(index){
+    const updatedArea = [...yearArea]; 
+    updatedArea[index] = true; 
+    setYearArea(updatedArea)
+  }
+
+  function addOtherArea(index){
+    const updatedArea = [...otherArea]; 
+    updatedArea[index] = true; 
+    setOtherArea(updatedArea)
+  }
+
+  function addDescArea(index){
+    const updatedArea = [...descArea]; 
+    updatedArea[index] = true; 
+    setDesArea(updatedArea)
+  }
+
+  const handleOpenMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
 
   const formatDate = (date) => {
     if (date instanceof Date) {
@@ -74,7 +127,7 @@ export default function Histories({
     var _yearField = Number(historyItem.yearField);
     var flag = false;
 
-    if ( cYearField != null) {
+    if (cYearField != null) {
       const _year_ = cYearField.$y;
       if (Number(_year_) < 1900) {
         houseError("Please choose correct Year");
@@ -298,7 +351,7 @@ export default function Histories({
               ))}
             </TextField>
 
-            {homeHistory.imgNeed === true ? (
+            {homeHistory.imgNeed === true && (item.houseImg || imageArea[index])  ? (
               <Grid className={classes.imgLabel}>
                 <label htmlFor={`${historyTypes[item.historyTypeId].hLabel}-imag`}>
                   <Grid>
@@ -334,7 +387,7 @@ export default function Histories({
                 </label>
               </Grid>
             ) : null}
-            {homeHistory.descNeed === true ? (
+            {homeHistory.descNeed === true && (item.desc || descArea[index]) ? (
               <TextField
                 id="standard-multiline-static"
                 label={'Picture Description'}
@@ -346,7 +399,7 @@ export default function Histories({
                 onChange={(e) => setCPicDesc(e.target.value)}
               />
             ) : null}
-            {homeHistory.brandNeed === true ? (
+            {homeHistory.brandNeed === true && (item.houseBrand || brandArea[index]) ? (
               <TextField
                 id="standard-multiline-static"
                 label={'Brand'}
@@ -358,7 +411,7 @@ export default function Histories({
                 onChange={(e) => setCBrand(e.target.value)}
               />
             ) : null}
-            {homeHistory.brandTypeNeed === true ? (
+            {homeHistory.brandTypeNeed === true && (item.brandType || brandTypeArea[index]) ? (
               <TextField
                 id="standard-multiline-static"
                 label={'Brand Type'}
@@ -370,7 +423,7 @@ export default function Histories({
                 onChange={(e) => setCBrandType(e.target.value)}
               />
             ) : null}
-            {homeHistory.yearNeed === true ? (
+            {homeHistory.yearNeed === true && (Number(item.yearField) != 1 || yearArea[index]) ? (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Grid container justify="space-around">
                   <DatePicker
@@ -397,7 +450,7 @@ export default function Histories({
                 </Grid>
               </LocalizationProvider>
             ) : null}
-            {homeHistory.otherInfo && <TextField
+            {homeHistory.otherInfo && (item.otherInfo || otherArea[index]) ? (<TextField
               id="standard-multiline-static"
               label={'Other information'}
               rows={4}
@@ -406,7 +459,7 @@ export default function Histories({
               value={disabledArr[index] === false ? otherInfo : item.otherInfo}
               disabled={disabledArr[index] || loading}
               onChange={(e) => setOtherInfo(e.target.value)}
-            />}
+            />) : null }
             {item.contractId > 0 ? (
               <>
                 <IconButton
@@ -446,6 +499,29 @@ export default function Histories({
                     <IconButton onClick={() => initialConf()}>
                       <CancelIcon />
                     </IconButton>
+                    <IconButton onClick={handleOpenMenu}>
+                      <AddCircleIcon />
+                    </IconButton>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleCloseMenu}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                      }}
+                    >
+                      {homeHistory.imgNeed  && !imageArea[index] && !item.houseImg && <MenuItem onClick={() => {handleCloseMenu(); addImageArea(index);}}>Add Image</MenuItem>}
+                      {homeHistory.brandNeed && !brandArea[index] && !item.houseBrand && <MenuItem onClick={() => {handleCloseMenu(); addBrandArea(index);}}>Add Brand</MenuItem>}
+                      {homeHistory.brandTypeNeed && !brandTypeArea[index] && !item.brandType && <MenuItem onClick={() => {handleCloseMenu(); addBrandTypeArea(index);}}>Add Brand type</MenuItem>}
+                      {homeHistory.yearNeed && !yearArea[index] && !item.year && <MenuItem onClick={() => {handleCloseMenu(); addYearArea(index);}}>Add Date</MenuItem>}
+                      {homeHistory.otherInfo && !otherArea[index] && !item.otherInfo && <MenuItem onClick={() => {handleCloseMenu(); addOtherArea(index);}}>Add Other information</MenuItem>}
+                      {homeHistory.descNeed && !descArea[index] && !item.desc && <MenuItem onClick={() => {handleCloseMenu(); addDescArea(index);}}>Add Description</MenuItem>}
+                    </Menu>
                   </>
                 )}
               </>
