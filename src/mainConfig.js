@@ -12,7 +12,7 @@ export const ERC20Address = '0x6a92D526b158aB254D03c910a124EA247C660D7a';
 export const HouseBusinessAddress = '0xeC5AD0bdFdA5FA6188578bC21A84B37E15C149E4';
 export const MarketplaceAddress = '0x6795BDA1885Dc852eF0e5766775b19D0a114c4f4'
 export const HouseDocAddress = '0x17019852FE78092372D7aaFF263eE9a830a8b662';
-export const StakingAddress = '0xb22224b1975DF124e80B8d8719C9c7BcD412A868';
+export const StakingAddress = '0xCe5cE8Bd023b982E640700b7192EEa81c2700e79';
 export const ThirdPartyAddress = '0x81D5D798Af7F36b353d574781C9c972F1B149530';
 export const OperatorAddress = '0xE36f633eB8Fd1C93399535F517Da5Ffe7aBf0809';
 /*
