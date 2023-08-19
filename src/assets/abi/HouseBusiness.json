@@ -64,25 +64,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_fromTokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_toTokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "BatchMetadataUpdate",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "owner",
@@ -273,19 +254,6 @@
       }
     ],
     "name": "HouseNftBought",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "MetadataUpdate",
     "type": "event"
   },
   {
@@ -613,6 +581,29 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_houseId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_hIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_contractId",
+        "type": "uint256"
+      }
+    ],
+    "name": "connectContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

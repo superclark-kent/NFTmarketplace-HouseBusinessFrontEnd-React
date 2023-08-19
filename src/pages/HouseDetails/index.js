@@ -339,6 +339,53 @@ function HouseDetails(props) {
 		}
 	};
 
+	const handleConnectContract = async (hIndex, contractId) => {
+		const houseID = simpleNFT.houseID;
+		setLoading(true);
+		if (!injected) {
+			const data = houseBusinessContract.methods.connectContract(houseID, hIndex, contractId).encodeABI();
+			const transactionObject = {
+				to: houseBusinessContract.options.address,
+				data
+			};
+			// Send trx data and sign
+			fetch(`${apiURL}/signTransaction`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					transactionObject,
+					user: walletAccount
+				}),
+			})
+				.then(res => {
+					if (res.status !== 200) {
+						return res.json().then(error => {
+							houseError(`Error: ${error.message}`);
+						});
+					}
+					houseSuccess('You connected contract sucessfully!');
+					setLoading(false)
+					loadNFT(houseID);
+				})
+				.catch(err => {
+					setLoading(false)
+					houseError(err)
+				});
+		} else {
+			try {
+				console.log("After", houseID, hIndex, contractId)
+				await houseBusinessContract.methods.connectContract(houseID, hIndex, contractId).send({ from: account });
+				houseSuccess('You connected contract sucessfully!');
+				setLoading(false)
+				loadNFT(houseID);
+			} catch (error) {
+				houseError('Something went wrong!');
+				setLoading(false)
+				console.error(error);
+			}
+		}
+	};
+
 	const handleImageChange = async (e) => {
 		var uploadedImage = e.target.files[0];
 		if (uploadedImage) {
@@ -639,6 +686,7 @@ function HouseDetails(props) {
 							loadNFT={loadNFT}
 							walletAccount={walletAccount}
 							injected={injected}
+							connectContract={handleConnectContract}
 							disconnectContract={handleDisconnectContract}
 						/>
 						{simpleNFT.contributor.currentOwner === `${walletAccount}` ? (

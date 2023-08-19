@@ -8,13 +8,21 @@ dotenv.config();
 
 export const POLLING_INTERVAL = 12000;
 
-export const ERC20Address = '0x6a92D526b158aB254D03c910a124EA247C660D7a';
-export const HouseBusinessAddress = '0xeC5AD0bdFdA5FA6188578bC21A84B37E15C149E4';
-export const MarketplaceAddress = '0x6795BDA1885Dc852eF0e5766775b19D0a114c4f4'
-export const HouseDocAddress = '0x17019852FE78092372D7aaFF263eE9a830a8b662';
-export const StakingAddress = '0xCe5cE8Bd023b982E640700b7192EEa81c2700e79';
-export const ThirdPartyAddress = '0x81D5D798Af7F36b353d574781C9c972F1B149530';
-export const OperatorAddress = '0xE36f633eB8Fd1C93399535F517Da5Ffe7aBf0809';
+export const ERC20Address = '0x9a0e391806C16FE37C06b532956555B74F31b144';
+export const HouseBusinessAddress = '0x7c63Fe06B85704C3db058b10F395095B0D8b353D';
+export const MarketplaceAddress = '0x47b828b985f237456944049ED5551ce8DF399875'
+export const HouseDocAddress = '0x5fF4a96996523F47851865a12925211C0088fa37';
+export const StakingAddress = '0x14846AFd92cb9e0aCC2d8cddE5f6eF0F173d344d';
+export const ThirdPartyAddress = '0x94C14Bf448973ED68063492123Ae2a8d33B6FA6A';
+export const OperatorAddress = '0xC90434Ea7c1cea82e1bF9865b9D326520096D84D';
+
+// export const ERC20Address = '0x6a92D526b158aB254D03c910a124EA247C660D7a';
+// export const HouseBusinessAddress = '0xeC5AD0bdFdA5FA6188578bC21A84B37E15C149E4';
+// export const MarketplaceAddress = '0x6795BDA1885Dc852eF0e5766775b19D0a114c4f4'
+// export const HouseDocAddress = '0x17019852FE78092372D7aaFF263eE9a830a8b662';
+// export const StakingAddress = '0xCe5cE8Bd023b982E640700b7192EEa81c2700e79';
+// export const ThirdPartyAddress = '0x81D5D798Af7F36b353d574781C9c972F1B149530';
+// export const OperatorAddress = '0xE36f633eB8Fd1C93399535F517Da5Ffe7aBf0809';
 /*
 export const ERC20Address = '0xbE73C7ab8d4f31b87CD9E14a8760689e093782ED';
 export const HouseBusinessAddress = '0xB11fF49650e613d034995e0891b7C1aF062E6736';

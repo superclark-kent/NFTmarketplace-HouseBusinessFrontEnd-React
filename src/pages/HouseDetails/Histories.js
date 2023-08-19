@@ -345,6 +345,9 @@ export default function Histories({
     <Grid>
       {cHistories.map((item, index) => {
         var homeHistory = historyTypes[item.historyTypeId];
+        var tpContractId = null;
+        contracts.map((tp, idx) => { if(tp.label.split(" ")[0] == homeHistory.hLabel){tpContractId = tp.contractId;return;} });
+        console.log("TP", tpContractId)
         return (
           <ListItem className={classes.historyItem} key={index} component="div" disablePadding>
             <TextField
@@ -528,6 +531,7 @@ export default function Histories({
                         horizontal: 'right',
                       }}
                     >
+                      {item.contractId == 0 && tpContractId && <MenuItem onClick={() => {handleCloseMenu(); connectContract(index, tpContractId) }}>Add contract</MenuItem>}
                       {homeHistory.imgNeed  && !imageArea[index] && !item.houseImg && <MenuItem onClick={() => {handleCloseMenu(); addImageArea(index);}}>Add Image</MenuItem>}
                       {homeHistory.brandNeed && !brandArea[index] && !item.houseBrand && <MenuItem onClick={() => {handleCloseMenu(); addBrandArea(index);}}>Add Brand</MenuItem>}
                       {homeHistory.brandTypeNeed && !brandTypeArea[index] && !item.brandType && <MenuItem onClick={() => {handleCloseMenu(); addBrandTypeArea(index);}}>Add Brand type</MenuItem>}
