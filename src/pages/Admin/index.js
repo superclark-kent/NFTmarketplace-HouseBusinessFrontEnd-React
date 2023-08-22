@@ -222,7 +222,7 @@ const Admin = (props) => {
 
   const handleSetPenalty = async () => {
     setLoading(true);
-    var penaltyBigNum = BigNumber.from(`${Number(penalty) * 10 ** 18}`);
+    var penaltyBigNum = BigNumber.from(`${Number(penalty)}`);
     try {
       await stakingContract.methods.setPenalty(penaltyBigNum).send({ from: account });
       houseSuccess('Changed Success');
