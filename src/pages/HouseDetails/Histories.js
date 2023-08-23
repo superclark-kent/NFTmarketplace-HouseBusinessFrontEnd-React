@@ -25,7 +25,6 @@ import { useHouseBusinessContract } from 'hooks/useContractHelpers';
 import { houseError, houseInfo, houseSuccess } from 'hooks/useToast';
 import { apiURL, secretKey } from 'mainConfig';
 import FileUpload from 'utils/ipfs';
-import "./style.css";
 
 const StyledInput = styled('input')({
   display: 'none',
@@ -575,12 +574,14 @@ export default function Histories({
         />
       </Grid>
       <Dialog
+        maxWidth='lg'
+        fullWidth={true}
         open={openModal}
         onClose={() => { setOpenModal(false) }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogContent>
+        <DialogContent xl={6} md={12}>
           <DialogContentText id="alert-dialog-description">
             Please select a contract.
           </DialogContentText>
@@ -609,7 +610,7 @@ export default function Histories({
           </TextField>
           <LoadingButton
             style={{ height: '55px' }}
-              onClick={() => { connectContract(index, contractUnitId);setOpenModal(false)  }}
+            onClick={() => { connectContract(index, contractUnitId); setOpenModal(false) }}
             variant="contained"
           >
             CONNECT A CONTRACT
