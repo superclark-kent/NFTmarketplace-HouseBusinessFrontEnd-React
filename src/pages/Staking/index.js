@@ -244,7 +244,8 @@ function Staking(props) {
       item = cItem;
     }
 
-    setLoading(true);
+    setOpen(false)
+    // setLoading(true);
 
     if (!account) {
       const data = stakingContract.methods.unstake(item.houseID, walletAccount).encodeABI();
@@ -275,7 +276,8 @@ function Staking(props) {
       });
     } else {
       try {
-        await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account })
+        await stakingContract.methods.unstake(item.houseID, walletAccount).send({ from: account });
+        loadNFTs();
       } catch (error) {
         console.log(error);
       }
@@ -403,7 +405,7 @@ function Staking(props) {
                           variant="outlined"
                           onClick={async () => {
                             var flag = await stakingContract.methods.stakingFinished(item.houseID, walletAccount).call();
-                            if (flag === false) {
+                            if (flag) {
                               setCItem(item);
                               handleConfirmOpen();
                             } else {
