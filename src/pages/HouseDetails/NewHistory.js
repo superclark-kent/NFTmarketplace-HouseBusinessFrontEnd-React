@@ -81,7 +81,7 @@ export default function NewHistory({
         }
         )}
       </TextField>
-      {homeHistory ? (
+      {hID != "0" && homeHistory ? (
         <>
           {homeHistory.connectContract === true ? (
             <ConnectContract
@@ -184,16 +184,18 @@ export default function NewHistory({
           />}
         </>
       ) : null}
-      <LoadingButton
-        className={classes.nftHouseButton}
-        onClick={() => handleAddHistory()}
-        endIcon={<SaveAsIcon />}
-        loading={loading}
-        loadingPosition="end"
-        variant="contained"
-      >
-        Add History
-      </LoadingButton>
+      {
+        hID != "0" && <LoadingButton
+          className={classes.nftHouseButton}
+          onClick={() => handleAddHistory()}
+          endIcon={<SaveAsIcon />}
+          loading={loading}
+          loadingPosition="end"
+          variant="contained"
+        >
+          Add History
+        </LoadingButton>
+      }
     </Grid>
   );
 }
