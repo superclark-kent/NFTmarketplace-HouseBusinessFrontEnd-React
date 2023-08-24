@@ -41,7 +41,6 @@ export default function NewHistory({
   handleConnectContract,
 }) {
   const [homeHistory, setHomeHistory] = useState(null);
-  const [newHistory, setNewHistory] = useState(false);
 
   const formatDate = (date) => {
     if (date instanceof Date) {
@@ -59,41 +58,30 @@ export default function NewHistory({
   return (
     <Grid className={classes.addHistory}>
       <Box component={'h3'}>New History or Event</Box>
-      <div className={classes.historyItem}>
-        <TextField
-          className={classes.listhistoryType}
-          id="filled-select-currency"
-          select
-          label="History Type"
-          value={hID}
-          onChange={(e) => {
-            setHID(e.target.value);
-            setCContract(0);
-          }}
-          variant="filled"
-        >
-          {historyTypes.map((historyItem, hIndex) => {
-            return (
-              !oldHistoryTypeIds.includes(`${hIndex}`) &&
-              <MenuItem key={hIndex} value={hIndex}>
-                {historyItem.hLabel}
-              </MenuItem>
-            )
-          }
-          )}
-        </TextField>
-        <LoadingButton
-          className={classes.listhistoryType}
-          style={{ height: '55px' }}
-          disabled={newHistory}
-          onClick={(e) => setNewHistory(true)}
-          variant="contained"
-        >
-          ADD NEW HISTORY
-        </LoadingButton>
-
-      </div>
-      {homeHistory && hID != '0' && newHistory == true && (
+      <TextField
+        className={classes.historyType}
+        id="filled-select-currency"
+        select
+        label="History Type"
+        value={hID}
+        onChange={(e) => {
+          setHID(e.target.value);
+          setCContract(0);
+        }}
+        helperText="Please select your history type"
+        variant="filled"
+      >
+        {historyTypes.map((historyItem, hIndex) => {
+          return (
+            !oldHistoryTypeIds.includes(`${hIndex}`) &&
+            <MenuItem key={hIndex} value={hIndex}>
+              {historyItem.hLabel}
+            </MenuItem>
+          )
+        }
+        )}
+      </TextField>
+      {homeHistory ? (
         <>
           {homeHistory.connectContract === true ? (
             <ConnectContract
@@ -194,19 +182,18 @@ export default function NewHistory({
             className={classes.addHistoryField}
             onChange={(e) => setOtherInfo(e.target.value)}
           />}
-          <LoadingButton
-            className={classes.nftHouseButton}
-            onClick={() => handleAddHistory()}
-            endIcon={<SaveAsIcon />}
-            loading={loading}
-            loadingPosition="end"
-            variant="contained"
-          >
-            Add History
-          </LoadingButton>
         </>
-      )}
-
+      ) : null}
+      <LoadingButton
+        className={classes.nftHouseButton}
+        onClick={() => handleAddHistory()}
+        endIcon={<SaveAsIcon />}
+        loading={loading}
+        loadingPosition="end"
+        variant="contained"
+      >
+        Add History
+      </LoadingButton>
     </Grid>
   );
 }

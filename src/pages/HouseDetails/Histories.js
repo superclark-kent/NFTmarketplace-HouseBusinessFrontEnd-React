@@ -373,12 +373,11 @@ export default function Histories({
               <TextField
                 className={classes.listhistoryType}
                 id="filled-select-currency"
-                select
                 label="History Type"
-                value={disabledArr[index] === false ? changinghistoryType : homeHistory.hLabel}
+                value={homeHistory.hLabel}
                 onChange={(e) => setChangingHistoryType(e.target.value)}
                 variant="filled"
-                disabled={disabledArr[index] || loading}
+                disabled={1}
               >
                 {historyTypes.map((option) => (
                   <MenuItem key={option.hLabel} value={option.hLabel}>
