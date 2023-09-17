@@ -1,57 +1,61 @@
-# House Business NFT Marketplace Smart Contract
-Welcome to the official smart contract repository for the House Business NFT Marketplace. Our decentralized platform allows users to mint, trade, and manage real estate NFTs with a focus on transparency, security, and ease of use.
-(This repository was forked form my business repository of bitbucket)
+# NFT Marketplace - House Business Frontend (React)
+A robust frontend interface for the NFT marketplace that emphasizes real estate and house businesses. Built leveraging React's component-based architecture, integrated with Web3 and the Ethereum blockchain.
+![Screenshot_62](https://github.com/stuartgregorysharpe/NFTmarketplace-HouseBusinessFrontEnd-React/assets/137684294/8f9b649e-b982-4111-a630-3b9dac79fdd2)
 
-# House Business NFT Marketplace
-![Screenshot_62](https://github.com/stuartgregorysharpe/NFT.MarketPlace-HouseBusiness/assets/137684294/589bc891-5ee7-46bc-996d-3f1d1687db8e)
+# Table of Contents
+Technologies Used
+Directory Structure
+Installation & Setup
+API Integration
+Contributing
+License
 
-# Here is Front end: https://github.com/stuartgregorysharpe/NFTmarketplace-HouseBusinessFrontEnd-React
+# Technologies Used
+React: For building the user interface components.
+Redux: State management.
+Web3.js: For Ethereum blockchain interaction.
+IPFS: For decentralized storage of assets and metadata.
+TailwindCSS/SCSS: Styling and layout.
 
-# Features
-Minting: Create unique, tamper-proof digital representations of real estate properties as NFTs.
+# Directory Structure
+📦NFTmarketplace-HouseBusinessFrontEnd-React
+ ┣ 📂src
+ ┃ ┣ 📂components
+ ┃ ┣ 📂redux
+ ┃ ┣ 📂services
+ ┃ ┗ ...
+ ┣ 📜.env
+ ┣ 📜package.json
+ ┗ ...
 
-Trading: Buy and sell NFTs within the marketplace through a secure and trustless system.
+# Installation & Setup
+Environment Variables: Copy .env.example to .env and adjust variables if necessary.
 
-Ownership Verification: Verify property ownership instantly with our decentralized verification process.
-
-Royalty System: Ensures original minters get a commission from secondary sales.
-
-...
-# Getting Started
-Prerequisites
-Ethereum Wallet such as MetaMask
-ETH for gas fees
-Familiarity with Ethereum smart contracts
-Using the Contract
-Network: Deployed on Ethereum mainnet.
-Contract Address: 0xYourContractAddressHere
-Interface: The contract adheres to the ERC-721 standard. Use tools like Etherscan to interact directly or visit our official platform.
-Development
-
-# Setup
-Install Node.js and npm.
-Install Truffle globally:
-
-npm install -g truffle
-Installation
-
-cd house-business-nft
-Install dependencies:
-
+# Install Dependencies:
 npm install
-Compile the smart contract:
+Blockchain Setup:
 
-# truffle compile
-Testing
-Execute tests with:
+Ensure you have MetaMask or another wallet provider set up for local development. Configure it to connect to your local Ethereum testnet or a public testnet (e.g., Rinkeby).
 
+# Run the Development Server:
+npm run dev
+This starts the webpack dev server on http://localhost:3000.
 
-# truffle test
-Security and Audits
-Our smart contract has undergone rigorous testing and has been audited by [Audit Firm Name]. You can find the complete audit report here.
+# API Integration
+This frontend integrates with a backend through RESTful APIs. Refer to the services directory for API endpoints and their descriptions.
+
+# Endpoints:
+/api/nft: Fetch all NFT listings.
+/api/nft/:id: Fetch a specific NFT by its ID.
+(Add more endpoints and details if necessary)
 
 # Contributing
-Contributions are always welcome! For major changes, please open an issue first to discuss the proposed change. Please ensure that your code adheres to our standards and passes existing tests.
+Fork the repository and create your branch from main.
+Install dependencies: npm install
+Make sure your code passes linting: npm run lint
+Push the branch and submit a pull request.
+Please read our contribution guidelines for detailed steps.
 
 # License
-This project is licensed under the MIT License.
+This project is licensed under the MIT License. See the LICENSE.md file for details.
+
