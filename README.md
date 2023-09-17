@@ -10,7 +10,9 @@ Welcome to the official smart contract repository for the House Business NFT Mar
 - npm start
   
 # House Business NFT Marketplace
-![Screenshot_62](https://github.com/stuartgregorysharpe/NFT.MarketPlace-HouseBusiness/assets/137684294/589bc891-5ee7-46bc-996d-3f1d1687db8e)
+
+![Screenshot_32](https://github.com/stuartgregorysharpe/NFTmarketplace-HouseBusinessFrontEnd-React/assets/137684294/193ba74f-ff4d-4cdc-aec4-4888f81466b2)
+
 
 # Here is Front end: https://github.com/stuartgregorysharpe/NFT.MarketPlace-HouseBusiness
 
